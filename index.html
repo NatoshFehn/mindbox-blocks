@@ -255,7 +255,9 @@ h3 { margin: 18px 0 6px; font-size: 15px; }
 
 .letter-info { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
 .letter-info b { word-break: break-all; }
-.letter-info .auto-split { flex-basis: 100%; padding: 8px 12px; border-radius: 8px; background: var(--accent-soft); color: var(--ink); font-size: 14px; }
+.letter-info .width-pick { display: inline-flex; align-items: center; gap: 6px; }
+.letter-info .width-pick input { width: 76px; border: 1px solid var(--line); border-radius: 7px; padding: 3px 6px; background: var(--panel); }
+.letter-info .auto-split, .letter-info .fit-note { flex-basis: 100%; padding: 8px 12px; border-radius: 8px; background: var(--accent-soft); color: var(--ink); font-size: 14px; }
 
 .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
@@ -2653,9 +2655,9 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         stack.push({ kind: 'if', tk });
         const next = tokens.slice(i + 1).find((x) => x.t !== 'text' || /\S/.test(x.s));
         if (next && (next.t !== 'text' || !/^\s*</.test(next.s))) {
-          if (!(next.t === 'stmt' && /^(if|for)\b/i.test(next.body))) {
-            if (/^if\s+editor\./i.test(b)) err('cond', 'После ' + tk.s + ' сразу должен идти HTML-тег. Mindbox: «' + RULES.errors.conditionStart + '»');
-            else warn('cond', 'Условие ' + tk.s + ' было в письме до нас: оно показывает разный текст разным получателям. Сразу после него идёт текст, а Mindbox ждёт там тег и может не принять блок: «' + RULES.errors.conditionStart + '» Если не примет — в HTML оберните текст после @{if …} и после @{else} в <span>…</span>: вид письма не изменится.');
+          if (/^if\s+editor\./i.test(b)) err('cond', 'После ' + tk.s + ' сразу должен идти HTML-тег, а идёт ' + (next.t === 'stmt' ? 'другое условие ' + next.s : 'текст') + '. Mindbox: «' + RULES.errors.conditionStart + '»');
+          else if (!(next.t === 'stmt' && /^(if|for)\b/i.test(next.body))) {
+            warn('cond', 'Условие ' + tk.s + ' было в письме до нас: оно показывает разный текст разным получателям. Сразу после него идёт текст, а Mindbox ждёт там тег и может не принять блок: «' + RULES.errors.conditionStart + '» Если не примет — в HTML оберните текст после @{if …} и после @{else} в <span>…</span>: вид письма не изменится.');
           }
         }
       } else if (/^else\b/i.test(b)) {
@@ -3329,6 +3331,120 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return null;
   }
 
+  function sideBox(v, len) {
+    const imp = /!important/i.test(v) ? ' !important' : '';
+    const parts = String(v).replace(/!important/i, '').trim().split(/\s+/).filter(Boolean);
+    if (!parts.length || parts.length > 4 || parts.some((x) => px(x) == null && !/^(auto|\d+(\.\d+)?%)$/i.test(x))) return null;
+    if (parts.length === 1) {
+      const one = len(parts[0]);
+      return one == null || one === parts[0] ? null : parts[0] + ' ' + one + imp;
+    }
+    const out = parts.slice();
+    for (const i of parts.length === 4 ? [1, 3] : [1]) {
+      const x = len(out[i]);
+      if (x != null) out[i] = x;
+    }
+    return out.join(' ') + imp;
+  }
+
+  const inRanges = (ranges, a, b) => ranges.some((r) => a >= r[0] && b <= r[1]);
+
+  function frozenBlocks(src, blocks) {
+    if (!blocks) {
+      const doc = parse(src);
+      fixEnds(doc);
+      blocks = findBlocks(src, doc);
+    }
+    return blocks.filter((b) => isTemplatedSrc(src.slice(b.node.start, b.node.end))).map((b) => [b.node.start, b.node.end]);
+  }
+
+  function fitWidth(src, target, frozen) {
+    const doc = parse(src);
+    fixEnds(doc);
+    const nodes = [];
+    walk(doc, (n) => {
+      if (n.type === 'el' && /^(head|style|script|title)$/.test(n.tag)) return false;
+      if (frozen && inRanges(frozen, n.start, n.end)) return false;
+      if (n.type === 'el' || n.type === 'comment') nodes.push(n);
+    });
+    let from = 0;
+    for (const n of nodes) {
+      if (n.type !== 'el' || n.tag === 'img') continue;
+      const w = px(attrVal(n, 'width'));
+      if (w > from) from = w;
+      for (const d of styleDecls(src, attr(n, 'style'))) {
+        if ((d.prop === 'width' || d.prop === 'max-width') && px(d.value) > from) from = px(d.value);
+      }
+    }
+    if (!(from > target) || from > 1000) return null;
+    const sc = (v) => (v > 0 ? Math.max(1, Math.floor((v * target) / from + 1e-9)) : v);
+    const len = (v) => (px(v) == null ? null : String(v).replace(/-?\d+(?:\.\d+)?/, (m) => String(sc(parseFloat(m)))));
+    const edits = [];
+    for (const n of nodes) {
+      if (n.type === 'comment') {
+        const t = src.slice(n.start, n.end);
+        const u = t.replace(/(\swidth\s*=\s*["']?)(\d+(?:\.\d+)?)/gi, (m, a, v) => a + sc(parseFloat(v)))
+          .replace(/((?:max-|min-)?width\s*:\s*)(\d+(?:\.\d+)?)(?=px)/gi, (m, a, v) => a + sc(parseFloat(v)));
+        if (u !== t) edits.push({ start: n.start, end: n.end, text: u });
+        continue;
+      }
+      const img = n.tag === 'img';
+      for (const a of n.attrs) {
+        if (a.raw || a.vStart == null) continue;
+        if (a.name === 'style') {
+          for (const d of styleDecls(src, a)) {
+            let v = null;
+            if (/^(min-|max-)?width$/.test(d.prop) || (img && /^(min-|max-)?height$/.test(d.prop)) || /^(padding|margin)-(left|right)$/.test(d.prop)) v = len(d.value);
+            else if (d.prop === 'padding' || d.prop === 'margin') v = sideBox(d.value, len);
+            if (v != null && v !== d.value) edits.push({ start: d.vStart, end: d.vEnd, text: v });
+          }
+        } else if (a.name === 'width' || a.name === 'cellpadding' || a.name === 'cellspacing' || (img && a.name === 'height')) {
+          const v = len(a.value);
+          if (v != null && v !== a.value) edits.push({ start: a.vStart, end: a.vEnd, text: v });
+        }
+      }
+    }
+    return { src: spliceEdits(src, 0, src.length, edits), from, to: target };
+  }
+
+  const INLINE_TAGS = /^(a|abbr|b|big|br|em|font|i|img|nobr|s|small|span|strike|strong|sub|sup|u|wbr)$/;
+
+  function inlineOnly(s) {
+    if (/\x3C!--/.test(s)) return false;
+    const open = new Map();
+    for (const m of s.matchAll(/<(\/?)([a-zA-Z][\w-]*)[^>]*?(\/?)>/g)) {
+      const tag = m[2].toLowerCase();
+      if (!INLINE_TAGS.test(tag)) return false;
+      if (m[3] || /^(br|img|wbr)$/.test(tag)) continue;
+      open.set(tag, (open.get(tag) || 0) + (m[1] ? -1 : 1));
+      if (open.get(tag) < 0) return false;
+    }
+    return [...open.values()].every((x) => x === 0);
+  }
+
+  function wrapCondText(src, frozen) {
+    const stmts = scanTemplate(src).filter((t) => t.t === 'stmt' && !inRanges(frozen || [], t.pos, t.pos + t.s.length));
+    const edits = [];
+    for (let i = 0; i < stmts.length; i++) {
+      const tk = stmts[i];
+      const body = tk.body.replace(/\s+/g, ' ').trim();
+      if (!/^(if|else)\b/i.test(body) || /^if\s+editor\./i.test(body)) continue;
+      const before = src.slice(0, tk.pos);
+      if (before.lastIndexOf('<') > before.lastIndexOf('>')) continue;
+      if (before.lastIndexOf('\x3C!--') > before.lastIndexOf('-->')) continue;
+      const low = before.toLowerCase();
+      if (Math.max(low.lastIndexOf('<style'), low.lastIndexOf('\x3Cscript'), low.lastIndexOf('<title')) > Math.max(low.lastIndexOf('</style'), low.lastIndexOf('\x3C/script'), low.lastIndexOf('</title'))) continue;
+      const from = tk.pos + tk.s.length;
+      const to = i + 1 < stmts.length ? stmts[i + 1].pos : src.length;
+      const seg = src.slice(from, to);
+      const lead = seg.length - seg.trimStart().length;
+      const text = seg.trim();
+      if (!text || text[0] === '<' || !inlineOnly(text)) continue;
+      edits.push({ start: from + lead, end: from + lead + text.length, text: '<span>' + text + '</span>' });
+    }
+    return edits.length ? spliceEdits(src, 0, src.length, edits) : src;
+  }
+
   function loadLetter(input, opts) {
     const auto = !opts || opts.auto !== false;
     let src = input;
@@ -3343,6 +3459,14 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       if (!next) break;
       splits.push({ reason: next.reason, title: next.title, parts: next.parts });
       src = next.src;
+    }
+    const fit = opts && opts.width ? fitWidth(src, opts.width, frozenBlocks(src, blocks)) : null;
+    const wrapped = wrapCondText(fit ? fit.src : src, frozenBlocks(fit ? fit.src : src, fit ? null : blocks));
+    if (wrapped !== src) {
+      src = wrapped;
+      doc = parse(src);
+      fixEnds(doc);
+      blocks = findBlocks(src, doc);
     }
     const sameAs = similarBlocks(src, blocks);
     const usedNames = new Map();
@@ -3374,7 +3498,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const plan = x.templated || blocks[i].source === 'marker' ? null : splitPlan(src, blocks[i].node);
       x.parts = plan ? plan.cuts.length + 1 : 0;
     });
-    const letter = { src, original: input, doc, blocks, list, splits, styles: headStyles(src, doc), bodyStyle: bodyStyle(src, doc) };
+    const letter = { src, original: input, fit: fit ? { from: fit.from, to: fit.to } : null, doc, blocks, list, splits, styles: headStyles(src, doc), bodyStyle: bodyStyle(src, doc) };
     list.forEach((x, i) => {
       x.mergeNext = canMerge(letter, i);
     });
@@ -3483,6 +3607,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     if (!plan) throw new Error('Блок ' + (index + 1) + ' нельзя разделить, не меняя вёрстку.');
     const next = loadLetter(rewriteSplit(letter.src, letter.blocks, index, plan), { auto: false });
     next.original = letter.original;
+    next.fit = letter.fit;
     next.splits = letter.splits;
     return next;
   }
@@ -3641,9 +3766,13 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     }
   };
 
+  const MB_WIDTH = 600;
+  const okWidth = (v) => (Number.isInteger(v) && v >= 320 && v <= 1000 ? v : MB_WIDTH);
   const S = {
     letter: null,
     file: '',
+    raw: '',
+    width: okWidth(store.get('width', MB_WIDTH)),
     groups: [],
     opts: Object.assign({}, DEFAULTS, store.get('opts', {})),
     results: [],
@@ -3709,7 +3838,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     html = noDynamicUrls(html);
     return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
       (styles || '').replace(/(min|max)-device-width/gi, '$1-width') + '<style>html,body{margin:0;padding:0}</style></head><body style="' + esc(bodyStyle || '') +
-      '"><div style="max-width:660px;margin:0 auto">' + html + '</div></body></html>';
+      '"><div style="max-width:' + S.width + 'px;margin:0 auto">' + html + '</div></body></html>';
   }
 
   function frame(doc, onSize) {
@@ -3750,10 +3879,10 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     io.observe(el);
   }
 
-  const WIDTH = { desktop: 660, phone: 375 };
+  const deviceWidth = () => (S.device === 'phone' ? 375 : S.width + 60);
 
   function fitFrame(box, doc) {
-    const w = WIDTH[S.device] || WIDTH.desktop;
+    const w = deviceWidth();
     const fit = h('div', { class: 'fit' });
     let H = 60;
     let f = null;
@@ -3883,31 +4012,34 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     });
     lazy(box, () => {
       const f = frame(pageDoc(groupHtml(g), S.letter.styles, S.letter.bodyStyle), (H) => {
-        const sc = (box.clientWidth || 320) / 640;
+        const sc = (box.clientWidth || 320) / (S.width + 40);
         f.style.transform = 'scale(' + sc + ')';
         f.style.height = H + 'px';
         box.style.height = Math.ceil(Math.min(H * sc, 240)) + 'px';
         box.classList.toggle('cut', H * sc > 240);
       });
       f.style.transform = 'scale(.5)';
+      f.style.width = (S.width + 40) + 'px';
       box.append(f);
     });
     return box;
   }
 
-  function openLetter(src, name) {
+  function openLetter(src, name, keep) {
     let L;
     try {
-      L = E.loadLetter(src);
+      L = E.loadLetter(src, { width: S.width });
     } catch (e) {
       return fail('Не получилось прочитать письмо: ' + e.message);
     }
     if (!L.blocks.length) return fail('В письме не нашлось блоков. Проверьте, что это HTML письма целиком.');
+    const old = keep && S.letter && S.letter.list.length === L.list.length ? S.groups : null;
     S.letter = L;
+    S.raw = src;
     S.file = name || 'письмо';
     S.results = [];
     S.cur = 0;
-    S.groups = L.list.map((it) => ({ ids: [it.index], on: it.sameAs == null && !it.templated }));
+    S.groups = old || L.list.map((it) => ({ ids: [it.index], on: it.sameAs == null && !it.templated }));
     $('#drop').hidden = true;
     $('#intro').hidden = true;
     $('#paste-box').hidden = true;
@@ -3934,6 +4066,14 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       h('span', null, 'Письмо: ', h('b', null, S.file)),
       h('span', { class: 'muted' }, 'Нашлось блоков: ' + L.blocks.length),
       h('button', { type: 'button', class: 'link', onclick: reset }, 'Взять другое письмо'),
+      h('label', { class: 'width-pick', title: 'Блоки в Mindbox — 600 px, как в примерах справки Mindbox' }, 'Ширина в Mindbox ',
+        h('input', { type: 'number', min: '320', max: '1000', step: '10', value: String(S.width), onchange: (e) => {
+          S.width = okWidth(Math.round(Number(e.target.value)));
+          e.target.value = String(S.width);
+          store.set('width', S.width);
+          openLetter(S.raw, S.file, true);
+        } }), ' px'),
+      L.fit ? h('div', { class: 'fit-note' }, 'Письмо шире Mindbox: ' + L.fit.from + ' px. Ширины и боковые отступы уменьшили пропорционально до ' + L.fit.to + ' px — иначе в Mindbox колонки встанут друг под друга. Шрифты и отступы сверху и снизу — как в письме.') : null,
       L.splits.length ? h('div', { class: 'auto-split' }, L.splits.map(splitNote).join('. ') + '. Вёрстка письма от этого не меняется.') : null);
   }
 
