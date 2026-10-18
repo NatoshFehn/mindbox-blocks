@@ -1,0 +1,4432 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Блоки для Mindbox</title>
+<script>try{var t=JSON.parse(localStorage.getItem('mb-blocks:theme'));if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<style>
+:root {
+  --bg: #f6f5f2;
+  --panel: #ffffff;
+  --ink: #1d1d1f;
+  --muted: #6b6b70;
+  --line: #e2e0da;
+  --accent: #2563eb;
+  --accent-ink: #ffffff;
+  --accent-soft: #e8efff;
+  --ok: #17703d;
+  --ok-soft: #e3f4ea;
+  --warn: #8a5200;
+  --warn-soft: #fff1d6;
+  --err: #c62f2f;
+  --err-soft: #fde6e6;
+  --code-bg: #f3f2ee;
+  --mark: #fff0a8;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 4px 16px rgba(0, 0, 0, .05);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17181b;
+    --panel: #212226;
+    --ink: #ececef;
+    --muted: #a0a0a8;
+    --line: #34353b;
+    --accent: #6d9bff;
+    --accent-ink: #0d1530;
+    --accent-soft: #233056;
+    --ok: #5fd08f;
+    --ok-soft: #1d3326;
+    --warn: #f0b860;
+    --warn-soft: #3a2d15;
+    --err: #ff7b7b;
+    --err-soft: #3d1f1f;
+    --code-bg: #1a1b1e;
+    --mark: #5a4b00;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #17181b;
+  --panel: #212226;
+  --ink: #ececef;
+  --muted: #a0a0a8;
+  --line: #34353b;
+  --accent: #6d9bff;
+  --accent-ink: #0d1530;
+  --accent-soft: #233056;
+  --ok: #5fd08f;
+  --ok-soft: #1d3326;
+  --warn: #f0b860;
+  --warn-soft: #3a2d15;
+  --err: #ff7b7b;
+  --err-soft: #3d1f1f;
+  --code-bg: #1a1b1e;
+  --mark: #5a4b00;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html, body { margin: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+button, input, textarea, select { font: inherit; color: inherit; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding: 20px max(16px, calc((100% - 1200px) / 2)) 0;
+}
+
+.brand h1 { margin: 0; font-size: 24px; letter-spacing: -.01em; }
+.brand p { margin: 2px 0 0; color: var(--muted); }
+
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+
+.top-side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+
+.theme {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 4px 12px 4px 5px;
+  cursor: pointer;
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+
+.theme:hover { border-color: var(--accent); }
+
+.theme .sw {
+  position: relative;
+  flex: none;
+  width: 32px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--line);
+  transition: background .15s;
+}
+
+.theme .sw::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+  transition: transform .15s;
+}
+
+.theme[aria-checked="true"] .sw { background: var(--accent); }
+.theme[aria-checked="true"] .sw::after { transform: translateX(14px); }
+
+@media (max-width: 920px) {
+  .top { position: relative; }
+  .brand { padding-right: 150px; }
+  .top-side { width: 100%; align-items: stretch; }
+  .top-side .theme { position: absolute; top: 20px; right: 16px; }
+}
+
+@media (max-width: 520px) {
+  .brand { padding-right: 56px; }
+  .theme { padding: 5px; }
+  .theme .theme-label { display: none; }
+}
+
+.tabs button {
+  border: 1px solid var(--line);
+  border-bottom: none;
+  background: transparent;
+  padding: 8px 14px;
+  border-radius: 10px 10px 0 0;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.tabs button[aria-selected="true"] { background: var(--panel); color: var(--ink); font-weight: 600; }
+
+main { padding: 0 max(16px, calc((100% - 1200px) / 2)) 32px; }
+
+.step {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin: 14px 0;
+  box-shadow: var(--shadow);
+}
+
+.tab > .step:first-child { margin-top: 0; border-top-left-radius: 0; }
+
+h2 { margin: 0 0 12px; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+h3 { margin: 18px 0 6px; font-size: 15px; }
+
+.num {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 14px;
+}
+
+.muted { color: var(--muted); }
+.hint { color: var(--muted); margin: 6px 0 12px; font-size: 14px; }
+
+.btn {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 9px;
+  padding: 7px 13px;
+  cursor: pointer;
+}
+
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.btn.big { padding: 11px 22px; font-size: 16px; }
+.btn:disabled { opacity: .5; cursor: default; }
+
+.link {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.drop {
+  border: 2px dashed var(--line);
+  border-radius: 12px;
+  padding: 28px 16px;
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  text-align: center;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.drop strong { color: var(--ink); font-size: 16px; }
+.drop:hover { border-color: var(--accent); }
+.intro { text-align: center; margin: 12px auto 0; max-width: 620px; }
+.drop.over { border-color: var(--accent); background: var(--accent-soft); }
+
+.paste-box textarea, .field textarea {
+  width: 100%;
+  min-height: 180px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+  background: var(--code-bg);
+  font: 12.5px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  resize: vertical;
+}
+
+.row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+
+.letter-info { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.letter-info b { word-break: break-all; }
+.letter-info .auto-split { flex-basis: 100%; padding: 8px 12px; border-radius: 8px; background: var(--accent-soft); color: var(--ink); font-size: 14px; }
+
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+.blocks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr));
+  gap: 12px;
+}
+
+.bcard {
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  position: relative;
+}
+
+.bcard.on { border-color: var(--accent); background: var(--panel); }
+.bcard.off { border-style: dashed; background: var(--bg); }
+.bcard.off .thumb { opacity: .45; }
+.bcard.off .btitle { color: var(--muted); }
+
+.bhead { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; }
+.bhead input { margin-top: 3px; width: 17px; height: 17px; flex: none; }
+.bnum { font-weight: 700; color: var(--muted); }
+.btitle { font-weight: 600; overflow-wrap: anywhere; }
+.bcat { display: block; font-size: 12.5px; color: var(--muted); font-weight: 400; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+
+.chip {
+  font-size: 12px;
+  padding: 1px 8px;
+  border-radius: 20px;
+  background: var(--code-bg);
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+
+.chip.warn { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+
+.thumb {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  height: 120px;
+}
+
+.thumb iframe {
+  border: 0;
+  width: 640px;
+  transform-origin: 0 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.thumb.cut::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 28px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, .95));
+}
+
+.bactions { display: flex; flex-wrap: wrap; gap: 10px; font-size: 13.5px; }
+
+.opts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+  gap: 4px 16px;
+}
+
+.make-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 14px 0;
+  padding: 10px 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 -2px 14px rgba(0, 0, 0, .08);
+}
+
+.make-bar #sel-count { color: var(--muted); }
+
+.opt { display: flex; gap: 9px; align-items: flex-start; padding: 6px 4px; cursor: pointer; }
+.opt input { margin-top: 3px; width: 17px; height: 17px; flex: none; }
+.opt b { font-weight: 600; display: block; }
+.opt small { color: var(--muted); font-size: 13px; display: block; }
+
+
+.never {
+  margin: 14px 0;
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: var(--code-bg);
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+.result-bar { display: flex; gap: 8px 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+#result-sum { font-weight: 600; }
+
+.result { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 16px; align-items: start; }
+
+@media (max-width: 860px) {
+  .result { grid-template-columns: minmax(0, 1fr); }
+}
+
+.res-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+
+.res-list button {
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  background: none;
+  border-radius: 9px;
+  padding: 7px 9px;
+  cursor: pointer;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.res-list button[aria-current="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.res-list button { align-items: flex-start; }
+.res-list .dot { margin-top: 5px; }
+.res-list .rtext { display: grid; min-width: 0; }
+.res-list .rname { overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+.res-list .rtitle { color: var(--muted); font-size: 12.5px; overflow-wrap: anywhere; }
+.res-list .rstatus { font-size: 12.5px; font-weight: 600; }
+.rstatus.warn { color: var(--warn); }
+.rstatus.err { color: var(--err); }
+
+.dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.dot.ok { background: var(--ok); }
+.dot.warn { background: var(--warn); }
+.dot.err { background: var(--err); }
+
+.status { display: inline-block; font-size: 12.5px; font-weight: 600; padding: 2px 9px; border-radius: 20px; }
+.status.ok { background: var(--ok-soft); color: var(--ok); }
+.status.warn { background: var(--warn-soft); color: var(--warn); }
+.status.err { background: var(--err-soft); color: var(--err); }
+
+.res-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.copy-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+
+.res-alert { padding: 8px 11px; border-radius: 9px; font-size: 14px; margin: 0 0 10px; overflow-wrap: anywhere; }
+.res-alert.warn { background: var(--warn-soft); }
+.res-alert.err { background: var(--err-soft); }
+.res-head label { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+.res-head input {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 5px 8px;
+  min-width: 0;
+  width: min(320px, 100%);
+  background: var(--panel);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13.5px;
+}
+
+.res-head input.bad { border-color: var(--err); }
+.res-sum { color: var(--muted); font-size: 13.5px; margin: 6px 0 10px; }
+
+.subtabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin-bottom: 12px; overflow-x: auto; scrollbar-width: none; }
+
+.subtabs button {
+  border: none;
+  background: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+  flex: none;
+}
+
+@media (max-width: 520px) {
+  .subtabs button { padding: 8px 9px; }
+  .copy-btns { margin-left: 0; width: 100%; }
+  .copy-btns .btn { flex: 1; padding: 7px 8px; font-size: 14px; }
+  .make-bar { justify-content: space-between; }
+}
+
+.subtabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+
+.look { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 14px; align-items: start; }
+
+@media (max-width: 1020px) {
+  .look { grid-template-columns: minmax(0, 1fr); }
+}
+
+.frame-wrap {
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  overflow: auto;
+}
+
+.frame-wrap iframe { display: block; border: 0; width: 100%; max-width: 660px; margin: 0 auto; background: #fff; min-height: 60px; }
+.frame-wrap.phone iframe { width: 375px; max-width: 100%; }
+
+.controls { display: grid; gap: 8px; font-size: 14px; }
+.controls h4 { margin: 4px 0 0; font-size: 13px; color: var(--muted); font-weight: 600; }
+.controls label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.controls input[type="number"] { width: 70px; border: 1px solid var(--line); border-radius: 7px; padding: 3px 6px; background: var(--panel); }
+
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+.seg button { border: none; background: none; padding: 5px 11px; cursor: pointer; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+
+pre.code {
+  margin: 0;
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  overflow: auto;
+  max-height: 520px;
+  font: 12.5px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: pre;
+}
+
+pre.code mark { background: var(--mark); color: inherit; border-radius: 3px; }
+pre.code i { color: var(--muted); }
+
+.code-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; align-items: center; }
+
+.ptable { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-bottom: 12px; }
+.ptable th, .ptable td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.ptable th { color: var(--muted); font-weight: 600; }
+.ptable tr.g td { background: var(--code-bg); font-weight: 600; }
+.ptable code { font-size: 12.5px; overflow-wrap: anywhere; }
+.ptable .val { color: var(--muted); overflow-wrap: anywhere; max-width: 260px; }
+
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.checks li { padding: 8px 11px; border-radius: 9px; font-size: 14px; overflow-wrap: anywhere; }
+.checks li.error { background: var(--err-soft); }
+.checks li.warn { background: var(--warn-soft); }
+.checks li.ok { background: var(--ok-soft); }
+.checks li.note { background: var(--code-bg); }
+.checks li b { margin-right: 6px; }
+
+details.own { margin-top: 16px; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; }
+details.own summary { cursor: pointer; font-weight: 600; }
+details.own .opts { margin-top: 10px; }
+
+.check-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 12px; }
+.field { display: grid; gap: 6px; font-weight: 600; }
+.field textarea { min-height: 220px; font-weight: 400; }
+.field textarea.over { border-color: var(--accent); background: var(--accent-soft); }
+
+.ck-out { margin-top: 14px; display: grid; gap: 14px; }
+
+.help { max-width: 760px; }
+.help li { margin: 4px 0; }
+.legend { list-style: none; padding: 0; }
+.legend .status { min-width: 92px; text-align: center; margin-right: 6px; }
+
+.docs-status { padding: 0 max(16px, calc((100% - 1200px) / 2)) 24px; color: var(--muted); font-size: 13px; }
+.docs-status a, .help a { color: var(--accent); }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translate(-50%, 20px);
+  background: var(--ink);
+  color: var(--bg);
+  padding: 9px 16px;
+  border-radius: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s, transform .2s;
+  max-width: calc(100% - 32px);
+}
+
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+.empty { color: var(--muted); padding: 12px 0; }
+.error-box { background: var(--err-soft); color: var(--err); padding: 10px 12px; border-radius: 9px; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <h1>Блоки для Mindbox</h1>
+    <p>Из HTML письма — готовые блоки и JSON для нового конструктора</p>
+  </div>
+  <div class="top-side">
+    <button type="button" id="theme" class="theme" role="switch" aria-checked="false" aria-label="Тёмная тема" title="Тёмная тема: включить или выключить"><span class="sw" aria-hidden="true"></span><span class="theme-label">Тёмная тема</span></button>
+    <nav class="tabs" role="tablist">
+      <button type="button" role="tab" data-tab="make" aria-selected="true">Сделать блоки</button>
+      <button type="button" role="tab" data-tab="check" aria-selected="false">Проверить блок</button>
+      <button type="button" role="tab" data-tab="help" aria-selected="false">Как это работает</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section id="tab-make" class="tab">
+    <div class="step" id="step-letter">
+      <h2><span class="num">1</span>Письмо</h2>
+      <div id="drop" class="drop" tabindex="0">
+        <strong>Перетащите сюда HTML-файл письма</strong>
+        <span>или <button type="button" class="link" id="pick">выберите файл</button>, или <button type="button" class="link" id="paste-open">вставьте код</button></span>
+        <input type="file" id="file" accept=".html,.htm,text/html" hidden>
+      </div>
+      <p id="intro" class="hint intro">Инструмент разрежет письмо на блоки и к каждому сделает JSON для нового конструктора Mindbox. Вёрстка остаётся как в письме. Письмо никуда не отправляется — всё работает на вашем компьютере.</p>
+      <div id="paste-box" class="paste-box" hidden>
+        <textarea id="paste" spellcheck="false" placeholder="Вставьте сюда код письма целиком — от <html> до </html>"></textarea>
+        <div class="row"><button type="button" id="paste-go" class="btn primary">Разобрать письмо</button><button type="button" id="paste-cancel" class="btn">Отмена</button></div>
+      </div>
+      <div id="letter-info" class="letter-info" hidden></div>
+    </div>
+
+    <div id="pick-area" class="pick-area" hidden>
+      <div class="step" id="step-blocks">
+        <h2><span class="num">2</span>Какие блоки нужны</h2>
+        <p class="hint">Отметьте блоки, которые нужны в Mindbox. Соседние блоки можно склеить в один, а большой блок — разделить по строкам. Вёрстка письма от этого не меняется.</p>
+        <div class="toolbar">
+          <span class="muted">Отметить:</span>
+          <button type="button" class="btn" data-sel="all">Все</button>
+          <button type="button" class="btn" data-sel="none">Ни одного</button>
+          <button type="button" class="btn" data-sel="hf">Только шапку и подвал</button>
+        </div>
+        <div id="blocks" class="blocks"></div>
+      </div>
+
+      <div class="step" id="step-opts">
+        <h2><span class="num">3</span>Что можно будет менять в конструкторе</h2>
+        <p class="hint">Выбор запоминается. Потом его можно поменять для одного блока.</p>
+        <div id="opts"></div>
+        <p class="never">Вёрстку, ширину и скругления инструмент не трогает, фон не придумывает, отступы делает только сверху и снизу.</p>
+      </div>
+
+      <div class="make-bar">
+        <span id="sel-count"></span>
+        <button type="button" id="make" class="btn primary big">Сделать блоки</button>
+      </div>
+    </div>
+
+    <div class="step" id="step-result" hidden>
+      <h2><span class="num">4</span>Готовые блоки</h2>
+      <div class="result-bar">
+        <span id="result-sum"></span>
+        <button type="button" id="zip" class="btn">Скачать все блоки архивом</button>
+      </div>
+      <p class="hint">Выберите блок в списке. Кнопки «Копировать HTML» и «Копировать JSON» кладут код в буфер — вставьте его в Mindbox.</p>
+      <div class="result">
+        <ul id="res-list" class="res-list"></ul>
+        <div id="res-view" class="res-view"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-check" class="tab" hidden>
+    <div class="step">
+      <h2>Проверить готовый блок</h2>
+      <p class="hint">Вставьте HTML и JSON блока — инструмент найдёт то, на что ругается Mindbox, и покажет блок с переключателями. Файлы можно перетащить прямо в поля.</p>
+      <div class="check-grid">
+        <label class="field"><span>HTML блока</span><textarea id="ck-html" spellcheck="false" placeholder="<!-- EDITOR_BLOCK_TEMPLATE: footer -->&#10;<table …"></textarea></label>
+        <label class="field"><span>JSON блока</span><textarea id="ck-json" spellcheck="false" placeholder='[ { "name": "title", "type": "TEXT", … } ]'></textarea></label>
+      </div>
+      <div id="ck-out" class="ck-out"></div>
+    </div>
+  </section>
+
+  <section id="tab-help" class="tab" hidden>
+    <div class="step help">
+      <h2>Как это работает</h2>
+      <p>Инструмент делит HTML письма на блоки для нового конструктора Mindbox и к каждому пишет JSON — список того, что можно будет менять в конструкторе: тексты, картинки, ссылки, цвета, переключатели «показывать».</p>
+      <h3>Четыре шага</h3>
+      <ol>
+        <li>Перетащите файл письма или вставьте его код.</li>
+        <li>Отметьте нужные блоки. Соседние блоки можно склеить в один, большой — разделить по строкам.</li>
+        <li>Выберите, что можно будет менять в конструкторе.</li>
+        <li>Нажмите «Сделать блоки». У каждого блока — «Копировать HTML» и «Копировать JSON»: вставьте их в Mindbox. Или скачайте все блоки архивом.</li>
+      </ol>
+      <h3>Чего инструмент не делает — специально</h3>
+      <ul>
+        <li>Не меняет вёрстку. После разметки блок выглядит точно как в письме — это проверяется автоматически.</li>
+        <li>Не делает настраиваемыми ширину и скругления углов.</li>
+        <li>Не придумывает фон: прозрачный блок остаётся прозрачным.</li>
+        <li>Отступы — только сверху и снизу, до соседних блоков. По умолчанию — как в письме.</li>
+        <li>Не отмечает блок, который повторяет соседний и отличается только фоном.</li>
+      </ul>
+      <h3>Что значат отметки</h3>
+      <ul class="legend">
+        <li><span class="status ok">Готово</span> можно загружать в Mindbox.</li>
+        <li><span class="status warn">Есть замечание</span> загрузить можно, но сначала прочитайте замечание: оно видно над блоком и на вкладке «Проверка».</li>
+        <li><span class="status err">Не примет</span> Mindbox выдаст ошибку. Что не так — над блоком и на вкладке «Проверка».</li>
+      </ul>
+      <h3>Документация Mindbox</h3>
+      <p id="docs-help"></p>
+      <p class="muted">Письмо никуда не отправляется: всё работает на вашем компьютере.</p>
+    </div>
+  </section>
+</main>
+
+<footer id="docs-status" class="docs-status"></footer>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.mindbox.ru/docs/email-editor-upload-blocks","sha256":"236e69ac36c809846bbd84d9a692dddcd1efd948b79603de75782e08de9eb632","chars":58394},{"url":"https://help.mindbox.ru/docs/email-editor-upload-blocks-overview","sha256":"333366cdd5c98d84926f437f40b43d18bef324c251f8f757ae5bdd02012f4f12","chars":4274}],"types":[{"type":"DISPLAY_TOGGLE","label":"Настройка скрытия и отображения элемента","default":"“true”"},{"type":"URL","label":"Ссылка перехода (по клику на кнопку, картинку и т.д.)","default":"Любая ссылка в формате \"https://example.ru\""},{"type":"INNER_SPACING","label":"Отступы (padding)","default":"Значения для каждого из отступов через пробел в формате: `25 25 25 25`"},{"type":"ALIGN","label":"Выравнивание","default":"Доступные значения: “left” “right” “center”"},{"type":"BACKGROUND","label":"Фон блока","default":"Можно задать тремя способами: прозрачным фоном, сплошным цветом или картинкой. Прозрачный фон: `\"defaultValue\": {` `\"type\": \"transparent\"}` Сплошной цвет: `\"defaultValue\": {` `\"type\": \"color\",` `\"color\": \"<цвет>\"}` Фон картинкой: `\"defaultValue\": {` `\"type\": \"image\",` `\"mode\": \"contain / cover / repeat / stretch\",` `\"color\": \"<цвет>\",` `\"url\": \"<ссылка>\"},`"},{"type":"BORDER","label":"Обводка блока","default":"Без обводки: `\"none\"`. С обводкой: тип обводки (`solid / dashed / dotted`), цвет (`<любой цвет>`), толщина (`<число>`) — через пробел, есть возможность задать разную толщину на разные стороны (верх/право/низ/лево). Примеры: Сплошная обводка черного цвета в 2 px: `\"defaultValue\": \"solid black 2\"`. Сплошная обводка черного цвета с разной толщиной сторон: `\"defaultValue\": \"solid black 1 2 3 4\"`"},{"type":"BORDER_RADIUS","label":"Радиус скругления границ","default":"Значения для каждого из углов через пробел в формате: `25 25 25 25`"},{"type":"COLOR","label":"Заливка цветом","default":"Любой цвет в формате `#000000`"},{"type":"TEXT","label":"Редактирование длинного текста","default":"Любой длинный текст на несколько абзацев"},{"type":"TEXT_STYLES","label":"Настройка стилей длинного текста","default":"Доступные значения: `font`: \"Roboto\" / \"Open Sans\" / \"Montserrat\" / \"Inter\" / \"Arial\" / \"Geneva\" / \"Helvetica\" / \"Times New Roman\" /\"Verdana\" / \"Courier / Courier New\" / \"Tahoma\" / \"Georgia\" / \"Palatino\" / \"Trebuchet MS\" `fontSize`: <число> `lineHeight`: \"1.0\" / \"1.15\" / \"1.5\" / \"2.0\" `inscription`: \"bold\" / \"italic\" / \"underlined\" / \"crossed\". Если необходимо указать обычное начертание текста (regular) — оставьте квадратные скобки пустыми. `fallbackFont`: \"Arial\" / \"Geneva\" / \"Helvetica\" / \"Times New Roman\" / \"Verdana\" / \"Courier / Courier New\" /\"Tahoma\" / \"Georgia\" / \"Palatino\" / \"Trebuchet MS\" `letterSpacing`: <число> Если в мастер-шаблоне используется кастомный шрифт, его можно зафиксировать на уровне верстки, но в таком случае менять стили в конструкторе не получится."},{"type":"SIMPLE_TEXT","label":"Редактирование короткого текста","default":"Любой короткий текст на одну или несколько строк"},{"type":"SIMPLE_TEXT_STYLES","label":"Настройка стилей короткого текста","default":"Доступные значения: `font`: \"Roboto\" / \"Open Sans\" / \"Montserrat\" / \"Inter\" / \"Arial\" / \"Geneva\" / \"Helvetica\" / \"Times New Roman\" /\"Verdana\" / \"Courier / Courier New\" / \"Tahoma\" / \"Georgia\" / \"Palatino\" / \"Trebuchet MS\" `fontSize`: <число> `lineHeight`: \"1.0\" / \"1.15\" / \"1.5\" / \"2.0\" `inscription`: \"bold\" / \"italic\" / \"underlined\" / \"crossed\". Если необходимо указать обычное начертание текста (regular) — оставьте квадратные скобки пустыми. `fallbackFont`: \"Arial\" / \"Geneva\" / \"Helvetica\" / \"Times New Roman\" / \"Verdana\" / \"Courier / Courier New\" /\"Tahoma\" / \"Georgia\" / \"Palatino\" / \"Trebuchet MS\" `letterSpacing`: <число> `color`: <цвет в HEX> Если в мастер-шаблоне используется кастомный шрифт, его можно зафиксировать на уровне верстки, но в таком случае менять стили не в конструкторе не получится."},{"type":"TEXT_SIZE","label":"Высота контейнера текста","default":"Значения для ширины и высоты через пробел в формате: `30 30`"},{"type":"IMAGE","label":"Ссылка на картинку","default":"Любая ссылка на картинку в формате \"images/img.png”"},{"type":"ICON","label":"Ссылка на иконку","default":"Любая ссылка на картинку в формате \"images/img.png”"},{"type":"ALT","label":"Alt-текст","default":"Любой текст"},{"type":"SIZE","label":"Ширина картинки","default":"Доступные значения: `\"manual 55 *\"`, где `*` - любое число до 100. объект `\"extra\"` со значениями: `\"defaultMaxWidth\"` — значение ширины письма; `\"allowedTypes\"`, где записываются все варианты ширины для картинки: `\"inherit\"` — «По ширине блока», `\"manual\"` — «Настраиваемая вручную»"},{"type":"HEIGHTV2","label":"Высота картинки","default":"Указываются 2 значения через пробел в формате `50 50 manual`"},{"type":"BUTTON_SIZE","label":"Размер кнопки","default":"Указывается тип, два значения для ширины и два дефолтных значения высоты через пробел. Первое значение для десктопной версии, второе — для мобильной. { \"width\": \"pixels 100 80\", \"height\": \"50 40\" } Список возможных типов ширины: `pixels` — значение ширины в пикселях (max 600) `percent` — значение ширины в процентах (max 100 min 10)"},{"type":"COLLECTION","label":"Товарная сетка","default":"На выбор может быть одно из значений, которое будет стоять по умолчанию при использовании блока из галереи: Количество выводимых товаров задается отдельно:`\"size\": 2`"}],"priorities":{"BACKGROUND":90,"URL":100,"IMAGE":200,"ICON":400,"ALT":500,"COLOR":600,"SIZE":700,"HEIGHTV2":700,"BUTTON_SIZE":750,"TEXT":800,"TEXT_STYLES":900,"SIMPLE_TEXT":1000,"SIMPLE_TEXT_STYLES":1100,"BORDER":1400,"BORDER_RADIUS":1500,"ALIGN":1600,"TEXT_SIZE":1700,"INNER_SPACING":1900},"roles":["ProductTitle","ProductPrice","ProductOldPrice","ProductUrl","ProductImageUrl","ProductDescription","ProductBadge"],"errors":["Параметр \"editor.*\" является составным типом и не может использоваться напрямую","Тип является составным и не может быть использован как примитивное значение. Используйте доступ к полям (например, editor.propName.fieldName)","Значение поля type не соответствует ожидаемому: SIZE_IN_PERCENTS / COLLECTION","Параметр \"editor.*.style\" имеет невалидный формат. Параметры могут содержать только 1 точку","Параметры указаны неверно"],"fields":["align","class","color","containerClass","containerHeightAttribute","containerStyle","fieldName","formattedBackgroundStyles","formattedHeight","formattedValue","formattedWidth","height","image","style","type","width"],"unknownTypes":[],"missingTypes":[]};
+</script>
+<script>
+(function (root) {
+  const fromDocs = (typeof module === 'object' && module.exports)
+    ? (() => { try { return require('../docs-watch/docs-rules.json'); } catch (e) { return null; } })()
+    : (root.MBDocsRules || null);
+
+  const RULES = {
+    version: '1.0.0',
+    docs: fromDocs,
+    docsPages: [
+      'https://help.mindbox.ru/docs/email-editor-upload-blocks',
+      'https://help.mindbox.ru/docs/email-editor-upload-blocks-overview'
+    ],
+    nameRe: /^[A-Za-z0-9_]+$/,
+    types: {
+      DISPLAY_TOGGLE: { fields: [], composite: false },
+      URL: { fields: ['url'], composite: false },
+      INNER_SPACING: { fields: ['formattedValue', 'class'], composite: true },
+      ALIGN: { fields: ['align', 'formattedValue', 'class'], composite: true },
+      BACKGROUND: { fields: ['color', 'formattedBackgroundStyles', 'type', 'image'], composite: true },
+      BORDER: { fields: ['formattedValue'], composite: true },
+      BORDER_RADIUS: { fields: [], composite: true, avoid: 'Скругления не делаем настраиваемыми: Mindbox отвечает «Тип BORDER_RADIUS является составным».' },
+      COLOR: { fields: [], composite: false },
+      TEXT: { fields: [], composite: false },
+      TEXT_STYLES: { fields: ['formattedValue', 'class'], composite: true },
+      SIMPLE_TEXT: { fields: [], composite: false },
+      SIMPLE_TEXT_STYLES: { fields: ['formattedValue', 'class'], composite: true },
+      TEXT_SIZE: { fields: ['containerHeightAttribute', 'containerStyle'], composite: true },
+      IMAGE: { fields: [], composite: false },
+      ICON: { fields: [], composite: false },
+      ALT: { fields: [], composite: false },
+      SIZE: { fields: ['style', 'formattedValue', 'class'], composite: true },
+      HEIGHTV2: { fields: ['formattedHeight'], composite: true },
+      BUTTON_SIZE: { fields: ['width', 'height', 'formattedWidth', 'formattedHeight', 'class'], composite: true },
+      COLLECTION: { fields: [], composite: true },
+      NUMBER: { fields: [], composite: false, practice: 'Нет в документации, но Mindbox его принимает: им сделаны отступы в принятых блоках.' }
+    },
+    places: {
+      URL: { re: /\shref\s*=\s*["']\s*$/i, text: 'ссылка — только целиком в атрибуте href, одна в ссылке' },
+      IMAGE: { re: /\ssrc\s*=\s*["']\s*$/i, text: 'картинка — только в атрибуте src тега <img>; фоновую картинку Mindbox меняет только через тип BACKGROUND' },
+      ICON: { re: /\ssrc\s*=\s*["']\s*$/i, text: 'иконка — только в атрибуте src тега <img>' },
+      ALT: { re: /\salt\s*=\s*["']\s*$/i, text: 'alt — только в атрибуте alt тега <img>' }
+    },
+    roles: ['ProductTitle', 'ProductPrice', 'ProductOldPrice', 'ProductUrl', 'ProductImageUrl', 'ProductDescription', 'ProductBadge'],
+    textRoles: ['ProductPrice', 'ProductOldPrice'],
+    typeOrder: ['DISPLAY_TOGGLE', 'BACKGROUND', 'IMAGE', 'ALT', 'URL', 'SIMPLE_TEXT', 'TEXT', 'COLOR', 'NUMBER'],
+    unsubscribeDefault: '${Message.UnsubscribeLink}',
+    errors: {
+      unusedParam: 'Нет параметра в текущей верстке. Удалите строку.',
+      missingParam: 'Заполните параметры JSON',
+      conditionStart: 'Контент блока с условием должен начинаться с Html тега.',
+      cellCheck: 'Внутри цикла должна быть проверка @{ if cell.Value != null }',
+      composite: 'Тип является составным и не может быть использован как примитивное значение. Используйте доступ к полям (например, editor.propName.fieldName)',
+      compositeUrl: 'Тип URL является составным и не может быть использован как примитивное значение',
+      dots: 'Параметр "editor.*.style" имеет невалидный формат. Параметры могут содержать только 1 точку'
+    },
+    kinds: {
+      card: { ru: 'Карточка', en: 'card', plural: 'карточки' },
+      item: { ru: 'Пункт', en: 'item', plural: 'пункты' },
+      phone: { ru: 'Телефон', en: 'phone', plural: 'телефоны' },
+      social: { ru: 'Соцсеть', en: 'social', plural: 'соцсети' },
+      icon: { ru: 'Иконка', en: 'icon', plural: 'иконки' },
+      step: { ru: 'Шаг', en: 'step', plural: 'шаги' }
+    },
+    roleLabels: {
+      title: 'заголовок', text: 'текст', label: 'подпись', price: 'цена', old_price: 'старая цена',
+      badge: 'плашка', button: 'кнопка', link: 'ссылка', phone: 'телефон', email: 'почта',
+      website: 'сайт', legal: 'юридический текст', copyright: 'копирайт', unsubscribe: 'отписка',
+      promocode: 'промокод', image: 'картинка', logo: 'логотип', icon: 'иконка', banner: 'баннер',
+      bgimage: 'фоновая картинка'
+    },
+    blockNames: {
+      categories: [
+        [/шапк|хедер|header/i, 'header'], [/подвал|футер|footer/i, 'footer'], [/визуал/i, 'visual'],
+        [/информац|контент/i, 'content'], [/товар/i, 'products'], [/баннер/i, 'banner']
+      ],
+      words: [
+        [/главн/i, 'main'], [/баннер/i, 'banner'], [/горизонт/i, 'horizontal'], [/квадр/i, 'square'], [/промокод/i, 'promocode'],
+        [/подзаголов/i, 'subtitle'], [/заголов/i, 'title'], [/карточк/i, 'cards'], [/кнопк/i, 'button'],
+        [/буллит|список|пункт/i, 'bullets'], [/стать/i, 'articles'], [/анализ|исследован/i, 'tests'],
+        [/акци/i, 'promo'], [/шахмат/i, 'checkerboard'], [/иконк|инок/i, 'icon'], [/картинк|изображ/i, 'image'],
+        [/цен/i, 'price'], [/текст/i, 'text'], [/фон/i, 'bg'], [/преимущ/i, 'benefits'], [/описан/i, 'description'],
+        [/категор/i, 'categories'], [/предложен/i, 'offers'], [/триггер/i, 'trigger'], [/колонк/i, 'columns']
+      ]
+    }
+  };
+
+  if (typeof module === 'object' && module.exports) module.exports = RULES;
+  else root.MBRules = RULES;
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+(function (root) {
+  const RULES = (typeof module === 'object' && module.exports) ? require('./rules.js') : root.MBRules;
+
+  const VOID = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
+  const RAWTEXT = new Set(['script', 'style', 'title', 'textarea', 'xml']);
+  const INLINE = new Set(['a', 'span', 'b', 'strong', 'i', 'em', 'u', 's', 'strike', 'del', 'ins', 'sup', 'sub', 'font', 'small', 'big', 'nobr', 'br', 'wbr', 'mark', 'label', 'abbr', 'code']);
+  const SIMPLE_INLINE = new Set(['b', 'strong', 'i', 'em', 'u', 'sup', 'sub', 'nobr', 'br', 'wbr', 'small', 'big', 's', 'strike', 'del']);
+  const STRIKE = new Set(['s', 'strike', 'del']);
+  const SKIP_TREE = new Set(['style', 'script', 'title', 'head', 'meta', 'xml']);
+  const DECOR_RE = /^[\s •·●▪■◦‣\-–—|\/\\*✓✔→←>]*$/u;
+  const HEX_RE = /#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{3})(?![0-9a-zA-Z])/g;
+
+  const ENT = {
+    nbsp: ' ', amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", laquo: '«', raquo: '»', mdash: '—', ndash: '–',
+    copy: '©', reg: '®', trade: '™', hellip: '…', rsquo: '’', lsquo: '‘', ldquo: '“', rdquo: '”', bdquo: '„', sbquo: '‚',
+    times: '×', minus: '−', deg: '°', middot: '·', bull: '•', thinsp: ' ', ensp: ' ', emsp: ' ', shy: '­',
+    zwj: '‍', zwnj: '‌', euro: '€', rarr: '→', larr: '←', laquo_: '«', num: '#', percnt: '%', plus: '+', sect: '§',
+    frac12: '½', le: '≤', ge: '≥', ne: '≠', asymp: '≈', infin: '∞', check: '✓', hearts: '♥', star: '☆', starf: '★'
+  };
+
+  function decode(s) {
+    return s.replace(/&(#x[0-9a-fA-F]+|#\d+|[a-zA-Z][a-zA-Z0-9]*);/g, (m, e) => {
+      if (e[0] === '#') {
+        const code = e[1] === 'x' || e[1] === 'X' ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10);
+        return Number.isFinite(code) ? String.fromCodePoint(code) : m;
+      }
+      return Object.prototype.hasOwnProperty.call(ENT, e) ? ENT[e] : m;
+    });
+  }
+
+  function balanced(src, k) {
+    let depth = 0;
+    let q = null;
+    for (let i = k; i < src.length; i++) {
+      const c = src[i];
+      if (q) {
+        if (c === q) q = null;
+        continue;
+      }
+      if (c === '"' || c === "'") {
+        q = c;
+        continue;
+      }
+      if (c === '{') depth++;
+      else if (c === '}') {
+        depth--;
+        if (depth === 0) return i + 1;
+      }
+    }
+    return src.length;
+  }
+
+  function findQuote(src, k, q) {
+    for (let i = k; i < src.length; i++) {
+      if (src[i] === '$' && src[i + 1] === '{') {
+        i = balanced(src, i + 1) - 1;
+        continue;
+      }
+      if (src[i] === q) return i;
+    }
+    return src.length;
+  }
+
+  function readTag(src, i) {
+    let j = i + 1;
+    const m = /^[A-Za-z][\w:.-]*/.exec(src.slice(j, j + 64));
+    if (!m) return null;
+    const tag = m[0].toLowerCase();
+    j += m[0].length;
+    const attrs = [];
+    while (j < src.length) {
+      while (j < src.length && /\s/.test(src[j])) j++;
+      if (src[j] === '>') return { tag, attrs, end: j + 1, selfClose: false };
+      if (src[j] === '/' && src[j + 1] === '>') return { tag, attrs, end: j + 2, selfClose: true };
+      if ((src[j] === '$' || src[j] === '@') && src[j + 1] === '{') {
+        const e = balanced(src, j + 1);
+        attrs.push({ name: '', raw: true, start: j, end: e, value: src.slice(j, e) });
+        j = e;
+        continue;
+      }
+      const an = /^[^\s"'>\/=]+/.exec(src.slice(j, j + 256));
+      if (!an) {
+        j++;
+        continue;
+      }
+      const a = { name: an[0].toLowerCase(), start: j, vStart: null, vEnd: null, quote: '' };
+      j += an[0].length;
+      let k = j;
+      while (k < src.length && /\s/.test(src[k])) k++;
+      if (src[k] === '=') {
+        k++;
+        while (k < src.length && /\s/.test(src[k])) k++;
+        if (src[k] === '"' || src[k] === "'") {
+          const q = src[k];
+          const e = findQuote(src, k + 1, q);
+          a.vStart = k + 1;
+          a.vEnd = e;
+          a.quote = q;
+          j = e + 1;
+        } else {
+          let e = k;
+          while (e < src.length && !/[\s>]/.test(src[e])) e++;
+          a.vStart = k;
+          a.vEnd = e;
+          j = e;
+        }
+      }
+      a.end = j;
+      a.value = a.vStart != null ? src.slice(a.vStart, a.vEnd) : null;
+      attrs.push(a);
+    }
+    return null;
+  }
+
+  function parse(src) {
+    const rootNode = { type: 'root', tag: '#root', children: [], start: 0, end: src.length, parent: null, depth: 0 };
+    const stack = [rootNode];
+    const n = src.length;
+    let i = 0;
+    const top = () => stack[stack.length - 1];
+    const add = (node) => {
+      node.parent = top();
+      node.depth = node.parent.depth + 1;
+      top().children.push(node);
+      return node;
+    };
+    const closeTo = (idx, at, end) => {
+      while (stack.length - 1 > idx) {
+        const x = stack.pop();
+        x.closeStart = at;
+        x.end = at;
+      }
+      const x = stack.pop();
+      x.closeStart = at;
+      x.end = end;
+    };
+    const implicit = (tag) => {
+      const t = top();
+      if ((tag === 'td' || tag === 'th') && (t.tag === 'td' || t.tag === 'th')) closeTo(stack.length - 1, null, null);
+      if (tag === 'tr') {
+        for (let k = stack.length - 1; k > 0; k--) {
+          const s = stack[k].tag;
+          if (s === 'table' || s === 'tbody' || s === 'thead' || s === 'tfoot') break;
+          if (s === 'tr') {
+            closeTo(k, null, null);
+            break;
+          }
+        }
+      }
+      if ((tag === 'li' && t.tag === 'li') || (tag === 'p' && t.tag === 'p')) closeTo(stack.length - 1, null, null);
+    };
+    while (i < n) {
+      if (src.startsWith('\x3C!--', i)) {
+        const e = src.indexOf('-->', i + 4);
+        const end = e < 0 ? n : e + 3;
+        add({ type: 'comment', start: i, end });
+        i = end;
+        continue;
+      }
+      if (src[i] === '<' && src[i + 1] === '!') {
+        const e = src.indexOf('>', i);
+        const end = e < 0 ? n : e + 1;
+        add({ type: 'doctype', start: i, end });
+        i = end;
+        continue;
+      }
+      if (src[i] === '<' && src[i + 1] === '/') {
+        const m = /^<\/\s*([A-Za-z][\w:.-]*)[^>]*>/.exec(src.slice(i, i + 128));
+        if (m) {
+          const tag = m[1].toLowerCase();
+          let idx = -1;
+          for (let k = stack.length - 1; k > 0; k--) {
+            if (stack[k].tag === tag) {
+              idx = k;
+              break;
+            }
+          }
+          if (idx > 0) {
+            const at = i;
+            while (stack.length - 1 > idx) {
+              const x = stack.pop();
+              x.closeStart = at;
+              x.end = at;
+            }
+            const x = stack.pop();
+            x.closeStart = at;
+            x.end = i + m[0].length;
+          }
+          i += m[0].length;
+          continue;
+        }
+      }
+      if (src[i] === '<' && /[A-Za-z]/.test(src[i + 1] || '')) {
+        const r = readTag(src, i);
+        if (r) {
+          implicit(r.tag);
+          const node = add({ type: 'el', tag: r.tag, attrs: r.attrs, start: i, openEnd: r.end, children: [], closeStart: null, end: r.end });
+          if (VOID.has(r.tag) || r.selfClose) {
+            i = r.end;
+            continue;
+          }
+          if (RAWTEXT.has(r.tag)) {
+            const re = new RegExp('</' + r.tag.replace(/[.:]/g, '\\$&') + '\\s*>', 'i');
+            const m = re.exec(src.slice(r.end));
+            const cs = m ? r.end + m.index : n;
+            if (cs > r.end) node.children.push({ type: 'text', start: r.end, end: cs, parent: node, depth: node.depth + 1 });
+            node.closeStart = cs;
+            node.end = m ? cs + m[0].length : n;
+            i = node.end;
+            continue;
+          }
+          stack.push(node);
+          i = r.end;
+          continue;
+        }
+      }
+      if (src[i] === '@' && src[i + 1] === '{') {
+        const end = balanced(src, i + 1);
+        add({ type: 'stmt', start: i, end, text: src.slice(i, end) });
+        i = end;
+        continue;
+      }
+      let j = i + 1;
+      while (j < n && src[j] !== '<' && !(src[j] === '@' && src[j + 1] === '{')) j++;
+      add({ type: 'text', start: i, end: j });
+      i = j;
+    }
+    while (stack.length > 1) {
+      const x = stack.pop();
+      x.closeStart = n;
+      x.end = n;
+    }
+    return rootNode;
+  }
+
+  function fixEnds(node) {
+    if (!node.children) return;
+    for (const c of node.children) fixEnds(c);
+    if (node.type === 'el' && node.end == null) node.end = node.children.length ? node.children[node.children.length - 1].end : node.openEnd;
+    if (node.type === 'el' && node.closeStart == null && !VOID.has(node.tag)) node.closeStart = node.end;
+  }
+
+  function walk(node, fn) {
+    if (fn(node) === false) return;
+    if (node.children) for (const c of node.children) walk(c, fn);
+  }
+
+  function els(node) {
+    return (node.children || []).filter((c) => c.type === 'el');
+  }
+
+  function attr(node, name) {
+    if (!node || !node.attrs) return null;
+    return node.attrs.find((a) => a.name === name) || null;
+  }
+
+  function attrVal(node, name) {
+    const a = attr(node, name);
+    return a && a.value != null ? a.value : null;
+  }
+
+  function isAncestor(a, b) {
+    for (let x = b; x; x = x.parent) if (x === a) return true;
+    return false;
+  }
+
+  function styleDecls(src, a) {
+    if (!a || a.vStart == null) return [];
+    const out = [];
+    let s = a.vStart;
+    let depth = 0;
+    let q = null;
+    const push = (from, to) => {
+      const piece = src.slice(from, to);
+      const c = piece.indexOf(':');
+      if (c < 0) return;
+      const lead = piece.length - piece.trimStart().length;
+      const prop = piece.slice(0, c).trim().toLowerCase();
+      let vs = from + c + 1;
+      let ve = to;
+      while (vs < ve && /\s/.test(src[vs])) vs++;
+      while (ve > vs && /\s/.test(src[ve - 1])) ve--;
+      out.push({ prop, start: from + lead, end: ve, vStart: vs, vEnd: ve, value: src.slice(vs, ve) });
+    };
+    for (let i = a.vStart; i < a.vEnd; i++) {
+      const c = src[i];
+      if (src[i] === '$' && src[i + 1] === '{') {
+        i = balanced(src, i + 1) - 1;
+        continue;
+      }
+      if (q) {
+        if (c === q) q = null;
+        continue;
+      }
+      if (c === '"' || c === "'") q = c;
+      else if (c === '(') depth++;
+      else if (c === ')') depth--;
+      else if (c === ';' && depth === 0) {
+        push(s, i);
+        s = i + 1;
+      }
+    }
+    if (s < a.vEnd) push(s, a.vEnd);
+    return out;
+  }
+
+  function styleOf(src, node, prop) {
+    const d = styleDecls(src, attr(node, 'style')).filter((x) => x.prop === prop);
+    return d.length ? d[d.length - 1] : null;
+  }
+
+  function px(v) {
+    if (v == null) return null;
+    const m = /^\s*(-?\d+(?:\.\d+)?)\s*(px)?\s*(!important)?\s*$/i.exec(String(v));
+    return m ? parseFloat(m[1]) : null;
+  }
+
+  function boxValues(v) {
+    const parts = String(v).replace(/!important/i, '').trim().split(/\s+/).filter(Boolean);
+    if (!parts.length || parts.length > 4) return null;
+    const [t, r = t, b = t, l = r] = parts;
+    return [t, r, b, l];
+  }
+
+  function normHex(h) {
+    let x = h.replace('#', '');
+    if (x.length === 3) x = x.split('').map((c) => c + c).join('');
+    return '#' + x.toUpperCase();
+  }
+
+  function textOf(src, node) {
+    let out = '';
+    walk(node, (x) => {
+      if (x.type === 'comment' || x.type === 'stmt') return false;
+      if (x.type === 'el' && SKIP_TREE.has(x.tag)) return false;
+      if (x.type === 'text') out += src.slice(x.start, x.end);
+      if (x.type === 'el' && x.tag === 'br') out += ' ';
+    });
+    return decode(out).replace(/[\s ]+/g, ' ').trim();
+  }
+
+  function meaningfulText(raw) {
+    const t = decode(raw.replace(/\$\{[^}]*\}/g, '')).replace(/[\s ​‌‍­]+/g, ' ').trim();
+    return t.length > 0 && !DECOR_RE.test(t);
+  }
+
+  function isInlineNode(n) {
+    if (n.type === 'text' || n.type === 'comment' || n.type === 'stmt') return true;
+    if (n.type !== 'el') return false;
+    if (!INLINE.has(n.tag)) return false;
+    return n.children.every(isInlineNode);
+  }
+
+  function isWs(src, n) {
+    return n.type === 'comment' || (n.type === 'text' && !/\S/.test(src.slice(n.start, n.end)));
+  }
+
+  function findBlocks(src, doc) {
+    const inside = (a, b) => a.start >= b.start && a.end <= b.end;
+    const overlaps = (a, b) => inside(a.node, b.node) || inside(b.node, a.node);
+    const out = markedBlocks(src, doc);
+    for (const list of [taggedBlocks(doc), structureBlocks(src, doc)]) {
+      for (const b of list) if (!out.some((k) => overlaps(k, b))) out.push(b);
+    }
+    return out.sort((a, b) => a.node.start - b.node.start);
+  }
+
+  function isHidden(src, node) {
+    const decls = styleDecls(src, attr(node, 'style'));
+    const ownText = node.children && node.children.some((c) => c.type === 'text' && decode(src.slice(c.start, c.end)).replace(/[\s\u00a0\u034f\u200b-\u200d\u2060\ufeff]+/g, ''));
+    if (ownText && decls.some((d) => d.prop === 'font-size' && /^0*(\.0+)?(px|pt|em|rem|%)?\s*(!important)?$/i.test(d.value))) return true;
+    return decls.some((d) =>
+      (d.prop === 'display' && /^none/i.test(d.value)) ||
+      (d.prop === 'visibility' && /^hidden/i.test(d.value)) ||
+      (d.prop === 'opacity' && /^0*(\.0+)?\s*(!important)?$/i.test(d.value)) ||
+      (d.prop === 'mso-hide' && /^all/i.test(d.value)) ||
+      (d.prop === 'max-height' && /^0(px)?\s*(!important)?$/i.test(d.value)));
+  }
+
+  function markedBlocks(src, doc) {
+    const blocks = [];
+    const seen = new Set();
+    walk(doc, (n) => {
+      if (n.type !== 'comment') return;
+      const m = /EDITOR_BLOCK_TEMPLATE\s*:\s*([\w-]+)/.exec(src.slice(n.start, n.end));
+      if (!m) return;
+      const sibs = n.parent.children;
+      const idx = sibs.indexOf(n);
+      const next = sibs.slice(idx + 1).find((x) => x.type === 'el');
+      if (next && !seen.has(next)) {
+        seen.add(next);
+        blocks.push({ node: next, marker: n, name: m[1], title: m[1], category: null, source: 'marker' });
+      }
+    });
+    return blocks;
+  }
+
+  function taggedBlocks(doc) {
+    const blocks = [];
+    walk(doc, (n) => {
+      if (n.type === 'el' && attr(n, 'mindbox-block')) {
+        blocks.push({ node: n, marker: null, name: null, title: attrVal(n, 'mindbox-block-name'), category: attrVal(n, 'mindbox-block-category'), source: 'mindbox-block' });
+        return false;
+      }
+    });
+    return blocks;
+  }
+
+  function structureBlocks(src, doc) {
+    let body = null;
+    walk(doc, (n) => {
+      if (!body && n.type === 'el' && n.tag === 'body') body = n;
+    });
+    const start = body || doc;
+    const topEls = els(start).filter((e) => !SKIP_TREE.has(e.tag));
+    if (!body && topEls.length === 1 && topEls[0].tag === 'table') {
+      return [{ node: topEls[0], marker: null, name: null, title: null, category: null, source: 'single' }];
+    }
+    const contentful = (e) => {
+      if (isHidden(src, e)) return false;
+      let has = false;
+      walk(e, (x) => {
+        if (has) return false;
+        if (x.type === 'el' && x.tag === 'img') has = true;
+        if (x.type === 'text' && meaningfulText(src.slice(x.start, x.end))) has = true;
+      });
+      return has;
+    };
+    let cur = start;
+    for (let guard = 0; guard < 40; guard++) {
+      const kids = els(cur).filter((e) => !SKIP_TREE.has(e.tag) && contentful(e));
+      if (kids.length === 1) {
+        cur = kids[0];
+        continue;
+      }
+      if (kids.length >= 2) {
+        const tables = kids.filter((k) => k.tag === 'table' || k.tag === 'div' || k.tag === 'center');
+        if (tables.length === kids.length) {
+          return kids.map((k) => ({ node: k, marker: null, name: null, title: null, category: null, source: 'structure' }));
+        }
+        if (kids.every((k) => k.tag === 'tr' || k.tag === 'tbody')) {
+          const rows = kids.flatMap((k) => (k.tag === 'tbody' ? els(k) : [k]));
+          const out = [];
+          let lost = false;
+          for (const tr of rows) {
+            const tds = els(tr).filter(contentful);
+            if (!tds.length) continue;
+            const inner = tds.length === 1 ? els(tds[0]).filter(contentful) : [];
+            if (inner.length === 1 && inner[0].tag === 'table') out.push(inner[0]);
+            else lost = true;
+          }
+          const box = cur.tag === 'tbody' ? cur.parent : cur;
+          if (lost && box && box.tag === 'table' && splitPlan(src, box)) return [{ node: box, marker: null, name: null, title: null, category: null, source: 'rows', explode: true }];
+          if (out.length >= 2) return out.map((k) => ({ node: k, marker: null, name: null, title: null, category: null, source: 'rows' }));
+        }
+      }
+      break;
+    }
+    return [];
+  }
+
+  function headStyles(src, doc) {
+    const out = [];
+    walk(doc, (n) => {
+      if (n.type === 'el' && n.tag === 'style') out.push(src.slice(n.start, n.end));
+    });
+    return out.join('\n');
+  }
+
+  function bodyStyle(src, doc) {
+    let s = '';
+    walk(doc, (n) => {
+      if (n.type === 'el' && n.tag === 'body') {
+        s = attrVal(n, 'style') || '';
+        return false;
+      }
+    });
+    return s;
+  }
+
+  function fontPx(src, node, prop) {
+    for (let x = node; x && x.type !== 'root'; x = x.parent) {
+      if (x.type !== 'el') continue;
+      const d = styleOf(src, x, prop);
+      if (d) {
+        const v = px(d.value);
+        if (v != null && v > 0) return v;
+      }
+    }
+    return null;
+  }
+
+  function hasBg(src, node) {
+    if (attrVal(node, 'bgcolor')) return true;
+    const d = styleDecls(src, attr(node, 'style'));
+    return d.some((x) => (x.prop === 'background-color' || x.prop === 'background') && !/transparent|none/i.test(x.value));
+  }
+
+  function hasGradient(src, node) {
+    return styleDecls(src, attr(node, 'style')).some((x) => /gradient\(/i.test(x.value));
+  }
+
+  function widthOf(src, node) {
+    const w = px(attrVal(node, 'width'));
+    if (w != null) return w;
+    const d = styleOf(src, node, 'width') || styleOf(src, node, 'max-width');
+    return d ? px(d.value) : null;
+  }
+
+  function nodeSig(node, src) {
+    const paths = new Map();
+    const look = (c) => {
+      if (!src) return '';
+      const st = (attrVal(c, 'style') || '').toLowerCase();
+      const fs = /font-size\s*:\s*(\d+)/.exec(st);
+      const fw = /font-weight\s*:\s*(bold|\d+)/.exec(st);
+      return (fs ? '[' + fs[1] : '') + (fw ? '/' + fw[1] : '') + (fs ? ']' : '');
+    };
+    const rec = (n, path, depth) => {
+      if (depth > 9) return;
+      for (const c of n.children || []) {
+        if (c.type !== 'el') continue;
+        const p = path + '>' + c.tag + look(c);
+        paths.set(p, (paths.get(p) || 0) + 1);
+        rec(c, p, depth + 1);
+      }
+    };
+    rec(node, node.tag, 0);
+    return paths;
+  }
+
+  function sim(a, b) {
+    let inter = 0;
+    let uni = 0;
+    const keys = new Set([...a.keys(), ...b.keys()]);
+    for (const k of keys) {
+      const x = a.get(k) || 0;
+      const y = b.get(k) || 0;
+      inter += Math.min(x, y);
+      uni += Math.max(x, y);
+    }
+    return uni ? inter / uni : 1;
+  }
+
+  function analyze(src, doc, block, opt) {
+    const rootEl = block.node;
+    const atoms = [];
+    const atomOf = new Map();
+    const notes = [];
+
+    const buttons = [];
+    walk(rootEl, (n) => {
+      if (n.type !== 'el' || n.tag !== 'a') return;
+      const href = attr(n, 'href');
+      if (!href) return;
+      let bgEl = null;
+      if (hasBg(src, n) || hasGradient(src, n)) bgEl = n;
+      walk(n, (x) => {
+        if (!bgEl && x.type === 'el' && x !== n && (hasBg(src, x) || hasGradient(src, x))) bgEl = x;
+      });
+      if (!bgEl) {
+        walk(n, (x) => {
+          if (!bgEl && x.type === 'el' && x !== n && /(^|;)\s*border(-width)?\s*:\s*[1-9]/i.test(attrVal(x, 'style') || '') ) bgEl = x;
+        });
+      }
+      let hasImg = false;
+      walk(n, (x) => {
+        if (x.type === 'el' && x.tag === 'img') hasImg = true;
+      });
+      const t = textOf(src, n);
+      if (!hasImg && t && t.length <= 45) {
+        const st = (attrVal(n, 'style') || '').toLowerCase();
+        if (bgEl || (/display\s*:\s*(inline-)?block/.test(st) && /padding|border/.test(st))) {
+          buttons.push({ link: n, bgEl, root: n });
+        }
+      }
+    });
+    walk(rootEl, (n) => {
+      if (n.type !== 'el' || (n.tag !== 'td' && n.tag !== 'table')) return;
+      if (!hasBg(src, n) && !hasGradient(src, n)) return;
+      const links = [];
+      let imgs = 0;
+      walk(n, (x) => {
+        if (x.type === 'el' && x.tag === 'a' && attr(x, 'href')) links.push(x);
+        if (x.type === 'el' && x.tag === 'img') imgs++;
+      });
+      if (links.length !== 1 || imgs) return;
+      const t = textOf(src, n);
+      if (!t || t.length > 45 || textOf(src, links[0]) !== t) return;
+      if (buttons.some((b) => b.link === links[0])) return;
+      buttons.push({ link: links[0], bgEl: n, root: n });
+    });
+    const inButton = (x) => buttons.find((b) => isAncestor(b.root, x) || isAncestor(x, b.link) && isAncestor(b.root, b.link) && x === b.root);
+
+    const containers = new Map();
+    walk(rootEl, (n) => {
+      if (n.type === 'comment' || n.type === 'stmt') return false;
+      if (n.type === 'el' && SKIP_TREE.has(n.tag)) return false;
+      if (n.type !== 'text') return;
+      if (!meaningfulText(src.slice(n.start, n.end))) return;
+      let x = n;
+      while (x.parent && x.parent !== rootEl && x.parent.type === 'el' && INLINE.has(x.parent.tag) && x.parent.children.every(isInlineNode)) x = x.parent;
+      const c = x.parent;
+      const kids = c.children;
+      let from;
+      let to;
+      if (kids.every(isInlineNode)) {
+        from = 0;
+        to = kids.length - 1;
+      } else {
+        const idx = kids.indexOf(x);
+        from = idx;
+        to = idx;
+        while (from > 0 && isInlineNode(kids[from - 1])) from--;
+        while (to < kids.length - 1 && isInlineNode(kids[to + 1])) to++;
+      }
+      while (from <= to && isWs(src, kids[from])) from++;
+      while (to >= from && isWs(src, kids[to])) to--;
+      const key = c.start + ':' + from;
+      if (!containers.has(key)) containers.set(key, { el: c, from, to, whole: from === firstContent(src, c) && to === lastContent(src, c) });
+    });
+
+    for (const b of buttons) {
+      const a = { kind: 'button', root: b.root, link: b.link, bgEl: b.bgEl, pos: b.root.start, role: 'button' };
+      atoms.push(a);
+    }
+    for (const c of containers.values()) {
+      const btn = buttons.find((b) => isAncestor(b.root, c.el) || isAncestor(c.el, b.link));
+      if (btn) {
+        const a = atoms.find((x) => x.kind === 'button' && x.link === btn.link);
+        a.texts = a.texts || [];
+        a.texts.push(c);
+        continue;
+      }
+      atoms.push({ kind: 'text', container: c, root: c.whole ? c.el : c.el, pos: c.el.children[c.from].start, role: null });
+    }
+    walk(rootEl, (n) => {
+      if (n.type === 'comment' || n.type === 'stmt') return false;
+      if (n.type !== 'el') return;
+      if (n.tag === 'img') {
+        const srcA = attr(n, 'src');
+        if (!srcA || !srcA.value || /^\$\{/.test(srcA.value)) return;
+        const w = widthOf(src, n);
+        const h = px(attrVal(n, 'height'));
+        if ((w != null && w <= 2) || (h != null && h <= 2)) return;
+        if (buttons.some((b) => isAncestor(b.root, n))) return;
+        let link = null;
+        for (let x = n.parent; x && x !== rootEl; x = x.parent) {
+          if (x.type === 'el' && x.tag === 'a' && attr(x, 'href')) {
+            link = x;
+            break;
+          }
+          if (x.type === 'el' && !INLINE.has(x.tag)) break;
+        }
+        atoms.push({ kind: 'image', img: n, link, root: link || n, pos: n.start, width: w, role: null });
+      }
+      const bgA = attr(n, 'background');
+      const bgS = styleOf(src, n, 'background-image') || styleOf(src, n, 'background');
+      const urlM = bgS && /url\(\s*['"]?([^'")]+)['"]?\s*\)/i.exec(bgS.value);
+      const dynamic = [bgA && bgA.value, urlM && decode(urlM[1])].some((v) => v && /[$@]\{/.test(v));
+      if (!dynamic && ((bgA && bgA.value) || urlM)) {
+        atoms.push({ kind: 'bgimage', el: n, url: bgA && bgA.value ? bgA.value : urlM[1], root: n, pos: n.start, role: 'bgimage', passive: true });
+      }
+    });
+    for (const a of atoms) if (a.kind === 'bgimage') a.passive = true;
+
+    for (const a of atoms) {
+      if (a.kind !== 'text') continue;
+      const c = a.container;
+      for (const b of atoms) {
+        if (b.kind === 'text' && b !== a && isAncestor(c.el, b.container.el) && b.container.el !== c.el) {
+          if (c.whole) b.nestedIn = a;
+        }
+      }
+    }
+
+    const content = atoms.filter((a) => !a.passive && !a.nestedIn);
+    for (const a of content) {
+      if (a.kind !== 'image') continue;
+      const w = a.width;
+      if (a.link || w == null || w > 40) continue;
+      let tr = null;
+      for (let x = a.img.parent; x && x !== rootEl; x = x.parent) {
+        if (x.type === 'el' && x.tag === 'tr') {
+          tr = x;
+          break;
+        }
+      }
+      if (!tr) continue;
+      const mates = content.filter((b) => b !== a && isAncestor(tr, b.root));
+      if (mates.length === 1 && mates[0].kind === 'text') {
+        a.attachedTo = mates[0];
+      }
+    }
+
+    const live = content.filter((a) => !a.attachedTo);
+    const countIn = (node) => live.reduce((s, a) => s + (isAncestor(node, a.root) ? 1 : 0), 0);
+
+    for (const a of live) a.atomCount = 1;
+
+    const items = [];
+    const composition = (el) => {
+      const m = new Map();
+      for (const a of content) {
+        if (!isAncestor(el, a.root)) continue;
+        m.set(a.kind, (m.get(a.kind) || 0) + 1);
+      }
+      return m;
+    };
+    const lonelyText = (el) => {
+      const inside = content.filter((a) => isAncestor(el, a.root));
+      return inside.length === 1 && inside[0].kind === 'text' && !hasMarker(src, el);
+    };
+    const runAt = (parent) => {
+      const kids = els(parent).filter((k) => countIn(k) > 0 || isGlue(src, k, live));
+      const cand = kids.filter((k) => countIn(k) > 0);
+      if (cand.length < 2) return [];
+      const runs = [];
+      let run = [cand[0]];
+      const sigs = new Map(cand.map((k) => [k, nodeSig(k, src)]));
+      const comps = new Map(cand.map((k) => [k, composition(k)]));
+      for (let i = 1; i < cand.length; i++) {
+        const prev = run[0];
+        const cur = cand[i];
+        const between = kids.slice(kids.indexOf(run[run.length - 1]) + 1, kids.indexOf(cur));
+        const glueOnly = between.every((k) => countIn(k) === 0);
+        if (cur.tag === prev.tag && glueOnly && sim(sigs.get(prev), sigs.get(cur)) >= 0.6 && sim(comps.get(prev), comps.get(cur)) >= 0.6) run.push(cur);
+        else {
+          if (run.length >= 2) runs.push(run);
+          run = [cur];
+        }
+      }
+      if (run.length >= 2) runs.push(run);
+      return runs.filter((r) => !r.every(lonelyText));
+    };
+    const allRuns = [];
+    walk(rootEl, (n) => {
+      if (n.type !== 'el') return;
+      for (const r of runAt(n)) allRuns.push(r);
+    });
+    const runAtoms = (run) => run.map((el) => live.filter((a) => isAncestor(el, a.root)));
+    const kept = allRuns.filter((run) => {
+      const inner = allRuns.filter((r) => r !== run && run.some((el) => r.some((x) => isAncestor(el, x) && x !== el)));
+      if (!inner.length) return true;
+      const covered = new Set();
+      for (const r of inner) for (const el of r) for (const a of live) if (isAncestor(el, a.root)) covered.add(a);
+      return !runAtoms(run).every((list) => list.every((a) => covered.has(a)));
+    });
+    kept.sort((x, y) => x[0].start - y[0].start);
+    const kindCount = {};
+    for (const run of kept) {
+      const kind = runKind(src, run, live, block, buttons);
+      for (const el of run) {
+        if (items.some((it) => it.el === el)) continue;
+        const inner = live.filter((a) => isAncestor(el, a.root));
+        if (!inner.length) continue;
+        const parentItem = items.filter((it) => isAncestor(it.el, el)).sort((p, q) => q.el.depth - p.el.depth)[0] || null;
+        const ck = (parentItem ? items.indexOf(parentItem) : 'root') + ':' + kind;
+        kindCount[ck] = (kindCount[ck] || 0) + 1;
+        items.push({ el, kind, n: kindCount[ck], atoms: inner, run, parentItem, sideBySide: sideBySide(src, run) });
+      }
+    }
+    for (const a of [...live, ...content.filter((x) => x.attachedTo)]) {
+      const its = items.filter((it) => isAncestor(it.el, a.attachedTo ? a.attachedTo.root : a.root)).sort((p, q) => q.el.depth - p.el.depth);
+      a.item = its[0] || null;
+    }
+
+    return { rootEl, atoms, live, content, items, buttons, notes, countIn };
+  }
+
+  function firstContent(src, el) {
+    const k = el.children;
+    let i = 0;
+    while (i < k.length && isWs(src, k[i])) i++;
+    return i;
+  }
+
+  function lastContent(src, el) {
+    const k = el.children;
+    let i = k.length - 1;
+    while (i >= 0 && isWs(src, k[i])) i--;
+    return i;
+  }
+
+  function isGlue(src, el, live) {
+    if (el.type !== 'el') return false;
+    if (live && live.some((a) => isAncestor(el, a.root))) return false;
+    let content = false;
+    walk(el, (x) => {
+      if (content) return false;
+      if (x.type === 'el' && x.tag === 'img') content = true;
+      if (x.type === 'text' && meaningfulText(src.slice(x.start, x.end))) content = true;
+    });
+    return !content;
+  }
+
+  function hasMarker(src, el) {
+    let found = false;
+    walk(el, (x) => {
+      if (found || x.type === 'comment' || x.type === 'stmt') return false;
+      if (x.type !== 'text') return;
+      const t = decode(src.slice(x.start, x.end)).trim();
+      if (t && /^[•·●▪■◦‣\-–—|✓✔→*]+$/u.test(t)) found = true;
+    });
+    return found;
+  }
+
+  function sideBySide(src, run) {
+    const a = run[0];
+    if (a.tag === 'td' || a.tag === 'th') return true;
+    const st = (attrVal(a, 'style') || '').toLowerCase();
+    return /display\s*:\s*inline-block/.test(st) || /float\s*:/.test(st);
+  }
+
+  function runKind(src, run, live, block, buttons) {
+    const first = run[0];
+    const inner = live.filter((a) => isAncestor(first, a.root));
+    let tel = false;
+    walk(first, (x) => {
+      if (x.type === 'el' && x.tag === 'a' && /^tel:/i.test(attrVal(x, 'href') || '')) tel = true;
+    });
+    if (tel) return 'phone';
+    const imgs = inner.filter((a) => a.kind === 'image');
+    const texts = inner.filter((a) => a.kind === 'text' || a.kind === 'button');
+    if (imgs.length === inner.length && imgs.every((a) => a.width != null && a.width <= 64)) {
+      const blob = run.map((el) => src.slice(el.start, el.end)).join(' ').toLowerCase();
+      const footer = /подвал|футер|footer/i.test((block.category || '') + ' ' + (block.title || ''));
+      if (footer || /vk\.com|t\.me|telegram|youtube|ok\.ru|dzen|whatsapp|instagram|max\.ru|soc|vk|tg/.test(blob)) return 'social';
+      return 'icon';
+    }
+    if (imgs.some((a) => a.width == null || a.width > 64) && texts.length) return 'card';
+    if (!imgs.length && texts.length && inner.some((a) => a.kind === 'button')) return 'card';
+    if (!imgs.length && texts.length <= 2) return 'item';
+    return 'card';
+  }
+
+  function textRole(src, a, block) {
+    const c = a.container;
+    const nodes = c.el.children.slice(c.from, c.to + 1);
+    let raw = '';
+    for (const n of nodes) raw += src.slice(n.start, n.end);
+    const text = decode(raw.replace(/<[^>]+>/g, ' ')).replace(/[\s ]+/g, ' ').trim();
+    let tel = false;
+    let mail = false;
+    let strike = false;
+    for (const n of nodes) {
+      walk(n, (x) => {
+        if (x.type !== 'el') return;
+        const h = attrVal(x, 'href') || '';
+        if (/^tel:/i.test(h)) tel = true;
+        if (/^mailto:/i.test(h)) mail = true;
+        if (STRIKE.has(x.tag)) strike = true;
+      });
+    }
+    for (let x = c.el; x && x !== block.node.parent; x = x.parent) {
+      if (x.type === 'el' && (STRIKE.has(x.tag) || /line-through/i.test(attrVal(x, 'style') || ''))) strike = true;
+    }
+    const fs = fontPx(src, c.el, 'font-size') || 14;
+    const bold = /font-weight\s*:\s*(bold|[6-9]00)/i.test(raw) || /<(b|strong)\b/i.test(raw) || /font-weight\s*:\s*(bold|[6-9]00)/i.test(attrVal(c.el, 'style') || '');
+    if (tel) return 'phone';
+    if (mail) return 'email';
+    if (/©|&copy;/.test(text)) return 'copyright';
+    if (/отписат|отказаться от получ|unsubscrib/i.test(text)) return 'unsubscribe';
+    if (/^(от\s*)?\d[\d\s .,]*\s*(₽|руб|р\.|сом|тг|₸|\$|€|сўм)/i.test(text)) return strike ? 'old_price' : 'price';
+    if (/^(https?:\/\/)?(www\.)?[\w-]+(\.[\w-]+)*\.[a-zа-яё]{2,}\/?$/i.test(text)) return 'website';
+    if (strike && /^\d[\d\s\u00a0.,]*$/.test(text)) return 'old_price';
+    if (text.length <= 30 && (hasBg(src, c.el) || (c.el.parent && c.el.parent.type === 'el' && hasBg(src, c.el.parent) && c.el.parent.children.filter((k) => k.type === 'el').length === 1))) return 'badge';
+    if (/^[A-Z0-9-]{4,20}$/.test(text)) return 'promocode';
+    if (fs >= 20 || (bold && fs >= 16 && text.length <= 80)) return 'title';
+    if (fs <= 13 && text.length > 80) return 'legal';
+    if (fs <= 13) return 'label';
+    return 'text';
+  }
+
+  function imageRole(src, a, block, isFirstImage) {
+    const s = ((attrVal(a.img, 'src') || '') + ' ' + (attrVal(a.img, 'alt') || '')).toLowerCase();
+    const header = /шапк|хедер|header/i.test((block.category || '') + ' ' + (block.title || '') + ' ' + (block.name || ''));
+    if (/logo|лого/.test(s) || (header && isFirstImage)) return 'logo';
+    if (a.width != null && a.width <= 64) return 'icon';
+    if (a.width != null && a.width >= 500) return 'banner';
+    return 'image';
+  }
+
+  function build(src, doc, block, options) {
+    const opt = Object.assign({
+      texts: true, images: true, links: true, colors: true, toggles: true, itemToggles: true,
+      equalHeight: true, spacing: true, name: null
+    }, options || {});
+    const A = analyze(src, doc, block, opt);
+    const rootEl = A.rootEl;
+    const edits = [];
+    const params = [];
+    const byName = new Map();
+    const notes = [];
+    const groups = new Map();
+    const report = { replaced: 0, toggles: 0, placeholders: 0 };
+
+    const uniq = (base) => {
+      let nm = base.replace(/[^A-Za-z0-9_]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '') || 'param';
+      if (/^\d/.test(nm)) nm = 'p_' + nm;
+      let k = nm;
+      let i = 2;
+      while (byName.has(k.toLowerCase())) k = nm + '_' + i++;
+      return k;
+    };
+    const group = (key, label, pos) => {
+      if (!groups.has(key)) groups.set(key, { key, label, pos, params: [] });
+      const g = groups.get(key);
+      if (pos < g.pos) g.pos = pos;
+      return g;
+    };
+    const addParam = (p, g0) => {
+      let g = g0;
+      let n = 1;
+      while (p.type !== 'DISPLAY_TOGGLE' && g0.key !== 'spacing' && g.params.some((x) => x.type === p.type)) {
+        n++;
+        g = group(g0.key + '__' + n, g0.label + ' — часть ' + n, g0.pos + n / 1000);
+      }
+      p.name = uniq(p.name);
+      byName.set(p.name.toLowerCase(), p);
+      p.group = g;
+      g.params.push(p);
+      params.push(p);
+      return p;
+    };
+    const rep = (start, end, text, kind) => {
+      edits.push({ start, end, text, kind: kind || 'rep', depth: 0 });
+      report.replaced++;
+    };
+    const ins = (pos, text, side) => edits.push({ start: pos, end: pos, text, kind: side, span: 0 });
+
+    let imgIndex = 0;
+    const roleCounts = {};
+    const atomGroup = new Map();
+    const itemLabel = (it) => (it.parentItem ? itemLabel(it.parentItem) + ' — ' + RULES.kinds[it.kind].ru.toLowerCase() : RULES.kinds[it.kind].ru) + ' ' + it.n;
+    const itemKey = (it) => (it.parentItem ? itemKey(it.parentItem) + '_' : '') + RULES.kinds[it.kind].en + '_' + it.n;
+    for (const a of A.content.slice().sort((x, y) => x.pos - y.pos)) {
+      if (a.kind === 'text') a.role = textRole(src, a, block);
+      if (a.kind === 'image') a.role = imageRole(src, a, block, imgIndex++ === 0);
+    }
+    for (const a of A.content.slice().sort((x, y) => x.pos - y.pos)) {
+      const it = a.attachedTo ? a.attachedTo.item : a.item;
+      const role = a.attachedTo ? a.attachedTo.role : a.role;
+      const atomsInItem = it ? it.atoms.length : 0;
+      let key;
+      let label;
+      if (it) {
+        const sameRole = it.atoms.filter((x) => x.role === role);
+        const idx = sameRole.indexOf(a.attachedTo || a) + 1;
+        if (atomsInItem <= 1 || (it.kind === 'phone' && role === 'phone')) {
+          key = itemKey(it);
+          label = itemLabel(it);
+        } else {
+          key = itemKey(it) + '_' + role + (sameRole.length > 1 ? '_' + idx : '');
+          label = itemLabel(it) + ' — ' + RULES.roleLabels[role] + (sameRole.length > 1 ? ' ' + idx : '');
+        }
+        a.prefix = key === itemKey(it) ? itemKey(it) : itemKey(it) + '_' + (it.kind === 'phone' && role === 'phone' ? '' : role);
+        a.prefix = a.prefix.replace(/_$/, '');
+      } else {
+        roleCounts[role] = (roleCounts[role] || 0) + (a.attachedTo ? 0 : 1);
+        const n = roleCounts[role] || 1;
+        key = role + (n > 1 ? '_' + n : '');
+        const rl = RULES.roleLabels[role] || role;
+        label = rl[0].toUpperCase() + rl.slice(1) + (n > 1 ? ' ' + n : '');
+        a.prefix = key;
+      }
+      if (a.attachedTo) {
+        key = atomGroup.get(a.attachedTo) ? atomGroup.get(a.attachedTo).key : key;
+      }
+      const g = a.attachedTo && atomGroup.get(a.attachedTo) ? atomGroup.get(a.attachedTo) : group(key, label, a.pos);
+      atomGroup.set(a, g);
+    }
+
+    const linked = new Map();
+    const urlParam = (linkEl, nameBase, g, role) => {
+      if (linked.has(linkEl)) return linked.get(linkEl);
+      const h = attr(linkEl, 'href');
+      if (!h || h.vStart == null || /^\s*[$@]\{/.test(h.value)) return null;
+      let def = h.value;
+      if (role === 'unsubscribe' && (def === '' || def === '#')) {
+        def = RULES.unsubscribeDefault;
+        notes.push('Ссылка отписки: по умолчанию подставлена ' + RULES.unsubscribeDefault + '.');
+      }
+      const p = addParam({ name: nameBase, type: 'URL', defaultValue: def, pos: h.vStart }, g);
+      rep(h.vStart, h.vEnd, '${editor.' + p.name + '}');
+      linked.set(linkEl, p);
+      return p;
+    };
+
+    const colorUses = [];
+    const colorScan = (node, roleHint) => {
+      if (!opt.colors) return;
+      walk(node, (x) => {
+        if (x.type === 'comment' || x.type === 'stmt') return false;
+        if (x.type !== 'el') return;
+        const hint = roleHint(x);
+        const gradColors = new Map();
+        const decls = styleDecls(src, attr(x, 'style'));
+        for (const d of decls) {
+          let kind = null;
+          let grad = null;
+          if (d.prop === 'color') kind = 'text';
+          else if (d.prop === 'background-color') kind = 'bg';
+          else if (d.prop === 'background' && /^#[0-9a-f]{3,6}\s*(!important)?$/i.test(d.value)) kind = 'bg';
+          else if (/^border(-(top|bottom|left|right))?(-color)?$/.test(d.prop)) kind = 'line';
+          if (/gradient\(/i.test(d.value) && /^background(-image)?$/.test(d.prop)) {
+            kind = 'bg';
+            grad = 'start';
+          }
+          if (!kind) continue;
+          HEX_RE.lastIndex = 0;
+          let m;
+          const found = [];
+          while ((m = HEX_RE.exec(d.value))) found.push(m);
+          found.forEach((mm, i) => {
+            const g = grad ? (i === found.length - 1 && found.length > 1 ? 'end' : i === 0 ? 'start' : 'mid' + i) : null;
+            const value = normHex(mm[0]);
+            if (g) gradColors.set(value, g);
+            colorUses.push(Object.assign({ el: x, kind, value, start: d.vStart + mm.index, end: d.vStart + mm.index + mm[0].length, grad: g }, hint));
+          });
+        }
+        const bgc = attr(x, 'bgcolor');
+        if (bgc && bgc.value && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(bgc.value.trim())) {
+          const value = normHex(bgc.value.trim());
+          colorUses.push(Object.assign({ el: x, kind: 'bg', value, start: bgc.vStart, end: bgc.vEnd, grad: gradColors.get(value) || null }, hint));
+        }
+      });
+    };
+
+    const textSegments = (c) => {
+      const nodes = c.el.children.slice(c.from, c.to + 1);
+      const simple = (n) => n.type === 'text' || n.type === 'comment' || (n.type === 'el' && SIMPLE_INLINE.has(n.tag) && (n.tag === 'br' || n.attrs.length === 0) && n.children.every(simple));
+      const segs = [];
+      let run = [];
+      const flush = () => {
+        if (run.length) segs.push({ kind: 'run', nodes: run });
+        run = [];
+      };
+      for (const n of nodes) {
+        if (n.type === 'stmt') {
+          flush();
+          continue;
+        }
+        if (simple(n)) run.push(n);
+        else {
+          flush();
+          segs.push({ kind: 'el', node: n });
+        }
+      }
+      flush();
+      return segs;
+    };
+
+    const textParam = (nodes, nameBase, g) => {
+      let s0 = nodes[0].start;
+      let e0 = nodes[nodes.length - 1].end;
+      const whole = src.slice(s0, e0);
+      if (/\$\{/.test(whole)) {
+        let k = s0;
+        let first = null;
+        while (k < e0) {
+          const d = src.indexOf('${', k);
+          const stop = d < 0 || d >= e0 ? e0 : d;
+          if (stop > k && !/</.test(src.slice(k, stop))) {
+            const p = rangeParam(k, stop, nameBase, g);
+            if (p && !first) first = p;
+          }
+          if (stop >= e0) break;
+          k = balanced(src, stop + 1);
+        }
+        return first;
+      }
+      return rangeParam(s0, e0, nameBase, g);
+    };
+
+    const rangeParam = (s0, e0, nameBase, g) => {
+      let s = s0;
+      let e = e0;
+      while (s < e && /[ \t\r\n]/.test(src[s])) s++;
+      while (e > s && /[ \t\r\n]/.test(src[e - 1])) e--;
+      const raw = src.slice(s, e);
+      if (!meaningfulText(raw)) return null;
+      if (/[$@]\{/.test(raw)) return null;
+      const plain = decode(raw.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '')).replace(/[ \t\r\n]+/g, ' ').trim();
+      const rich = /<[a-z]/i.test(raw);
+      const long = plain.length > 50;
+      const type = rich || long ? 'TEXT' : 'SIMPLE_TEXT';
+      const def = type === 'TEXT' ? raw.replace(/[ \t\r\n]+/g, ' ').trim() : plain;
+      const p = addParam({ name: nameBase, type, defaultValue: def, pos: s }, g);
+      rep(s, e, '${editor.' + p.name + '}');
+      return p;
+    };
+
+    const nm = (prefix, what) => (prefix ? prefix + '_' : '') + what;
+
+    const roleWords = new Set(Object.keys(RULES.roleLabels));
+    const textName = (prefix, suffix) => {
+      const last = prefix.split('_').pop();
+      return suffix ? prefix + '_' + suffix : roleWords.has(last) ? prefix : prefix + '_text';
+    };
+    const processContainer = (a, g, nodesOverride, depthLevel) => {
+      const c = a.container;
+      const segs = nodesOverride ? nodesOverride : textSegments(c);
+      const meaningfulSegs = segs.filter((x) => x.kind === 'el' || x.nodes.some((n) => n.type === 'text' && meaningfulText(src.slice(n.start, n.end))));
+      for (const sgm of segs) {
+        if (sgm.kind === 'run') {
+          if (opt.texts) textParam(sgm.nodes, textName(a.prefix, a.suffix), g);
+        } else {
+          const el = sgm.node;
+          let g2 = g;
+          let suffix = a.suffix;
+          if (el.tag === 'a' && attr(el, 'href')) {
+            if (meaningfulSegs.length > 1) {
+              const k = (g.linkCount = (g.linkCount || 0) + 1);
+              g2 = group(g.key + '_link' + k, g.label + ' — ссылка' + (k > 1 ? ' ' + k : ''), el.start);
+              suffix = 'link_text';
+            }
+            if (opt.links) urlParam(el, a.prefix + (suffix === 'link_text' && g.linkCount > 1 ? '_link_' + g.linkCount : '') + '_url', g2, a.role);
+          } else if (INLINE.has(el.tag) && el.attrs.length && meaningfulSegs.length > 1 && !a.suffix) {
+            const k = (g.accentCount = (g.accentCount || 0) + 1);
+            g2 = group(g.key + '_accent' + k, g.label + ' — выделение' + (k > 1 ? ' ' + k : ''), el.start);
+            suffix = 'accent';
+          }
+          const inner = { el, from: firstContent(src, el), to: lastContent(src, el), whole: true };
+          if (inner.from <= inner.to && depthLevel < 5) processContainer({ container: inner, prefix: a.prefix, role: a.role, suffix }, g2, null, depthLevel + 1);
+        }
+      }
+    };
+
+    const sorted = A.content.slice().sort((x, y) => x.pos - y.pos);
+    for (const a of sorted) {
+      const g = atomGroup.get(a);
+      if (a.kind === 'text') {
+        processContainer(a, g, null, 0);
+      } else if (a.kind === 'image') {
+        const last = a.prefix.split('_').pop();
+        const base = (a.item && a.prefix === itemKey(a.item)) || roleWords.has(last) ? a.prefix : a.prefix + '_' + a.role;
+        const stem = base === 'image' ? 'image' : base.replace(/_image$/, '');
+        if (opt.images) {
+          const s = attr(a.img, 'src');
+          const p = addParam({ name: /image$/.test(base) ? base : base + '_image', type: 'IMAGE', defaultValue: s.value, pos: s.vStart }, g);
+          rep(s.vStart, s.vEnd, '${editor.' + p.name + '}');
+          const altA = attr(a.img, 'alt');
+          const pa = addParam({ name: stem + '_alt', type: 'ALT', defaultValue: altA && altA.value != null ? decode(altA.value) : '', pos: s.vStart + 1 }, g);
+          if (altA && altA.vStart != null) rep(altA.vStart, altA.vEnd, '${editor.' + pa.name + '}');
+          else if (altA) rep(altA.start, altA.end, 'alt="${editor.' + pa.name + '}"');
+          else {
+            const close = src[a.img.openEnd - 2] === '/' ? a.img.openEnd - 2 : a.img.openEnd - 1;
+            ins(close, ' alt="${editor.' + pa.name + '}"', 'attr', 0);
+          }
+        }
+        if (a.link && opt.links) urlParam(a.link, stem + '_url', g, a.role);
+      } else if (a.kind === 'button') {
+        const base = a.prefix.endsWith('button') ? a.prefix : nm(a.prefix, 'button');
+        if (opt.links) urlParam(a.link, base + '_url', g, 'button');
+        if (opt.texts) {
+          for (const c of a.texts || []) {
+            for (const sgm of textSegments(c)) {
+              if (sgm.kind === 'run') textParam(sgm.nodes, base + '_text', g);
+              else {
+                const inner = { el: sgm.node, from: firstContent(src, sgm.node), to: lastContent(src, sgm.node), whole: true };
+                if (inner.from <= inner.to) processContainer({ container: inner, prefix: base, role: 'button', suffix: 'text' }, g, null, 1);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (opt.links) {
+      const covered = (x, y) => edits.some((e) => e.end > e.start && x >= e.start && y <= e.end);
+      walk(rootEl, (n) => {
+        if (n.type !== 'el' || n.tag !== 'a') return;
+        const h = attr(n, 'href');
+        if (!h || h.vStart == null || linked.has(n) || /[$@]\{/.test(h.value) || covered(h.vStart, h.vEnd)) return;
+        const near = A.content.filter((a) => isAncestor(n, a.root) || isAncestor(a.root, n)).sort((p, q) => p.pos - q.pos)[0];
+        const g = near ? atomGroup.get(near) : group('link_' + n.start, 'Ссылка', n.start);
+        urlParam(n, (near ? near.prefix : 'link') + '_url', g, near ? near.role : 'link');
+      });
+    }
+
+    const plate = findPlate(src, A);
+    if (opt.colors && plate) {
+      const g = group('background', 'Фон блока', -1);
+      const bgc = attr(plate, 'bgcolor');
+      const decl = styleDecls(src, attr(plate, 'style')).find((d) => d.prop === 'background-color' || (d.prop === 'background' && /^#[0-9a-f]{3,6}\s*$/i.test(d.value)));
+      const colorVal = bgc && bgc.value ? bgc.value.trim() : decl ? (decl.value.match(HEX_RE) || [''])[0] : '';
+      const styleVal = decl ? (decl.value.match(HEX_RE) || [''])[0] : '';
+      const twoColors = bgc && bgc.value && styleVal && normHex(bgc.value.trim()).toLowerCase() !== normHex(styleVal).toLowerCase();
+      if (twoColors) notes.push('Фон не сделан настраиваемым: в письме у него два разных цвета — bgcolor ' + bgc.value.trim() + ' и background-color ' + styleVal + '. Оставьте в письме один цвет, и фон можно будет менять.');
+      else if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(colorVal)) {
+        const p = addParam({ name: 'background', type: 'BACKGROUND', defaultValue: { type: 'color', color: normHex(colorVal) }, pos: plate.start }, g);
+        if (bgc && bgc.vStart != null) rep(bgc.vStart, bgc.vEnd, '${editor.' + p.name + '.color}');
+        if (decl) rep(decl.start, decl.end, '${editor.' + p.name + '.formattedBackgroundStyles}');
+        const st = attr(plate, 'style');
+        const anchor = st ? st.end : (bgc ? bgc.end : plate.openEnd - 1);
+        ins(anchor, ' ${if(editor.' + p.name + '.type = "image", \'background="\' & editor.' + p.name + '.image & \'"\', "")}', 'attr', 0);
+        plate.__bg = true;
+      }
+    }
+
+    if (opt.colors) {
+      const roleOfEl = (el) => {
+        const btn = A.content.find((x) => x.kind === 'button' && (isAncestor(x.root, el) || x.root === el));
+        if (btn) return { role: 'button', itemKind: btn.item ? btn.item.kind : null, accent: false };
+        const t = A.content.filter((x) => x.kind === 'text' && (isAncestor(x.container.el, el) || isAncestor(el, x.container.el))).sort((p, q) => Math.abs(p.container.el.depth - el.depth) - Math.abs(q.container.el.depth - el.depth))[0];
+        if (!t) {
+          const it = A.items.filter((x) => isAncestor(x.el, el)).sort((p, q) => q.el.depth - p.el.depth)[0];
+          return { role: null, itemKind: it ? it.kind : null, accent: false };
+        }
+        let accent = false;
+        if (el !== t.container.el && isAncestor(t.container.el, el) && INLINE.has(el.tag)) {
+          const own = textOf(src, el);
+          const all = textOf(src, t.container.el);
+          if (own && all.replace(own, '').replace(/[\s\u00a0]+/g, '')) accent = el.tag === 'a' ? 'link' : 'accent';
+        }
+        return { role: t.role, itemKind: t.item ? t.item.kind : null, accent };
+      };
+      walk(rootEl, (x) => {
+        if (x.type === 'comment' || x.type === 'stmt') return false;
+        if (x.type === 'el' && x === plate) {
+          for (const d of styleDecls(src, attr(x, 'style'))) {
+            if (d.prop === 'color' || /^border/.test(d.prop)) {
+              HEX_RE.lastIndex = 0;
+              let m;
+              while ((m = HEX_RE.exec(d.value))) colorUses.push({ el: x, kind: d.prop === 'color' ? 'text' : 'line', value: normHex(m[0]), start: d.vStart + m.index, end: d.vStart + m.index + m[0].length, role: null, itemKind: null, accent: false, grad: null });
+            }
+          }
+          for (const k of x.children) colorScan(k, roleOfEl);
+          return false;
+        }
+      });
+      if (!plate) colorScan(rootEl, roleOfEl);
+      const taken = new Set(edits.filter((e) => e.end > e.start).map((e) => e.start + ':' + e.end));
+      const covered = (u) => edits.some((e) => e.end > e.start && u.start >= e.start && u.end <= e.end);
+      const byKey = new Map();
+      for (const u of colorUses) {
+        if (taken.has(u.start + ':' + u.end) || covered(u)) continue;
+        const role = u.role || (u.kind === 'bg' ? 'block' : u.kind === 'line' ? 'line' : 'text');
+        const k = [u.kind, u.itemKind || '', u.kind === 'line' ? '' : role, u.accent || '', u.grad || '', u.value].join('|');
+        if (!byKey.has(k)) byKey.set(k, Object.assign({ uses: [] }, u, { role }));
+        byKey.get(k).uses.push(u);
+      }
+      const labelCount = {};
+      const gradRu = { start: ', начало градиента', end: ', конец градиента' };
+      for (const c of [...byKey.values()].sort((x, y) => x.uses[0].start - y.uses[0].start)) {
+        const rl = c.role === 'block' ? 'блок' : c.role === 'line' ? '' : (RULES.roleLabels[c.role] || c.role);
+        const what = c.kind === 'text' ? 'Цвет текста' : c.kind === 'bg' ? 'Цвет фона' : 'Цвет линии';
+        const whose = c.itemKind ? RULES.kinds[c.itemKind].plural + (rl ? ', ' + rl : '') : rl;
+        let label = what + (whose ? ' — ' + whose : '') + (c.accent === 'link' ? ', ссылка' : c.accent ? ', выделение' : '') + (gradRu[c.grad] || '');
+        labelCount[label] = (labelCount[label] || 0) + 1;
+        if (labelCount[label] > 1) label += ' ' + labelCount[label];
+        const g = group('color_' + label, label, Number.MAX_SAFE_INTEGER / 2 + c.uses[0].start);
+        const roleWord = c.kind === 'line' ? 'line' : c.role === c.itemKind ? '' : c.role;
+        const nameBase = [c.itemKind ? RULES.kinds[c.itemKind].en : '', roleWord, c.accent || ''].filter(Boolean).join('_') + (c.kind === 'bg' && c.role !== 'block' ? '_background' : c.kind === 'bg' ? '_background' : '_color') + (c.grad === 'start' || c.grad === 'end' ? '_' + c.grad : '');
+        const p = addParam({ name: nameBase, type: 'COLOR', defaultValue: c.value, pos: c.uses[0].start }, g);
+        for (const u of c.uses) rep(u.start, u.end, '${editor.' + p.name + '}');
+      }
+    }
+
+    const frame = findFrame(src, rootEl);
+    if (opt.spacing) {
+      const g = group('spacing', 'Отступы сверху и снизу', Number.MAX_SAFE_INTEGER);
+      const r = spacingEdits(src, rootEl, frame);
+      if (r) {
+        const pt = addParam({ name: 'spacing_top', type: 'NUMBER', defaultValue: String(r.top), pos: Number.MAX_SAFE_INTEGER - 2 }, g);
+        const pb = addParam({ name: 'spacing_bottom', type: 'NUMBER', defaultValue: String(r.bottom), pos: Number.MAX_SAFE_INTEGER - 1 }, g);
+        for (const e of r.edits) edits.push({ start: e.start, end: e.end, text: e.text.replace('{T}', '${editor.' + pt.name + '}').replace('{B}', '${editor.' + pb.name + '}'), kind: 'rep', depth: 0 });
+        if (r.note) notes.push(r.note);
+      } else notes.push('Отступы сверху и снизу не сделаны: у блока нет внешней ячейки с отступом.');
+    }
+
+    const toggleUnits = [];
+    const live = A.live;
+    const protectedEls = new Set([rootEl]);
+    if (frame) protectedEls.add(frame);
+    if (plate) protectedEls.add(plate);
+    const unitFor = (startNode) => {
+      let u = startNode;
+      const own = live.filter((a) => isAncestor(u, a.root)).length || 1;
+      while (u.parent && u.parent.type === 'el' && !protectedEls.has(u.parent)) {
+        const p = u.parent;
+        if (A.countIn(p) > own) break;
+        if (p.tag === 'tbody' || p.tag === 'thead') {
+          if (A.countIn(p.parent) > own) break;
+        }
+        u = p;
+      }
+      if (u.tag === 'tbody') u = u.parent;
+      return u;
+    };
+    const glueSpan = (u) => {
+      const p = u.parent;
+      const res = { s: u.start, e: u.end, nodes: [u], before: null };
+      if (!p || !p.children) return res;
+      const sib = p.children;
+      const idx = sib.indexOf(u);
+      const contentIdx = sib.map((x, i) => (x.type === 'el' && A.countIn(x) > 0 ? i : -1)).filter((i) => i >= 0);
+      const isLast = contentIdx[contentIdx.length - 1] === idx;
+      const isFirst = contentIdx[0] === idx;
+      const collect = (from, step) => {
+        const out = [];
+        let j = from;
+        while (j >= 0 && j < sib.length) {
+          const x = sib[j];
+          if (isWs(src, x) && x.type !== 'comment') {
+            j += step;
+            continue;
+          }
+          if (x.type === 'el' && isGlue(src, x, live)) {
+            out.push(x);
+            j += step;
+            continue;
+          }
+          if (step > 0 && x.type === 'comment' && /^\x3C!--\[if/i.test(src.slice(x.start, x.start + 8))) {
+            out.push(x);
+            j += step;
+            continue;
+          }
+          break;
+        }
+        return out;
+      };
+      if (!isLast) {
+        const after = collect(idx + 1, 1);
+        if (after.length) {
+          res.e = after[after.length - 1].end;
+          res.nodes = [u, ...after];
+        }
+      } else if (!isFirst) {
+        const prev = collect(idx - 1, -1).reverse();
+        if (prev.length) res.before = { s: prev[0].start, e: prev[prev.length - 1].end, tag: prev[0].tag };
+      }
+      return res;
+    };
+
+    const wrapRange = (s, e, tag, name, placeholder) => {
+      const lineStart = src.lastIndexOf('\n', s - 1) + 1;
+      const before = src.slice(lineStart, s);
+      const block = /^[ \t]*$/.test(before) && ['table', 'tr', 'td', 'th', 'tbody', 'div'].includes(tag);
+      const indent = block ? before : '';
+      const nl = block ? '\n' + indent : '';
+      const open = '@{if editor.' + name + '}' + nl;
+      const close = placeholder ? nl + '@{else}' + placeholder + nl + '@{end if}' : nl + '@{end if}';
+      edits.push({ start: s, end: s, text: open, kind: 'open', span: e - s });
+      edits.push({ start: e, end: e, text: close, kind: 'close', span: e - s });
+    };
+
+    const wrapToggle = (unit, span, name, g, placeholder) => {
+      const p = addParam({ name, type: 'DISPLAY_TOGGLE', defaultValue: 'true', pos: unit.start - 0.5 }, g);
+      g.params.splice(g.params.indexOf(p), 1);
+      g.params.unshift(p);
+      wrapRange(span.s, span.e, unit.tag, p.name, placeholder);
+      toggleUnits.push({ unit, s: span.s, e: span.e, name: p.name });
+      if (span.before) {
+        wrapRange(span.before.s, span.before.e, span.before.tag, p.name, null);
+        toggleUnits.push({ unit, s: span.before.s, e: span.before.e, name: p.name, glue: true });
+      }
+      report.toggles++;
+      if (placeholder) report.placeholders++;
+      return p;
+    };
+
+    const overlaps = (s, e) => toggleUnits.some((t) => (s < t.e && e > t.s) && !(s <= t.s && e >= t.e) && !(s >= t.s && e <= t.e));
+    const sameSpan = (s, e) => toggleUnits.some((t) => t.s === s && t.e === e);
+    const fits = (span) => !overlaps(span.s, span.e) && !sameSpan(span.s, span.e) && (!span.before || (!overlaps(span.before.s, span.before.e) && !sameSpan(span.before.s, span.before.e)));
+
+    if (opt.itemToggles) {
+      for (const it of A.items.slice().sort((x, y) => x.el.start - y.el.start)) {
+        const u = it.el;
+        if (u === rootEl) continue;
+        const span = glueSpan(u);
+        if (!fits(span)) continue;
+        const g = group(itemKey(it), itemLabel(it), u.start);
+        wrapToggle(u, span, 'show_' + itemKey(it), g, null);
+      }
+    }
+    if (opt.toggles && live.length >= 2) {
+      for (const a of live.slice().sort((x, y) => x.pos - y.pos)) {
+        if (a.kind === 'bgimage') continue;
+        const startNode = a.kind === 'text' ? a.container.el : a.root;
+        const u = unitFor(startNode);
+        if (u === rootEl) continue;
+        if (INLINE.has(u.tag) && u.tag !== 'a') continue;
+        if (u.tag === 'a' && u.parent && A.countIn(u.parent) > 1) continue;
+        if ((u.tag === 'td' || u.tag === 'th') && u.parent && els(u.parent).filter((x) => A.countIn(x) > 0).length > 1) continue;
+        if (protectedEls.has(u)) continue;
+        if (A.items.some((it) => it.el === u)) continue;
+        if (a.item && a.item.atoms.length <= 1) continue;
+        const span = glueSpan(u);
+        if (!fits(span)) continue;
+        const g = atomGroup.get(a);
+        let placeholder = null;
+        if (opt.equalHeight && a.item && a.item.sideBySide) {
+          let h = 0;
+          for (const n of span.nodes) {
+            const x = estimateHeight(src, n, live);
+            if (x == null) {
+              h = null;
+              break;
+            }
+            h += x;
+          }
+          if (h != null && h > 0) placeholder = placeholderFor(u, h);
+          if (!placeholder) notes.push(g.label + ': высоту не вычислить, при скрытии карточка станет ниже соседних.');
+        }
+        wrapToggle(u, span, 'show_' + a.prefix, g, placeholder);
+      }
+    }
+
+    if (attr(rootEl, 'mindbox-block') || attr(rootEl, 'mindbox-block-name') || attr(rootEl, 'mindbox-block-category')) {
+      for (const at of rootEl.attrs) {
+        if (/^mindbox-block/.test(at.name)) {
+          let s = at.start;
+          while (s > rootEl.start && /\s/.test(src[s - 1])) s--;
+          edits.push({ start: s, end: at.end, text: '', kind: 'rep', depth: 0 });
+        }
+      }
+    }
+
+    const out = applyEdits(src, rootEl.start, rootEl.end, edits);
+    const blockName = (opt.name && RULES.nameRe.test(opt.name)) ? opt.name : suggestName(block, A, src);
+    const html = '\x3C!-- EDITOR_BLOCK_TEMPLATE: ' + blockName + ' -->\n' + dedent(out);
+
+    for (const g of groups.values()) {
+      const kept = g.params.filter((p) => p.type !== 'DISPLAY_TOGGLE' || html.includes('editor.' + p.name + '}'));
+      report.toggles -= g.params.length - kept.length;
+      g.params = kept;
+    }
+    const glist = [...groups.values()].filter((g) => g.params.length);
+    const special = (g) => (g.key === 'background' ? -2 : g.key === 'spacing' ? Number.MAX_SAFE_INTEGER : g.pos);
+    glist.sort((x, y) => special(x) - special(y));
+    let num = 100;
+    for (const g of glist) {
+      if (g.key === 'background') g.final = '#90 ' + g.label;
+      else if (g.key === 'spacing') g.final = '#990 ' + g.label;
+      else {
+        g.final = '#' + num + ' ' + g.label;
+        num += 10;
+      }
+    }
+    const order = RULES.typeOrder;
+    const json = [];
+    for (const g of glist) {
+      const ps = g.params.slice().sort((x, y) => {
+        if (x.type === 'DISPLAY_TOGGLE' && y.type !== 'DISPLAY_TOGGLE') return -1;
+        if (y.type === 'DISPLAY_TOGGLE' && x.type !== 'DISPLAY_TOGGLE') return 1;
+        if (g.key === 'spacing') return x.pos - y.pos;
+        return x.pos - y.pos || order.indexOf(x.type) - order.indexOf(y.type);
+      });
+      for (const p of ps) json.push({ name: p.name, type: p.type, defaultValue: p.defaultValue, extra: null, role: null, group: g.final });
+    }
+
+    const original = '\x3C!-- EDITOR_BLOCK_TEMPLATE: ' + blockName + ' -->\n' + dedent(src.slice(rootEl.start, rootEl.end));
+    const checks = validate(html, json);
+    const same = compareRendered(original, html, json);
+    return {
+      name: blockName, html, json, checks, same, notes: [...new Set([...A.notes, ...notes])], report,
+      stats: statsOf(A), original
+    };
+  }
+
+  function statsOf(A) {
+    const s = { texts: 0, images: 0, buttons: 0, items: A.items.length, kinds: {} };
+    for (const a of A.content) {
+      if (a.kind === 'text') s.texts++;
+      if (a.kind === 'image') s.images++;
+      if (a.kind === 'button') s.buttons++;
+    }
+    for (const it of A.items) s.kinds[it.kind] = (s.kinds[it.kind] || 0) + 1;
+    return s;
+  }
+
+  function findPlate(src, A) {
+    const live = A.live;
+    if (!live.length) return null;
+    let lca = live[0].root;
+    for (const a of live.slice(1)) {
+      while (lca && !isAncestor(lca, a.root)) lca = lca.parent;
+    }
+    let best = null;
+    for (let x = lca; x && x !== A.rootEl.parent; x = x.parent) {
+      if (x.type === 'el' && (attrVal(x, 'bgcolor') || styleDecls(src, attr(x, 'style')).some((d) => d.prop === 'background-color' || (d.prop === 'background' && /^#[0-9a-f]{3,6}\s*$/i.test(d.value))))) {
+        if (!hasGradient(src, x)) best = x;
+      }
+      if (x === A.rootEl) break;
+    }
+    return best;
+  }
+
+  function findFrame(src, rootEl) {
+    let rows = els(rootEl);
+    if (rows.length === 1 && rows[0].tag === 'tbody') rows = els(rows[0]);
+    if (rows.length !== 1 || rows[0].tag !== 'tr') return null;
+    const cells = els(rows[0]);
+    if (cells.length !== 1) return null;
+    return cells[0];
+  }
+
+  function spacingEdits(src, rootEl, td) {
+    if (!td) return null;
+    const st = attr(td, 'style');
+    const decls = styleDecls(src, st);
+    const pad = decls.filter((d) => d.prop === 'padding').pop();
+    const pt = decls.filter((d) => d.prop === 'padding-top').pop();
+    const pb = decls.filter((d) => d.prop === 'padding-bottom').pop();
+    const edits = [];
+    let top = 0;
+    let bottom = 0;
+    let note = null;
+    if (pad && !pt && !pb) {
+      const v = boxValues(pad.value);
+      if (!v || v.some((x) => px(x) == null && !/^0$/.test(x))) return null;
+      top = px(v[0]) || 0;
+      bottom = px(v[2]) || 0;
+      const r = v[1];
+      const l = v[3];
+      const imp = /!important/i.test(pad.value) ? ' !important' : '';
+      const text = (r === l ? '{T}px ' + r + ' {B}px' : '{T}px ' + r + ' {B}px ' + l) + imp;
+      edits.push({ start: pad.vStart, end: pad.vEnd, text });
+    } else if (pt || pb) {
+      if (pt) {
+        top = px(pt.value) || 0;
+        edits.push({ start: pt.vStart, end: pt.vEnd, text: '{T}px' });
+      }
+      if (pb) {
+        bottom = px(pb.value) || 0;
+        edits.push({ start: pb.vStart, end: pb.vEnd, text: '{B}px' });
+      }
+      if (!pt) edits.push({ start: st.vEnd, end: st.vEnd, text: (src[st.vEnd - 1] === ';' || st.vEnd === st.vStart ? '' : ';') + 'padding-top:{T}px;' });
+      if (!pb) edits.push({ start: st.vEnd, end: st.vEnd, text: (src[st.vEnd - 1] === ';' || st.vEnd === st.vStart ? '' : ';') + 'padding-bottom:{B}px;' });
+      if (!pt && !pb) return null;
+    } else {
+      if (st && st.vStart != null) {
+        const sep = st.vEnd > st.vStart && !/;\s*$/.test(src.slice(st.vStart, st.vEnd)) ? ';' : '';
+        edits.push({ start: st.vEnd, end: st.vEnd, text: sep + 'padding:{T}px 0 {B}px;' });
+      } else {
+        const close = td.openEnd - 1;
+        edits.push({ start: close, end: close, text: ' style="padding:{T}px 0 {B}px;"' });
+      }
+      note = 'У блока не было внешних отступов: добавлены отступы сверху и снизу со значением 0.';
+    }
+    return { top, bottom, edits, note };
+  }
+
+  function estimateHeight(src, node, live) {
+    const padV = (n) => {
+      const d = styleDecls(src, attr(n, 'style'));
+      let t = 0;
+      let b = 0;
+      for (const x of d) {
+        if (x.prop === 'padding') {
+          const v = boxValues(x.value);
+          if (v) {
+            t = px(v[0]) || 0;
+            b = px(v[2]) || 0;
+          }
+        }
+        if (x.prop === 'padding-top') t = px(x.value) || 0;
+        if (x.prop === 'padding-bottom') b = px(x.value) || 0;
+      }
+      return t + b;
+    };
+    const explicit = (n) => {
+      const ha = px(attrVal(n, 'height'));
+      if (ha != null) return ha;
+      const hs = styleOf(src, n, 'height');
+      return hs ? px(hs.value) : null;
+    };
+    const rec = (n) => {
+      if (n.type === 'text') return meaningfulText(src.slice(n.start, n.end)) ? undefined : 0;
+      if (n.type !== 'el') return 0;
+      if (n.tag === 'img') {
+        const h = explicit(n);
+        if (h != null) return h;
+        const w = widthOf(src, n);
+        return w != null && w <= 64 ? w : null;
+      }
+      if (n.tag === 'br') return 0;
+      const ex = explicit(n);
+      if (ex != null) {
+        const bw = /border(-top)?\s*:\s*(\d+)px/i.exec(attrVal(n, 'style') || '');
+        const lh = (() => {
+          let m = 0;
+          walk(n, (x) => {
+            if (x.type === 'el') {
+              const d = styleOf(src, x, 'line-height');
+              const v = d ? px(d.value) : null;
+              if (v && v > m) m = v;
+            }
+          });
+          return m;
+        })();
+        return Math.max(ex, lh) + padV(n) + (bw ? 2 * parseInt(bw[2], 10) : 0);
+      }
+      const hasText = n.children.some((c) => c.type === 'text' && meaningfulText(src.slice(c.start, c.end)));
+      if (hasText || (n.children.length && n.children.every(isInlineNode) && textOf(src, n))) {
+        const t = textOf(src, n);
+        const lh = fontPx(src, n, 'line-height');
+        if (!lh) return null;
+        const brs = (src.slice(n.start, n.end).match(/<br\b/gi) || []).length;
+        const nowrap = /white-space\s*:\s*nowrap/i.test(src.slice(n.start, n.openEnd));
+        if (t.length > 26 && !nowrap && !brs) return null;
+        return lh * (brs + 1) + padV(n);
+      }
+      const kids = els(n);
+      if (n.tag === 'tr') {
+        let m = 0;
+        for (const k of kids) {
+          const h = rec(k);
+          if (h == null) return null;
+          m = Math.max(m, h);
+        }
+        return m;
+      }
+      let sum = 0;
+      for (const k of n.children) {
+        if (k.type === 'comment' || k.type === 'stmt') continue;
+        const h = rec(k);
+        if (h === undefined) return null;
+        if (h == null) return null;
+        sum += h;
+      }
+      return sum + padV(n);
+    };
+    const h = rec(node);
+    return h == null ? null : Math.round(h);
+  }
+
+  function placeholderFor(unit, h) {
+    if (unit.tag === 'tr') {
+      const cols = els(unit).length;
+      return '<tr><td' + (cols > 1 ? ' colspan="' + cols + '"' : '') + ' height="' + h + '" style="height:' + h + 'px; line-height:' + h + 'px; font-size:1px;">&nbsp;</td></tr>';
+    }
+    if (unit.tag === 'td' || unit.tag === 'th') return null;
+    return '<div style="height:' + h + 'px; line-height:' + h + 'px; font-size:1px;">&nbsp;</div>';
+  }
+
+  function applyEdits(src, from, to, edits) {
+    const list = edits.filter((e) => e.start >= from && e.end <= to);
+    const reps = list.filter((e) => e.end > e.start || e.kind === 'rep').sort((a, b) => a.start - b.start);
+    for (let i = 1; i < reps.length; i++) {
+      if (reps[i].start < reps[i - 1].end && reps[i].end > reps[i].start) {
+        throw new Error('Пересечение правок: ' + reps[i - 1].start + '-' + reps[i - 1].end + ' и ' + reps[i].start + '-' + reps[i].end);
+      }
+    }
+    const byPos = new Map();
+    for (const e of list) {
+      if (e.end > e.start) continue;
+      if (!byPos.has(e.start)) byPos.set(e.start, []);
+      byPos.get(e.start).push(e);
+    }
+    const points = [];
+    for (const [pos, arr] of byPos) {
+      const closes = arr.filter((e) => e.kind === 'close').sort((a, b) => a.span - b.span);
+      const attrs = arr.filter((e) => e.kind === 'attr' || e.kind === 'rep');
+      const opens = arr.filter((e) => e.kind === 'open').sort((a, b) => b.span - a.span);
+      points.push({ start: pos, end: pos, text: closes.map((e) => e.text).join('') + attrs.map((e) => e.text).join('') + opens.map((e) => e.text).join('') });
+    }
+    const all = [...reps.filter((e) => e.end > e.start), ...points].sort((a, b) => b.start - a.start || b.end - a.end);
+    let out = src.slice(from, to);
+    for (const e of all) {
+      out = out.slice(0, e.start - from) + e.text + out.slice(e.end - from);
+    }
+    return out;
+  }
+
+  function dedent(s) {
+    const lines = s.split('\n');
+    if (lines.length < 2) return s;
+    let min = Infinity;
+    for (const l of lines.slice(1)) {
+      if (!l.trim()) continue;
+      const m = /^[ \t]*/.exec(l)[0];
+      if (m.length < min) min = m.length;
+    }
+    if (!Number.isFinite(min) || min === 0) return s;
+    const lastIndent = /^[ \t]*/.exec(lines[lines.length - 1])[0].length;
+    const cut = Math.min(min, lastIndent);
+    return [lines[0], ...lines.slice(1).map((l) => (/^[ \t]*$/.test(l.slice(0, cut)) ? l.slice(cut) : l))].join('\n');
+  }
+
+  function suggestName(block, A, src, ctx) {
+    if (block.name && RULES.nameRe.test(block.name)) return block.name;
+    let t = (block.title || '') + ' ';
+    let c = block.category || '';
+    if (ctx) {
+      const text = textOf(src, block.node);
+      const isHeader = ctx.index === 0 || A.content.some((a) => a.kind === 'image' && /logo|лого/i.test((attrVal(a.img, 'src') || '') + (attrVal(a.img, 'alt') || '')));
+      const isFooter = ctx.index === ctx.total - 1 || /отписат|©/i.test(text);
+      const says = (re) => re.test(c) || re.test(t);
+      if ((says(/шапк|хедер|header/i) && !isHeader) || (says(/подвал|футер|footer/i) && !isFooter)) {
+        t = ' ';
+        c = '';
+      }
+    }
+    const parts = [];
+    for (const [re, en] of RULES.blockNames.categories) {
+      if (re.test(c) || (!c && re.test(t))) {
+        parts.push(en);
+        break;
+      }
+    }
+    let rest = t;
+    const found = [];
+    for (const [re, en] of RULES.blockNames.words) {
+      const m = re.exec(rest);
+      if (!m) continue;
+      found.push({ at: m.index, en });
+      rest = rest.slice(0, m.index) + ' '.repeat(m[0].length) + rest.slice(m.index + m[0].length);
+    }
+    found.sort((x, y) => x.at - y.at);
+    for (const f of found) if (!parts.includes(f.en) && parts.length < 5) parts.push(f.en);
+    if (!parts.length) {
+      parts.push('content');
+      const s = statsOf(A);
+      if (s.kinds.card) parts.push('cards');
+      else if (s.images && !s.texts) parts.push('image');
+      else if (s.texts) parts.push('text');
+      if (s.buttons) parts.push('button');
+    }
+    return parts.join('_');
+  }
+
+  function scanTemplate(html) {
+    const tokens = [];
+    let i = 0;
+    while (i < html.length) {
+      const d = html.indexOf('${', i);
+      const a = html.indexOf('@{', i);
+      let k = -1;
+      if (d >= 0 && (a < 0 || d < a)) k = d;
+      else if (a >= 0) k = a;
+      if (k < 0) {
+        tokens.push({ t: 'text', s: html.slice(i) });
+        break;
+      }
+      if (k > i) tokens.push({ t: 'text', s: html.slice(i, k) });
+      const e = balanced(html, k + 1);
+      tokens.push({ t: html[k] === '$' ? 'expr' : 'stmt', s: html.slice(k, e), body: html.slice(k + 2, e - 1).trim(), pos: k });
+      i = e;
+    }
+    return tokens;
+  }
+
+  function validate(html, json) {
+    const out = [];
+    const err = (code, text, extra) => out.push({ level: 'error', code, text, extra: extra || null });
+    const warn = (code, text, extra) => out.push({ level: 'warn', code, text, extra: extra || null });
+    const ok = (code, text) => out.push({ level: 'ok', code, text });
+    let arr = json;
+    if (typeof json === 'string') {
+      try {
+        arr = JSON.parse(json);
+      } catch (e) {
+        err('json', 'JSON не читается: ' + e.message);
+        return out;
+      }
+    }
+    if (!Array.isArray(arr)) {
+      err('json', 'JSON должен быть списком параметров в квадратных скобках [ … ].');
+      return out;
+    }
+    const P = new Map();
+    for (const p of arr) {
+      if (!p || typeof p !== 'object') {
+        err('json', 'В JSON есть элемент, который не является параметром.');
+        continue;
+      }
+      if (!p.name) {
+        err('json', 'У параметра нет name.');
+        continue;
+      }
+      const key = String(p.name).toLowerCase();
+      if (P.has(key)) err('dup', 'Параметр «' + p.name + '» описан в JSON дважды.');
+      P.set(key, p);
+      if (!RULES.nameRe.test(p.name)) err('name', 'Имя «' + p.name + '»: можно только латиницу, цифры и _.');
+      const T = RULES.types[p.type];
+      const inDocs = !!(RULES.docs && Array.isArray(RULES.docs.types) && RULES.docs.types.some((t) => t.type === p.type));
+      if (!T && inDocs) warn('type', '«' + p.name + '»: тип ' + p.type + ' есть в документации Mindbox, но инструмент его пока не проверяет.');
+      else if (!T) err('type', 'У «' + p.name + '» неизвестный тип ' + p.type + '.');
+      else if (T.avoid) warn('type', '«' + p.name + '»: ' + T.avoid);
+      if (p.defaultValue === undefined || p.defaultValue === null) {
+        if (p.type !== 'URL') err('default', '«' + p.name + '»: не заполнено значение по умолчанию (defaultValue). ' + RULES.errors.missingParam);
+      }
+      if (p.type === 'COLOR' && !/^#[0-9A-Fa-f]{6}$/.test(String(p.defaultValue))) warn('color', '«' + p.name + '»: цвет лучше указать в формате #000000, сейчас ' + p.defaultValue + '.');
+      if (p.type === 'DISPLAY_TOGGLE' && !['true', 'false'].includes(String(p.defaultValue))) err('toggle', '«' + p.name + '»: у переключателя значение должно быть "true" или "false".');
+      if (p.type === 'NUMBER' && !/^-?\d+(\.\d+)?$/.test(String(p.defaultValue))) err('number', '«' + p.name + '»: у числа значение должно быть числом.');
+      if (p.type === 'BACKGROUND') {
+        const v = p.defaultValue || {};
+        if (!['transparent', 'color', 'image'].includes(v.type)) err('bg', '«' + p.name + '»: у фона type должен быть transparent, color или image.');
+      }
+      if (p.role && !RULES.roles.includes(p.role)) err('role', '«' + p.name + '»: неизвестная роль ' + p.role + '.');
+      if (p.role && RULES.textRoles.includes(p.role) && p.type !== 'TEXT') warn('role', '«' + p.name + '»: для цены Mindbox просит тип TEXT.');
+    }
+    const used = new Map();
+    const tokens = scanTemplate(html);
+    for (const tk of tokens) {
+      if (tk.t === 'text') continue;
+      const re = /editor\.([A-Za-z0-9_]+)((?:\.[A-Za-z0-9_]+)*)/g;
+      let m;
+      while ((m = re.exec(tk.body))) {
+        const nm = m[1].toLowerCase();
+        const fields = m[2] ? m[2].slice(1).split('.') : [];
+        if (!used.has(nm)) used.set(nm, []);
+        used.get(nm).push({ fields, tk });
+      }
+    }
+    for (const [nm, uses] of used) {
+      const p = P.get(nm);
+      if (!p) {
+        err('missing', 'В HTML есть ${editor.' + nm + '}, а в JSON такого параметра нет. Mindbox ответит: «' + RULES.errors.missingParam + '».');
+        continue;
+      }
+      const T = RULES.types[p.type];
+      if (!T) continue;
+      for (const u of uses) {
+        if (u.tk.t === 'expr' && T.composite && !u.fields.length && p.type !== 'COLLECTION') {
+          err('composite', '«' + p.name + '» (' + p.type + ') вставлен без поля. Mindbox: «' + RULES.errors.composite + '».');
+        }
+        const where = RULES.places[p.type];
+        if (where && u.tk.t === 'expr' && !u.fields.length && !where.re.test(html.slice(Math.max(0, u.tk.pos - 40), u.tk.pos))) {
+          err('place', '«' + p.name + '» (' + p.type + ') стоит не там, где его ждёт Mindbox: ' + where.text + '. В другом месте Mindbox ответит, например: «' + RULES.errors.compositeUrl + '».');
+        }
+        if (u.fields.length && T.fields.length && !T.fields.includes(u.fields[0]) && p.type !== 'BACKGROUND') {
+          warn('field', '«' + p.name + '»: поле .' + u.fields.join('.') + ' для типа ' + p.type + ' не описано в документации.');
+        }
+        if (u.fields.length && !T.fields.length && p.type !== 'COLLECTION') {
+          err('field', '«' + p.name + '» (' + p.type + ') не имеет полей, а в HTML .' + u.fields.join('.') + '.');
+        }
+      }
+    }
+    for (const [key, p] of P) {
+      if (!used.has(key) && p.type !== 'COLLECTION') err('unused', '«' + p.name + '» есть в JSON, но не используется в HTML. Mindbox: «' + RULES.errors.unusedParam + '»');
+    }
+    const stack = [];
+    for (let i = 0; i < tokens.length; i++) {
+      const tk = tokens[i];
+      if (tk.t !== 'stmt') continue;
+      const b = tk.body.replace(/\s+/g, ' ').trim();
+      if (/^if\b/i.test(b)) {
+        stack.push({ kind: 'if', tk });
+        const next = tokens.slice(i + 1).find((x) => x.t !== 'text' || /\S/.test(x.s));
+        if (next && (next.t !== 'text' || !/^\s*</.test(next.s))) {
+          if (!(next.t === 'stmt' && /^(if|for)\b/i.test(next.body))) {
+            const text = 'После ' + tk.s + ' сразу должен идти HTML-тег. Mindbox: «' + RULES.errors.conditionStart + '»';
+            if (/^if\s+editor\./i.test(b)) err('cond', text);
+            else warn('cond', text + ' Это условие было в письме до нас — если Mindbox на него ругается, оберните текст внутри условия в <span>.');
+          }
+        }
+      } else if (/^else\b/i.test(b)) {
+        if (!stack.length || stack[stack.length - 1].kind !== 'if') err('balance', 'Лишний @{else} без @{if}.');
+      } else if (/^end if\b/i.test(b)) {
+        if (!stack.length || stack[stack.length - 1].kind !== 'if') err('balance', 'Лишний @{end if}.');
+        else stack.pop();
+      } else if (/^for\b/i.test(b)) {
+        stack.push({ kind: 'for', tk });
+        if (/^for\s+cell\b/i.test(b)) {
+          const next = tokens.slice(i + 1).find((x) => x.t !== 'text' || /\S/.test(x.s));
+          if (!next || next.t !== 'stmt' || !/^if\s+cell\.value\s*!=\s*null$/i.test(next.body.replace(/\s+/g, ' ').trim())) {
+            err('cell', 'Сразу после ' + tk.s + ' нужна проверка. Mindbox: «' + RULES.errors.cellCheck + '»');
+          }
+        }
+      } else if (/^end for\b/i.test(b)) {
+        if (!stack.length || stack[stack.length - 1].kind !== 'for') err('balance', 'Лишний @{end for}.');
+        else stack.pop();
+      }
+    }
+    for (const s of stack) err('balance', 'Не закрыт ' + s.tk.s + '.');
+    const doc = parse(html);
+    fixEnds(doc);
+    let firstEl = null;
+    let marker = false;
+    for (const c of doc.children) {
+      if (c.type === 'comment' && /EDITOR_BLOCK_TEMPLATE\s*:\s*[\w-]+/.test(html.slice(c.start, c.end))) marker = true;
+      if (c.type === 'el' && !firstEl) firstEl = c;
+    }
+    if (!marker) warn('marker', 'Перед блоком нет метки \x3C!-- EDITOR_BLOCK_TEMPLATE: имя -->.');
+    if (firstEl && firstEl.tag !== 'table') warn('table', 'Блок лучше обернуть в <table>: сейчас снаружи <' + firstEl.tag + '>.');
+    let pText = false;
+    walk(doc, (n) => {
+      if (n.type === 'el' && n.tag === 'p' && /\$\{editor\./.test(html.slice(n.start, n.end))) pText = true;
+    });
+    if (pText) warn('p', 'Текст внутри <p>: в документации Mindbox вывод текста в <p> не поддерживается, нужен <div>.');
+    if (firstEl && /min-width\s*:\s*[1-9]/i.test(html.slice(firstEl.start, firstEl.openEnd))) warn('minwidth', 'У внешней таблицы min-width: блок не сожмётся на телефоне.');
+    if (!out.some((x) => x.level === 'error')) ok('ok', 'Ошибок, которые знает Mindbox, нет.');
+    return out;
+  }
+
+  function renderTemplate(html, json, state) {
+    const P = new Map();
+    for (const p of json) P.set(String(p.name).toLowerCase(), p);
+    const st = state || {};
+    const valueOf = (expr) => {
+      const m = /^editor\.([A-Za-z0-9_]+)((?:\.[A-Za-z0-9_]+)*)$/.exec(expr.trim());
+      if (!m) {
+        const im = /^if\(\s*editor\.([A-Za-z0-9_]+)\.type\s*=\s*"image"/.exec(expr.trim());
+        if (im) {
+          const p = P.get(im[1].toLowerCase());
+          const v = p && (st[p.name] !== undefined ? st[p.name] : p.defaultValue);
+          return v && v.type === 'image' ? 'background="' + (v.url || '') + '"' : '';
+        }
+        return null;
+      }
+      const p = P.get(m[1].toLowerCase());
+      if (!p) return null;
+      const v = st[p.name] !== undefined ? st[p.name] : p.defaultValue;
+      const f = m[2] ? m[2].slice(1) : '';
+      if (p.type === 'BACKGROUND') {
+        const color = v && v.type === 'color' ? v.color : v && v.type === 'image' ? v.color || '' : 'transparent';
+        if (f === 'color') return v && v.type === 'transparent' ? '' : color;
+        if (f === 'formattedBackgroundStyles') {
+          if (!v || v.type === 'transparent') return 'background-color:transparent';
+          if (v.type === 'image') return 'background-color:' + (v.color || 'transparent') + ';background-image:url(' + v.url + ');background-size:' + (v.mode === 'contain' ? 'contain' : 'cover');
+          return 'background-color:' + v.color;
+        }
+        if (f === 'image') return v && v.url ? v.url : '';
+        if (f === 'type') return v ? v.type : '';
+      }
+      if (p.type === 'DISPLAY_TOGGLE') return String(v) === 'true';
+      if (typeof v === 'object') return '';
+      return v == null ? '' : String(v);
+    };
+    const tokens = scanTemplate(html);
+    let out = '';
+    const stack = [{ on: true }];
+    for (const tk of tokens) {
+      const on = stack.every((x) => x.on);
+      if (tk.t === 'text') {
+        if (on) out += tk.s;
+        continue;
+      }
+      if (tk.t === 'expr') {
+        if (!on) continue;
+        const v = valueOf(tk.body);
+        out += v == null ? tk.s : v;
+        continue;
+      }
+      const b = tk.body.replace(/\s+/g, ' ').trim();
+      const top = stack[stack.length - 1];
+      if (/^if /i.test(b)) {
+        const m = /^editor\.([A-Za-z0-9_]+)$/.exec(b.slice(3).trim());
+        if (m) {
+          const p = P.get(m[1].toLowerCase());
+          const v = p ? (st[p.name] !== undefined ? st[p.name] : p.defaultValue) : false;
+          stack.push({ on: String(v) === 'true', kind: 'if' });
+        } else {
+          if (on) out += tk.s;
+          stack.push({ on: true, kind: 'if', pass: true });
+        }
+      } else if (/^else$/i.test(b)) {
+        if (top && top.kind === 'if' && !top.pass) top.on = !top.on;
+        else if (on) out += tk.s;
+      } else if (/^end if$/i.test(b) || /^end for$/i.test(b)) {
+        if (stack.length > 1) {
+          stack.pop();
+          if (top.pass && stack.every((x) => x.on)) out += tk.s;
+        }
+      } else if (/^for /i.test(b)) {
+        if (on) out += tk.s;
+        stack.push({ on: true, kind: 'for', pass: true });
+      } else if (on) out += tk.s;
+    }
+    return out;
+  }
+
+  function canon(html) {
+    const doc = parse(html);
+    fixEnds(doc);
+    const out = [];
+    const noCellPadding = (n) => {
+      if (n.tag !== 'td' && n.tag !== 'th') return false;
+      let t = n.parent;
+      while (t && t.tag !== 'table') t = t.parent;
+      return !!t && px(attrVal(t, 'cellpadding') || '') === 0;
+    };
+    const normStyle = (v, n) => {
+      const decls = [];
+      for (const piece of v.split(';')) {
+        const c = piece.indexOf(':');
+        if (c < 0) continue;
+        const prop = piece.slice(0, c).trim().toLowerCase();
+        let val = piece.slice(c + 1).trim().replace(/\s+/g, ' ').replace(/\s*,\s*/g, ',').replace(/#([0-9a-f]{3}|[0-9a-f]{6})\b/gi, (m) => normHex(m).toLowerCase());
+        if (/^(padding|margin)$/.test(prop)) {
+          const bv = boxValues(val);
+          if (bv) val = bv.map((x) => (px(x) != null ? px(x) + 'px' : x)).join(' ');
+          if (bv && prop === 'padding' && n && noCellPadding(n) && bv.every((x) => px(x) === 0)) continue;
+        }
+        if (/^(padding|margin)-(top|bottom|left|right)$/.test(prop) && px(val) != null) val = px(val) + 'px';
+        if (/^padding-(top|bottom|left|right)$/.test(prop) && px(val) === 0 && n && noCellPadding(n)) continue;
+        decls.push(prop + ':' + val);
+      }
+      return decls.sort().join(';');
+    };
+    walk(doc, (n) => {
+      if (n.type === 'root') return;
+      if (n.type === 'comment') {
+        const t = html.slice(n.start, n.end);
+        if (/EDITOR_BLOCK_TEMPLATE/.test(t)) return false;
+        out.push('\x3C!--' + t.slice(4, -3).replace(/\s+/g, ' ').trim() + '-->');
+        return false;
+      }
+      if (n.type === 'text') {
+        const t = decode(html.slice(n.start, n.end)).replace(/[ \t\r\n]+/g, ' ').trim();
+        if (t) out.push('#' + t);
+        return;
+      }
+      if (n.type !== 'el') return;
+      const attrs = n.attrs.filter((a) => !/^mindbox-block/.test(a.name) && !a.raw).map((a) => {
+        let v = a.value == null ? '' : decode(a.value);
+        if (a.name === 'style') v = normStyle(v, n);
+        else if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(v.trim())) v = normHex(v.trim()).toLowerCase();
+        return a.name + '="' + v + '"';
+      }).filter((a) => a !== 'style=""');
+      if (n.tag === 'img' && !n.attrs.some((a) => a.name === 'alt')) attrs.push('alt=""');
+      attrs.sort();
+      out.push('<' + n.tag + (attrs.length ? ' ' + attrs.join(' ') : '') + '>');
+    });
+    return out;
+  }
+
+  function compareRendered(original, html, json) {
+    let rendered;
+    try {
+      rendered = renderTemplate(html, json, {});
+    } catch (e) {
+      return { equal: false, diff: 'Не удалось подставить значения: ' + e.message };
+    }
+    const a = canon(original);
+    const b = canon(rendered);
+    const n = Math.max(a.length, b.length);
+    for (let i = 0; i < n; i++) {
+      if (a[i] === b[i]) continue;
+      if (b[i] && b[i].includes('${')) {
+        const re = new RegExp('^' + b[i].replace(/[.*+?^()|[\]\\{}$]/g, '\\$&').replace(/\\\$\\\{[^"]*?\\\}/g, '.*') + '$');
+        if (a[i] && re.test(a[i])) continue;
+        const keyA = (a[i] || '').replace(/href="[^"]*"/, 'href=""');
+        const keyB = b[i].replace(/href="\$\{[^"]*\}"/, 'href=""');
+        if (keyA === keyB) continue;
+      }
+      return { equal: false, index: i, was: a[i] || '(конец)', now: b[i] || '(конец)' };
+    }
+    return { equal: true };
+  }
+
+  function similarBlocks(src, blocks) {
+    const sigs = blocks.map((b) => ({ sig: nodeSig(b.node), text: textOf(src, b.node) }));
+    const res = blocks.map(() => null);
+    for (let i = 0; i < blocks.length; i++) {
+      for (let j = 0; j < i; j++) {
+        if (sigs[i].text && sigs[i].text === sigs[j].text && sim(sigs[i].sig, sigs[j].sig) >= 0.85) {
+          res[i] = j;
+          break;
+        }
+      }
+    }
+    return res;
+  }
+
+  const FLOW_BLOCK = new Set(['table', 'tbody', 'thead', 'tfoot', 'tr', 'div', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'center', 'ul', 'ol', 'li', 'hr', 'blockquote', 'pre', 'dl', 'form', 'section', 'article', 'header', 'footer', 'main', 'nav', 'figure']);
+  const MARGIN_TAGS = new Set(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'blockquote', 'pre', 'dl', 'figure', 'hr']);
+  const SPLIT_INTO = ['table', 'div', 'center'];
+
+  function cssVal(src, n, prop) {
+    const d = styleOf(src, n, prop);
+    return d ? d.value.replace(/!important/i, '').trim().toLowerCase() : null;
+  }
+
+  function isTemplatedSrc(raw) {
+    return /[$@]\{\s*(if\s+|for\s+\w+\s+in\s+)?editor\./.test(raw);
+  }
+
+  function hasContent(src, e) {
+    if (e.type === 'text') return meaningfulText(src.slice(e.start, e.end));
+    if (e.type !== 'el' || SKIP_TREE.has(e.tag) || isHidden(src, e)) return false;
+    let has = false;
+    walk(e, (x) => {
+      if (has) return false;
+      if (x.type === 'el' && (SKIP_TREE.has(x.tag) || isHidden(src, x))) return false;
+      if (x.type === 'el' && x.tag === 'img') has = true;
+      if (x.type === 'text' && meaningfulText(src.slice(x.start, x.end))) has = true;
+    });
+    return has;
+  }
+
+  function flowOf(src, n) {
+    if (n.type === 'text') return /[^ \t\n\r\f]/.test(src.slice(n.start, n.end)) ? 'inline' : 'skip';
+    if (n.type !== 'el' || SKIP_TREE.has(n.tag) || isHidden(src, n)) return 'skip';
+    const fl = cssVal(src, n, 'float');
+    if ((fl && fl !== 'none') || ((n.tag === 'table' || n.tag === 'img') && /^(left|right)$/i.test(attrVal(n, 'align') || ''))) return 'float';
+    const d = cssVal(src, n, 'display');
+    if (d) return /^inline/.test(d) ? 'inline' : 'block';
+    return FLOW_BLOCK.has(n.tag) ? 'block' : 'inline';
+  }
+
+  function flowUnits(src, node) {
+    const kids = node.children;
+    const units = [];
+    let run = null;
+    for (let i = 0; i < kids.length; i++) {
+      const f = flowOf(src, kids[i]);
+      if (f === 'float') return null;
+      if (f === 'skip') continue;
+      if (f === 'block') {
+        units.push({ from: i, to: i });
+        run = null;
+      } else if (run) run.to = i;
+      else {
+        run = { from: i, to: i };
+        units.push(run);
+      }
+    }
+    for (const u of units) u.content = kids.slice(u.from, u.to + 1).some((k) => hasContent(src, k));
+    return units;
+  }
+
+  function splitDepth(src, node) {
+    let d = 0;
+    walk(node, (x) => {
+      const t = src.slice(x.start, x.end);
+      if (x.type === 'stmt') {
+        if (/^@\{\s*(if|for)\b/.test(t)) d++;
+        else if (/^@\{\s*end\b/.test(t)) d--;
+      } else if (x.type === 'comment') {
+        const open = /\[if\b/i.test(t);
+        const close = /\[endif\]/i.test(t);
+        if (open && !close) d++;
+        if (close && !open) d--;
+        for (const m of t.matchAll(/<(\/?)([a-z][\w:-]*)\b[^>]*?(\/?)>/gi)) {
+          if (VOID.has(m[2].toLowerCase()) || m[3]) continue;
+          d += m[1] ? -1 : 1;
+        }
+      }
+    });
+    return d;
+  }
+
+  function setNames(src, node) {
+    const out = [];
+    walk(node, (x) => {
+      if (x.type !== 'stmt') return;
+      const m = /^@\{\s*set\s+(\w+)/.exec(src.slice(x.start, x.end));
+      if (m) out.push(m[1]);
+    });
+    return out;
+  }
+
+  function borderOn(v) {
+    if (!v || /\b(none|hidden)\b/.test(v)) return false;
+    const toks = v.split(/\s+/);
+    const widths = toks.filter((x) => /^-?\.?\d|^(thin|medium|thick)$/.test(x));
+    if (widths.length) return widths.some((x) => px(x) !== 0);
+    return toks.some((x) => /^(solid|dashed|dotted|double|groove|ridge|inset|outset)$/.test(x));
+  }
+
+  function vMargins(src, n) {
+    const mv = (x) => (/^auto$/i.test(x) ? 0 : px(x));
+    let t = MARGIN_TAGS.has(n.tag) ? null : 0;
+    let b = t;
+    for (const d of styleDecls(src, attr(n, 'style'))) {
+      const v = d.value.replace(/!important/i, '').trim();
+      if (d.prop === 'margin') {
+        const bx = boxValues(v);
+        t = bx ? mv(bx[0]) : null;
+        b = bx ? mv(bx[2]) : null;
+      } else if (d.prop === 'margin-top') t = mv(v);
+      else if (d.prop === 'margin-bottom') b = mv(v);
+    }
+    return [t, b];
+  }
+
+  function edgeMarginFree(src, n, side, depth) {
+    if (n.type !== 'el' || flowOf(src, n) !== 'block') return true;
+    if (vMargins(src, n)[side === 'top' ? 0 : 1] !== 0) return false;
+    if (n.tag === 'table' || depth > 4) return true;
+    const pad = cssVal(src, n, 'padding-' + side) || cssVal(src, n, 'padding');
+    if (pad && px(pad.split(/\s+/)[0]) !== 0) return true;
+    const kids = n.children.filter((k) => flowOf(src, k) !== 'skip');
+    const edge = side === 'top' ? kids[0] : kids[kids.length - 1];
+    return !edge || edgeMarginFree(src, edge, side, depth + 1);
+  }
+
+  function padPlan(src, n) {
+    const st = attr(n, 'style');
+    let topSrc = null;
+    let botSrc = null;
+    for (const d of styleDecls(src, st)) {
+      if (d.prop === 'padding') topSrc = botSrc = d;
+      else if (d.prop === 'padding-top') topSrc = d;
+      else if (d.prop === 'padding-bottom') botSrc = d;
+    }
+    const valOf = (d, k) => {
+      if (d.prop !== 'padding') return px(d.value);
+      const bx = boxValues(d.value);
+      return bx ? px(bx[k]) : null;
+    };
+    let implicit = 0;
+    if ((n.tag === 'td' || n.tag === 'th') && (!topSrc || !botSrc)) {
+      let t = n.parent;
+      while (t && t.tag !== 'table') t = t.parent;
+      const cp = t ? attrVal(t, 'cellpadding') : null;
+      implicit = cp == null ? 1 : px(cp);
+    }
+    const top = topSrc ? valOf(topSrc, 0) : implicit;
+    const bottom = botSrc ? valOf(botSrc, 2) : implicit;
+    if (top == null || bottom == null) return null;
+    return { st, topSrc, botSrc, top, bottom };
+  }
+
+  function splitBlocker(src, n) {
+    const h = attrVal(n, 'height');
+    if (h != null && !/^\s*(auto)?\s*$/i.test(h)) return 'height';
+    if (attrVal(n, 'background')) return 'background';
+    for (const d of styleDecls(src, attr(n, 'style'))) {
+      const v = d.value.replace(/!important/i, '').trim().toLowerCase();
+      if (/^(min-|max-)?height$/.test(d.prop) && !/^(auto|none|0|0px)?$/.test(v)) return 'height';
+      if (/^border(-top|-bottom)?$/.test(d.prop) && borderOn(v)) return 'border';
+      if (/^border(-top|-bottom)?-style$/.test(d.prop) && !/^(none|hidden)/.test(v)) return 'border';
+      if (/border-(top|bottom)-(left|right)-radius$/.test(d.prop)) return 'radius';
+      if (/border-radius$/.test(d.prop) && (v.includes('/') || v.split(/\s+/).length > 4)) return 'radius';
+      if (d.prop === 'background-image' && v !== 'none') return 'background';
+      if (/^background(-image)?$/.test(d.prop) && /url\(/.test(v)) return 'background';
+      if (/^background(-image)?$/.test(d.prop) && /gradient\(/.test(v)) {
+        const colors = new Set((v.match(HEX_RE) || []).map(normHex));
+        if (colors.size !== 1 || /(rgb|hsl)a?\(/.test(v)) return 'gradient';
+      }
+      if (d.prop === 'box-shadow' && v !== 'none') return 'shadow';
+      if (d.prop === 'display' && /flex|grid/.test(v)) return 'flex';
+    }
+    const [mt, mb] = vMargins(src, n);
+    if (mt !== 0 || mb !== 0) return 'margin';
+    if (n.tag === 'table') {
+      const b = attrVal(n, 'border');
+      if (b != null && b.trim() !== '' && px(b) !== 0) return 'border';
+      const cs = attrVal(n, 'cellspacing');
+      const bs = cssVal(src, n, 'border-spacing');
+      const zero = cssVal(src, n, 'border-collapse') === 'collapse' || (bs != null && bs.split(/\s+/).every((x) => px(x) === 0)) || (cs != null && px(cs) === 0);
+      if (!zero) return 'cellspacing';
+    }
+    return null;
+  }
+
+  function splitPlan(src, root) {
+    if (!root || root.type !== 'el') return null;
+    const chain = [];
+    let cur = root;
+    for (let guard = 0; guard < 40; guard++) {
+      if (cur.tag === 'table') {
+        chain.push(cur);
+        let holder = cur;
+        let kids = els(cur).filter((k) => flowOf(src, k) !== 'skip');
+        if (kids.length === 1 && kids[0].tag === 'tbody') {
+          holder = kids[0];
+          chain.push(holder);
+          kids = els(holder).filter((k) => flowOf(src, k) !== 'skip');
+        }
+        if (!kids.length || kids.some((k) => k.tag !== 'tr')) return null;
+        const full = kids.filter((k) => hasContent(src, k));
+        if (full.length >= 2) return finishPlan(src, root, chain, holder);
+        if (full.length !== 1) return null;
+        const cells = els(full[0]).filter((k) => flowOf(src, k) !== 'skip');
+        if (cells.length !== 1 || !/^t[dh]$/.test(cells[0].tag)) return null;
+        chain.push(full[0]);
+        cur = cells[0];
+        continue;
+      }
+      if (!['td', 'th', 'div', 'center'].includes(cur.tag)) return null;
+      chain.push(cur);
+      const units = flowUnits(src, cur);
+      if (!units) return null;
+      const full = units.filter((u) => u.content);
+      if (full.length >= 2) return finishPlan(src, root, chain, cur);
+      if (full.length !== 1 || full[0].from !== full[0].to) return null;
+      const k = cur.children[full[0].from];
+      if (k.type !== 'el' || flowOf(src, k) !== 'block' || !SPLIT_INTO.includes(k.tag)) return null;
+      cur = k;
+    }
+    return null;
+  }
+
+  function finishPlan(src, root, chain, P) {
+    const units = flowUnits(src, P);
+    if (!units) return null;
+    const pads = new Map();
+    for (const n of chain) {
+      if (splitBlocker(src, n)) return null;
+      if (n.tag === 'tr' || n.tag === 'tbody') continue;
+      const pp = padPlan(src, n);
+      if (!pp) return null;
+      pads.set(n, pp);
+    }
+    const foster = (n) => /^(table|tbody|thead|tfoot|tr)$/.test(n.tag) && n.children.some((s) => s.type === 'text' && /[^ \t\n\r\f]/.test(src.slice(s.start, s.end)));
+    if (chain.some(foster)) return null;
+    const kids = P.children;
+    if (P.tag === 'table' || P.tag === 'tbody') {
+      for (const u of units) {
+        const cells = els(kids[u.from]).filter((k) => flowOf(src, k) !== 'skip');
+        if (cells.length !== 1 || els(kids[u.from]).some((c) => (parseInt(attrVal(c, 'rowspan') || '1', 10) || 1) > 1)) return null;
+        if (splitBlocker(src, kids[u.from]) || foster(kids[u.from])) return null;
+      }
+    }
+    const sib = [];
+    for (let i = 0; i + 1 < chain.length; i++) {
+      let kept = 0;
+      for (const s of chain[i].children) {
+        if (s === chain[i + 1]) continue;
+        const before = s.end <= chain[i + 1].start;
+        if (s.type === 'el' || (s.type === 'text' && /[^ \t\n\r\f]/.test(src.slice(s.start, s.end)))) {
+          if (splitDepth(src, s) !== 0) return null;
+          sib.push({ node: s, before });
+        } else {
+          if (s.type === 'stmt' && /^@\{\s*for\b/.test(s.text)) return null;
+          kept += splitDepth(src, s);
+        }
+      }
+      if (kept !== 0) return null;
+    }
+    const depthAfter = [];
+    let d = 0;
+    for (const k of kids) {
+      d += splitDepth(src, k);
+      depthAfter.push(d);
+    }
+    if (d !== 0) return null;
+    const sets = kids.map((k) => setNames(src, k));
+    const cutOk = (j) => {
+      if (depthAfter[j] !== 0) return false;
+      let L = j;
+      while (L >= 0 && flowOf(src, kids[L]) === 'skip') L--;
+      let F = j + 1;
+      while (F < kids.length && flowOf(src, kids[F]) === 'skip') F++;
+      if (L >= 0 && !edgeMarginFree(src, kids[L], 'bottom', 0)) return false;
+      if (F < kids.length && !edgeMarginFree(src, kids[F], 'top', 0)) return false;
+      const names = sets.slice(0, j + 1).flat();
+      if (names.length) {
+        const rest = kids.length > j + 1 ? src.slice(kids[j + 1].start, kids[kids.length - 1].end) : '';
+        if (names.some((nm) => new RegExp('\\b' + nm + '\\b').test(rest))) return false;
+      }
+      return true;
+    };
+    const full = units.filter((u) => u.content);
+    const cuts = [];
+    for (let k = 0; k + 1 < full.length; k++) {
+      const a = full[k];
+      const b = full[k + 1];
+      let lastSpacer = a.to;
+      for (const u of units) if (u.from > a.to && u.to < b.from) lastSpacer = Math.max(lastSpacer, u.to);
+      let cut = null;
+      for (let j = lastSpacer; j < b.from && cut == null; j++) if (cutOk(j)) cut = j;
+      for (let j = lastSpacer - 1; j >= a.to && cut == null; j--) if (cutOk(j)) cut = j;
+      if (cut != null) cuts.push(cut);
+    }
+    if (!cuts.length) return null;
+    return { root, chain, P, units, cuts, sib, pads };
+  }
+
+  function spliceEdits(src, from, to, edits) {
+    const list = edits.map((e, i) => Object.assign({ i }, e)).sort((a, b) => a.start - b.start || a.end - b.end || a.i - b.i);
+    let out = '';
+    let pos = from;
+    for (const e of list) {
+      if (e.start < pos) throw new Error('Пересечение правок при делении блока: ' + e.start);
+      out += src.slice(pos, e.start) + e.text;
+      pos = e.end;
+    }
+    return out + src.slice(pos, to);
+  }
+
+  function styleInsert(src, n, text) {
+    const st = attr(n, 'style');
+    if (st && st.vStart != null) {
+      const sep = st.vEnd > st.vStart && !/;\s*$/.test(src.slice(st.vStart, st.vEnd)) ? ';' : '';
+      return { start: st.vEnd, end: st.vEnd, text: sep + text };
+    }
+    let p = n.openEnd - 1;
+    if (src[p - 1] === '/') p--;
+    return { start: p, end: p, text: ' style="' + text + '"' };
+  }
+
+  function pieceStyleEdits(src, n, pp, j, count) {
+    const edits = [];
+    const first = j === 0;
+    const last = j === count - 1;
+    const imp = (v) => (/!important/i.test(v) ? ' !important' : '');
+    if (pp) {
+      const wantTop = first ? pp.top : 0;
+      const wantBottom = last ? pp.bottom : 0;
+      const fixTop = wantTop !== pp.top;
+      const fixBottom = wantBottom !== pp.bottom;
+      const short = (d, t, b) => {
+        const v = boxValues(d.value);
+        const nt = t ? '0' : v[0];
+        const nb = b ? '0' : v[2];
+        edits.push({ start: d.vStart, end: d.vEnd, text: (v[1] === v[3] ? nt + ' ' + v[1] + ' ' + nb : nt + ' ' + v[1] + ' ' + nb + ' ' + v[3]) + imp(d.value) });
+      };
+      const add = [];
+      if (pp.topSrc && pp.topSrc === pp.botSrc && pp.topSrc.prop === 'padding') {
+        if (fixTop || fixBottom) short(pp.topSrc, fixTop, fixBottom);
+      } else {
+        if (fixTop) {
+          if (!pp.topSrc) add.push('padding-top:0;');
+          else if (pp.topSrc.prop === 'padding') short(pp.topSrc, true, false);
+          else edits.push({ start: pp.topSrc.vStart, end: pp.topSrc.vEnd, text: '0' + imp(pp.topSrc.value) });
+        }
+        if (fixBottom) {
+          if (!pp.botSrc) add.push('padding-bottom:0;');
+          else if (pp.botSrc.prop === 'padding') short(pp.botSrc, false, true);
+          else edits.push({ start: pp.botSrc.vStart, end: pp.botSrc.vEnd, text: '0' + imp(pp.botSrc.value) });
+        }
+      }
+      if (add.length) edits.push(styleInsert(src, n, add.join('')));
+    }
+    for (const d of styleDecls(src, attr(n, 'style'))) {
+      if (!/border-radius$/.test(d.prop)) continue;
+      const t = d.value.replace(/!important/i, '').trim().split(/\s+/);
+      const [a, b = a, c = a, e = b] = t;
+      const corners = [first ? a : '0', first ? b : '0', last ? c : '0', last ? e : '0'];
+      if (corners.join(' ') === [a, b, c, e].join(' ')) continue;
+      const text = corners.every((x) => px(x) === 0) ? '0' : corners.join(' ');
+      edits.push({ start: d.vStart, end: d.vEnd, text: text + imp(d.value) });
+    }
+    return edits;
+  }
+
+  function splitPieces(src, plan) {
+    const { root, chain, P, cuts, sib, pads } = plan;
+    const kids = P.children;
+    const count = cuts.length + 1;
+    const out = [];
+    const tagEnd = root.start + 1 + root.tag.length;
+    for (let j = 0; j < count; j++) {
+      const edits = [];
+      const from = j === 0 ? 0 : cuts[j - 1] + 1;
+      const to = j === count - 1 ? kids.length - 1 : cuts[j];
+      if (from > 0) edits.push({ start: P.openEnd, end: kids[from].start, text: '' });
+      if (to < kids.length - 1) edits.push({ start: kids[to].end, end: P.closeStart, text: '' });
+      for (const s of sib) if ((s.before && j > 0) || (!s.before && j < count - 1)) edits.push({ start: s.node.start, end: s.node.end, text: '' });
+      for (const n of chain) edits.push(...pieceStyleEdits(src, n, pads.get(n), j, count));
+      if (!attr(root, 'mindbox-block')) edits.push({ start: tagEnd, end: tagEnd, text: ' mindbox-block' });
+      if (j > 0) {
+        for (const at of root.attrs) {
+          if (at.name !== 'mindbox-block-name' && at.name !== 'mindbox-block-category') continue;
+          let s = at.start;
+          while (s > root.start && /\s/.test(src[s - 1])) s--;
+          edits.push({ start: s, end: at.end, text: '' });
+        }
+      }
+      out.push(spliceEdits(src, root.start, root.end, edits));
+    }
+    return out;
+  }
+
+  function rewriteSplit(src, blocks, index, plan) {
+    const edits = [];
+    blocks.forEach((b, i) => {
+      if (i === index || b.source === 'marker' || attr(b.node, 'mindbox-block')) return;
+      const p = b.node.start + 1 + b.node.tag.length;
+      edits.push({ start: p, end: p, text: ' mindbox-block' });
+    });
+    const root = plan.root;
+    const lineStart = src.lastIndexOf('\n', root.start - 1) + 1;
+    const lead = src.slice(lineStart, root.start);
+    const indent = /^[ \t]*$/.test(lead) ? lead : '';
+    edits.push({ start: root.start, end: root.end, text: splitPieces(src, plan).join('\n' + indent) });
+    return spliceEdits(src, 0, src.length, edits);
+  }
+
+  function imgWidth(src, img) {
+    const w = px(attrVal(img, 'width') || '');
+    if (w) return w;
+    return px(cssVal(src, img, 'max-width') || '') || px(cssVal(src, img, 'width') || '');
+  }
+
+  function isLogo(src, img) {
+    if (/logo|лого/i.test((attrVal(img, 'alt') || '') + ' ' + (attrVal(img, 'src') || ''))) return true;
+    for (let a = img.parent; a && a.type === 'el'; a = a.parent) {
+      if (a.tag !== 'a') continue;
+      return /^https?:\/\/[^/?#]+\/?(\?[^#]*)?$/i.test((attrVal(a, 'href') || '').trim());
+    }
+    return false;
+  }
+
+  function headerGlued(src, plan) {
+    const kids = plan.P.children;
+    const full = plan.units.filter((u) => u.content);
+    const nodes = (u) => kids.slice(u.from, u.to + 1);
+    const imgs = (u) => nodes(u).flatMap((k) => {
+      const out = [];
+      walk(k, (x) => {
+        if (x.type === 'el' && (SKIP_TREE.has(x.tag) || isHidden(src, x))) return false;
+        if (x.type === 'el' && x.tag === 'img') out.push(x);
+      });
+      return out;
+    });
+    const text = (u) => nodes(u).map((k) => (k.type === 'text' ? decode(src.slice(k.start, k.end)) : textOf(src, k))).join(' ').replace(/\$\{[^}]*\}/g, 'x').replace(/\s+/g, ' ').trim();
+    const head = full[0];
+    const logos = imgs(head).filter((i) => isLogo(src, i));
+    if (!logos.length || imgs(head).some((i) => (imgWidth(src, i) || 0) > 300) || text(head).length > 120) return false;
+    return full.slice(1).some((u) => imgs(u).some((i) => (imgWidth(src, i) || 0) >= 400) || text(u).length >= 40);
+  }
+
+  function emRows(src, plan) {
+    const kids = plan.P.children;
+    return plan.units.filter((u) => u.content && kids.slice(u.from, u.to + 1).some((k) => k.type === 'el' && attrVal(k, 'em') === 'block')).length >= 2;
+  }
+
+  function autoSplit(src, blocks) {
+    for (let i = 0; i < blocks.length; i++) {
+      const b = blocks[i];
+      if (b.source === 'marker' || isTemplatedSrc(src.slice(b.node.start, b.node.end))) continue;
+      const plan = splitPlan(src, b.node);
+      if (!plan) continue;
+      let reason = null;
+      if (b.explode) reason = 'rows';
+      else if (emRows(src, plan)) reason = 'em';
+      else if (i === 0 && headerGlued(src, plan)) reason = 'header';
+      if (reason) return { src: rewriteSplit(src, blocks, i, plan), reason, title: b.title || null, parts: plan.cuts.length + 1 };
+    }
+    return null;
+  }
+
+  function loadLetter(input, opts) {
+    const auto = !opts || opts.auto !== false;
+    let src = input;
+    let doc;
+    let blocks;
+    const splits = [];
+    for (let guard = 0; ; guard++) {
+      doc = parse(src);
+      fixEnds(doc);
+      blocks = findBlocks(src, doc);
+      const next = auto && guard < 60 ? autoSplit(src, blocks) : null;
+      if (!next) break;
+      splits.push({ reason: next.reason, title: next.title, parts: next.parts });
+      src = next.src;
+    }
+    const sameAs = similarBlocks(src, blocks);
+    const usedNames = new Map();
+    const list = blocks.map((b, i) => {
+      const A = analyze(src, doc, b, {});
+      let suggested = suggestName(b, A, src, { index: i, total: blocks.length });
+      const k = suggested.toLowerCase();
+      usedNames.set(k, (usedNames.get(k) || 0) + 1);
+      if (usedNames.get(k) > 1) suggested += '_' + usedNames.get(k);
+      const raw = src.slice(b.node.start, b.node.end);
+      return {
+        index: i,
+        title: b.title || b.name || null,
+        category: b.category || null,
+        source: b.source,
+        start: b.node.start,
+        end: b.node.end,
+        text: textOf(src, b.node).slice(0, 160),
+        stats: statsOf(A),
+        sameAs: sameAs[i],
+        mergeNext: false,
+        suggested,
+        templated: isTemplatedSrc(raw),
+        parts: 0,
+        html: raw
+      };
+    });
+    list.forEach((x, i) => {
+      const plan = x.templated || blocks[i].source === 'marker' ? null : splitPlan(src, blocks[i].node);
+      x.parts = plan ? plan.cuts.length + 1 : 0;
+    });
+    const letter = { src, original: input, doc, blocks, list, splits, styles: headStyles(src, doc), bodyStyle: bodyStyle(src, doc) };
+    list.forEach((x, i) => {
+      x.mergeNext = canMerge(letter, i);
+    });
+    return letter;
+  }
+
+  function frameParts(src, node) {
+    const td = findFrame(src, node);
+    if (!td) return null;
+    const decls = styleDecls(src, attr(td, 'style'));
+    if (decls.some((d) => /^padding-/.test(d.prop))) return null;
+    let box = [0, 0, 0, 0];
+    const pad = decls.filter((d) => d.prop === 'padding').pop();
+    if (pad) {
+      const v = boxValues(pad.value);
+      if (!v || v.some((x) => px(x) == null)) return null;
+      box = v.map(px);
+    }
+    const openTag = src.slice(td.start, td.openEnd);
+    const outerOpen = src.slice(node.start, td.start);
+    const key = canon(outerOpen.replace(/\smindbox-block[\w-]*(="[^"]*")?/g, '') + openTag.replace(/padding\s*:[^;"]*;?/g, '') + '</td></tr></table>').join('');
+    return { td, top: box[0], right: box[1], bottom: box[2], left: box[3], key, pad };
+  }
+
+  function canMerge(letter, i) {
+    const a = letter.blocks[i];
+    const b = letter.blocks[i + 1];
+    if (!a || !b || a.node.parent !== b.node.parent) return false;
+    const between = letter.src.slice(a.node.end, b.node.start).replace(/\x3C!--[\s\S]*?-->/g, '');
+    if (/</.test(between)) return false;
+    const fa = frameParts(letter.src, a.node);
+    const fb = frameParts(letter.src, b.node);
+    return !!(fa && fb && fa.key === fb.key);
+  }
+
+  function mergeSource(letter, indices) {
+    const src = letter.src;
+    const list = indices.slice().sort((x, y) => x - y);
+    for (let k = 0; k < list.length - 1; k++) {
+      if (list[k + 1] !== list[k] + 1 || !canMerge(letter, list[k])) {
+        throw new Error('Блоки ' + (list[k] + 1) + ' и ' + (list[k + 1] + 1) + ' нельзя склеить: они не стоят рядом или у них разная внешняя рамка.');
+      }
+    }
+    const parts = list.map((i) => ({ b: letter.blocks[i], f: frameParts(src, letter.blocks[i].node) }));
+    const first = parts[0];
+    const last = parts[parts.length - 1];
+    const minR = Math.min(...parts.map((x) => x.f.right));
+    const minL = Math.min(...parts.map((x) => x.f.left));
+    let open = src.slice(first.b.node.start, first.f.td.openEnd);
+    const rel = (x) => x - first.b.node.start;
+    const value = (first.f.top + 'px ' + minR + 'px ' + last.f.bottom + 'px ' + minL + 'px');
+    if (first.f.pad) open = open.slice(0, rel(first.f.pad.vStart)) + value + open.slice(rel(first.f.pad.vEnd));
+    else {
+      const st = attr(first.f.td, 'style');
+      if (st && st.vStart != null) {
+        const sep = st.vEnd > st.vStart && !/;\s*$/.test(src.slice(st.vStart, st.vEnd)) ? ';' : '';
+        open = open.slice(0, rel(st.vEnd)) + sep + 'padding:' + value + ';' + open.slice(rel(st.vEnd));
+      } else open = open.slice(0, -1) + ' style="padding:' + value + ';">';
+    }
+    let body = '';
+    parts.forEach((x, k) => {
+      if (k > 0) {
+        const gap = parts[k - 1].f.bottom + x.f.top;
+        if (gap > 0) body += '\n<div style="height:' + gap + 'px; line-height:' + gap + 'px; font-size:1px;">&nbsp;</div>';
+      }
+      let inner = src.slice(x.f.td.openEnd, x.f.td.closeStart);
+      const dr = x.f.right - minR;
+      const dl = x.f.left - minL;
+      if (dr || dl) {
+        inner = '\n<table width="100%" border="0" cellpadding="0" cellspacing="0" role="none"><tr><td style="padding:0 ' + dr + 'px 0 ' + dl + 'px;">' + inner + '</td></tr></table>';
+      }
+      body += inner;
+    });
+    const close = src.slice(first.f.td.closeStart, first.b.node.end);
+    return { html: open + body + close, title: parts.map((x) => x.b.title).filter(Boolean).join(' + '), category: first.b.category };
+  }
+
+  function buildMerged(letter, indices, options) {
+    if (indices.length === 1) return buildBlock(letter, indices[0], options);
+    const m = mergeSource(letter, indices);
+    const sub = loadLetter(m.html);
+    sub.blocks[0].title = m.title;
+    sub.blocks[0].category = m.category;
+    sub.list[0].suggested = suggestName(sub.blocks[0], analyze(sub.src, sub.doc, sub.blocks[0], {}), sub.src);
+    const opt = Object.assign({}, options || {});
+    const r = buildBlock(sub, 0, opt);
+    r.notes.unshift('Склеены блоки ' + indices.map((i) => i + 1).join(', ') + ': отступы между ними сохранены пустыми строками нужной высоты.');
+    r.merged = indices.slice();
+    return r;
+  }
+
+  function buildBlock(letter, index, options) {
+    const item = letter.list[index];
+    const opt = Object.assign({}, options || {});
+    if (!opt.name) opt.name = item.suggested;
+    if (item.templated) {
+      const html = '\x3C!-- EDITOR_BLOCK_TEMPLATE: ' + opt.name + ' -->\n' + dedent(item.html);
+      return { name: opt.name, html, json: [], checks: [{ level: 'error', code: 'templated', text: 'Блок уже размечен для Mindbox (есть ${editor.…}). Проверьте его на вкладке «Проверить блок» вместе с его JSON.' }], same: { equal: true }, notes: [], report: { replaced: 0, toggles: 0, placeholders: 0 }, stats: item.stats, original: html, templated: true };
+    }
+    return build(letter.src, letter.doc, letter.blocks[index], opt);
+  }
+
+  function splitBlock(letter, index) {
+    const b = letter.blocks[index];
+    const plan = b && !letter.list[index].templated && b.source !== 'marker' ? splitPlan(letter.src, b.node) : null;
+    if (!plan) throw new Error('Блок ' + (index + 1) + ' нельзя разделить, не меняя вёрстку.');
+    const next = loadLetter(rewriteSplit(letter.src, letter.blocks, index, plan), { auto: false });
+    next.original = letter.original;
+    next.splits = letter.splits;
+    return next;
+  }
+
+  const api = { parse, fixEnds, loadLetter, splitBlock, buildBlock, buildMerged, canMerge, validate, renderTemplate, compareRendered, canon, decode, dedent, scanTemplate, RULES };
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.MBEngine = api;
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+(function (root) {
+  const TABLE = (() => {
+    const t = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+      t[n] = c >>> 0;
+    }
+    return t;
+  })();
+
+  function crc32(bytes) {
+    let c = 0xffffffff;
+    for (let i = 0; i < bytes.length; i++) c = TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);
+    return (c ^ 0xffffffff) >>> 0;
+  }
+
+  function dosTime(d) {
+    return {
+      time: (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1),
+      date: ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate()
+    };
+  }
+
+  function makeZip(files, now) {
+    const enc = new TextEncoder();
+    const { time, date } = dosTime(now || new Date());
+    const parts = [];
+    const central = [];
+    let offset = 0;
+    for (const f of files) {
+      const name = enc.encode(f.name);
+      const data = typeof f.data === 'string' ? enc.encode(f.data) : f.data;
+      const crc = crc32(data);
+      const local = new DataView(new ArrayBuffer(30));
+      local.setUint32(0, 0x04034b50, true);
+      local.setUint16(4, 20, true);
+      local.setUint16(6, 0x0800, true);
+      local.setUint16(8, 0, true);
+      local.setUint16(10, time, true);
+      local.setUint16(12, date, true);
+      local.setUint32(14, crc, true);
+      local.setUint32(18, data.length, true);
+      local.setUint32(22, data.length, true);
+      local.setUint16(26, name.length, true);
+      local.setUint16(28, 0, true);
+      parts.push(new Uint8Array(local.buffer), name, data);
+      const cd = new DataView(new ArrayBuffer(46));
+      cd.setUint32(0, 0x02014b50, true);
+      cd.setUint16(4, 20, true);
+      cd.setUint16(6, 20, true);
+      cd.setUint16(8, 0x0800, true);
+      cd.setUint16(10, 0, true);
+      cd.setUint16(12, time, true);
+      cd.setUint16(14, date, true);
+      cd.setUint32(16, crc, true);
+      cd.setUint32(20, data.length, true);
+      cd.setUint32(24, data.length, true);
+      cd.setUint16(28, name.length, true);
+      cd.setUint32(42, offset, true);
+      central.push(new Uint8Array(cd.buffer), name);
+      offset += 30 + name.length + data.length;
+    }
+    const cdSize = central.reduce((s, p) => s + p.length, 0);
+    const end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true);
+    end.setUint16(8, files.length, true);
+    end.setUint16(10, files.length, true);
+    end.setUint32(12, cdSize, true);
+    end.setUint32(16, offset, true);
+    const all = [...parts, ...central, new Uint8Array(end.buffer)];
+    const out = new Uint8Array(all.reduce((s, p) => s + p.length, 0));
+    let at = 0;
+    for (const p of all) {
+      out.set(p, at);
+      at += p.length;
+    }
+    return out;
+  }
+
+  const api = { makeZip, crc32 };
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.MBZip = api;
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+(function () {
+  const E = window.MBEngine;
+  const Z = window.MBZip;
+  const R = window.MBRules;
+
+  const $ = (sel, root) => (root || document).querySelector(sel);
+  const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+
+  function h(tag, attrs, ...kids) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v == null || v === false) continue;
+      if (k === 'class') el.className = v;
+      else if (k === 'html') el.innerHTML = v;
+      else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+      else if (k in el && typeof v !== 'string') el[k] = v;
+      else el.setAttribute(k, v === true ? '' : v);
+    }
+    for (const kid of kids.flat()) if (kid != null && kid !== false) el.append(kid instanceof Node ? kid : String(kid));
+    return el;
+  }
+
+  const OPTS = [
+    { key: 'texts', label: 'Тексты', hint: 'Заголовки, абзацы, цены, надписи на кнопках' },
+    { key: 'images', label: 'Картинки', hint: 'Можно заменить картинку и её alt' },
+    { key: 'links', label: 'Ссылки', hint: 'Адреса у кнопок, картинок и ссылок в тексте' },
+    { key: 'colors', label: 'Цвета и фон', hint: 'Цвет текста, кнопок, плашек и фона — только те, что есть в письме' },
+    { key: 'itemToggles', label: 'Скрывать карточки целиком', hint: 'Карточку, пункт, телефон, соцсеть — одной галочкой' },
+    { key: 'toggles', label: 'Скрывать части', hint: 'Отдельно картинку, кнопку, заголовок, текст' },
+    { key: 'equalHeight', label: 'Карточки одной высоты', hint: 'Скрыли часть карточки — соседние не сдвигаются' },
+    { key: 'spacing', label: 'Отступы сверху и снизу', hint: 'Расстояние до соседних блоков. Сначала — как в письме' }
+  ];
+  const DEFAULTS = { texts: true, images: true, links: true, colors: true, itemToggles: true, toggles: true, equalHeight: true, spacing: true };
+  const STATUS = { ok: 'Готово', warn: 'Есть замечание', err: 'Не примет' };
+  const TYPE_RU = {
+    TEXT: 'текст', SIMPLE_TEXT: 'текст', URL: 'ссылка', IMAGE: 'картинка', ALT: 'alt картинки', ICON: 'иконка',
+    COLOR: 'цвет', BACKGROUND: 'фон', DISPLAY_TOGGLE: 'показывать', NUMBER: 'число, px', COLLECTION: 'набор товаров'
+  };
+  const TR = {
+    а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'e', ж: 'zh', з: 'z', и: 'i', й: 'y', к: 'k', л: 'l', м: 'm',
+    н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't', у: 'u', ф: 'f', х: 'h', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'sch',
+    ъ: '', ы: 'y', ь: '', э: 'e', ю: 'yu', я: 'ya'
+  };
+
+  const store = {
+    get(k, d) {
+      try {
+        const v = localStorage.getItem('mb-blocks:' + k);
+        return v ? JSON.parse(v) : d;
+      } catch (e) {
+        return d;
+      }
+    },
+    set(k, v) {
+      try {
+        localStorage.setItem('mb-blocks:' + k, JSON.stringify(v));
+      } catch (e) {}
+    }
+  };
+
+  const S = {
+    letter: null,
+    file: '',
+    groups: [],
+    opts: Object.assign({}, DEFAULTS, store.get('opts', {})),
+    results: [],
+    cur: 0,
+    sub: 'look',
+    device: 'desktop'
+  };
+
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  const plural = (n, one, few, many) => n + ' ' + (n % 10 === 1 && n % 100 !== 11 ? one : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? few : many);
+  const groupLabel = (g) => String(g || '').replace(/^#\d+\s*/, '');
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const translit = (s) => String(s).toLowerCase().split('').map((c) => (TR[c] !== undefined ? TR[c] : c)).join('')
+    .replace(/[^a-z0-9_]+/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+  const baseName = (f) => translit(String(f).replace(/\.[^.]+$/, '')) || 'letter';
+
+  let toastT;
+  function toast(text) {
+    const t = $('#toast');
+    t.textContent = text;
+    t.classList.add('show');
+    clearTimeout(toastT);
+    toastT = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  async function copy(text, what) {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (e) {
+      const ta = h('textarea', { style: 'position:fixed;top:0;left:0;opacity:0' });
+      ta.value = text;
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+    toast(what + ' скопирован — вставьте в Mindbox');
+  }
+
+  function download(name, data, type) {
+    const blob = data instanceof Blob ? data : new Blob([data], { type: type || 'text/plain;charset=utf-8' });
+    const a = h('a', { href: URL.createObjectURL(blob), download: name });
+    document.body.append(a);
+    a.click();
+    setTimeout(() => {
+      URL.revokeObjectURL(a.href);
+      a.remove();
+    }, 1000);
+  }
+
+  function showTab(name) {
+    for (const b of $$('.tabs button')) b.setAttribute('aria-selected', String(b.dataset.tab === name));
+    for (const s of $$('.tab')) s.hidden = s.id !== 'tab-' + name;
+  }
+
+  function noDynamicUrls(html) {
+    return html
+      .replace(/(\s(?:src|background)\s*=\s*)("[^"]*[$@]\{[^"]*"|'[^']*[$@]\{[^']*')/gi, '$1""')
+      .replace(/url\(\s*(?:&quot;|["'])?[^)]*?[$@]\{[^)]*\)/gi, 'none');
+  }
+
+  function pageDoc(html, styles, bodyStyle) {
+    html = noDynamicUrls(html);
+    return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
+      (styles || '') + '<style>html,body{margin:0;padding:0}</style></head><body style="' + esc(bodyStyle || '') +
+      '"><div style="max-width:660px;margin:0 auto">' + html + '</div></body></html>';
+  }
+
+  function frame(doc, onSize) {
+    const f = h('iframe', { sandbox: 'allow-same-origin', title: 'Как выглядит блок', loading: 'eager' });
+    const measure = () => {
+      try {
+        const d = f.contentDocument;
+        if (!d || !d.body) return;
+        onSize(Math.max(d.body.scrollHeight, d.body.firstElementChild ? d.body.firstElementChild.scrollHeight : 0));
+      } catch (e) {}
+    };
+    f.addEventListener('load', () => {
+      measure();
+      try {
+        for (const img of f.contentDocument.images) if (!img.complete) img.addEventListener('load', measure);
+      } catch (e) {}
+      setTimeout(measure, 500);
+    });
+    f.srcdoc = doc;
+    return f;
+  }
+
+  const io = 'IntersectionObserver' in window
+    ? new IntersectionObserver((ents) => {
+      for (const e of ents) {
+        if (!e.isIntersecting) continue;
+        io.unobserve(e.target);
+        const fn = e.target._lazy;
+        e.target._lazy = null;
+        if (fn) fn();
+      }
+    }, { rootMargin: '400px' })
+    : null;
+
+  function lazy(el, fn) {
+    if (!io) return fn();
+    el._lazy = fn;
+    io.observe(el);
+  }
+
+  function thumb(idx) {
+    const box = h('div', { class: 'thumb' });
+    lazy(box, () => {
+      const item = S.letter.list[idx];
+      const html = item.templated ? item.html.replace(/[$@]\{[^}]*\}/g, '') : item.html;
+      const f = frame(pageDoc(html, S.letter.styles, S.letter.bodyStyle), (H) => {
+        const sc = (box.clientWidth || 320) / 640;
+        f.style.transform = 'scale(' + sc + ')';
+        f.style.height = H + 'px';
+        box.style.height = Math.ceil(Math.min(H * sc, 240)) + 'px';
+        box.classList.toggle('cut', H * sc > 240);
+      });
+      f.style.transform = 'scale(.5)';
+      box.append(f);
+    });
+    return box;
+  }
+
+  function openLetter(src, name) {
+    let L;
+    try {
+      L = E.loadLetter(src);
+    } catch (e) {
+      return fail('Не получилось прочитать письмо: ' + e.message);
+    }
+    if (!L.blocks.length) return fail('В письме не нашлось блоков. Проверьте, что это HTML письма целиком.');
+    S.letter = L;
+    S.file = name || 'письмо';
+    S.results = [];
+    S.cur = 0;
+    S.groups = L.list.map((it) => ({ ids: [it.index], on: it.sameAs == null && !it.templated }));
+    $('#drop').hidden = true;
+    $('#intro').hidden = true;
+    $('#paste-box').hidden = true;
+    const info = $('#letter-info');
+    info.hidden = false;
+    renderInfo();
+    $('#pick-area').hidden = false;
+    $('#step-result').hidden = true;
+    renderBlocks();
+    renderOpts();
+  }
+
+  const parts = (n) => n + ' ' + (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 'части' : 'частей');
+
+  function splitNote(x) {
+    if (x.reason === 'header') return (x.title ? '«' + x.title + '»' : 'Первый блок') + ': шапка была склеена с баннером или текстом — разделили на ' + parts(x.parts);
+    if (x.reason === 'em') return 'Блок, где строки размечены как отдельные блоки (em="block"), разделили на ' + parts(x.parts);
+    return 'Строки, которые не попадали ни в один блок, стали отдельными блоками: ' + x.parts;
+  }
+
+  function renderInfo() {
+    const L = S.letter;
+    $('#letter-info').replaceChildren(
+      h('span', null, 'Письмо: ', h('b', null, S.file)),
+      h('span', { class: 'muted' }, 'Нашлось блоков: ' + L.blocks.length),
+      h('button', { type: 'button', class: 'link', onclick: reset }, 'Взять другое письмо'),
+      L.splits.length ? h('div', { class: 'auto-split' }, L.splits.map(splitNote).join('. ') + '. Вёрстка письма от этого не меняется.') : null);
+  }
+
+  function fail(text) {
+    const info = $('#letter-info');
+    info.hidden = false;
+    info.replaceChildren(h('div', { class: 'error-box' }, text));
+  }
+
+  function reset() {
+    S.letter = null;
+    S.groups = [];
+    S.results = [];
+    $('#drop').hidden = false;
+    $('#intro').hidden = false;
+    $('#letter-info').hidden = true;
+    for (const id of ['#pick-area', '#step-result']) $(id).hidden = true;
+  }
+
+  function readFile(f) {
+    f.text().then((t) => openLetter(t, f.name));
+  }
+
+  function chipsFor(items) {
+    const sum = new Map();
+    const add = (label, n) => {
+      if (n) sum.set(label, (sum.get(label) || 0) + n);
+    };
+    for (const it of items) {
+      const st = it.stats || {};
+      for (const [k, n] of Object.entries(st.kinds || {})) add(cap(R.kinds[k] ? R.kinds[k].plural : k), n);
+      add('Кнопки', st.buttons);
+      add('Картинки', st.images);
+    }
+    return [...sum].map(([label, n]) => label + ': ' + n);
+  }
+
+  const isTemplated = (g) => g.ids.some((i) => S.letter.list[i].templated);
+
+  function renderBlocks() {
+    const box = $('#blocks');
+    box.replaceChildren();
+    S.groups.forEach((g, gi) => {
+      const items = g.ids.map((i) => S.letter.list[i]);
+      const first = items[0];
+      const templated = isTemplated(g);
+      const card = h('div', { class: 'bcard ' + (g.on ? 'on' : 'off') });
+      const cb = h('input', {
+        type: 'checkbox',
+        checked: g.on,
+        disabled: templated,
+        onchange: () => {
+          g.on = cb.checked;
+          syncSelection();
+        }
+      });
+      g.card = card;
+      g.cb = cb;
+      const title = items.map((it) => it.title || 'Блок ' + (it.index + 1)).join(' + ');
+      card.append(h('label', { class: 'bhead' }, cb, h('span', null,
+        h('span', { class: 'bnum' }, g.ids.map((i) => i + 1).join('+') + '. '),
+        h('span', { class: 'btitle' }, title),
+        first.category ? h('span', { class: 'bcat' }, first.category) : null)));
+      const chips = h('div', { class: 'chips' });
+      for (const c of chipsFor(items)) chips.append(h('span', { class: 'chip' }, c));
+      for (const it of items) {
+        if (it.sameAs != null) chips.append(h('span', { class: 'chip warn', title: 'Обычно такой блок не нужен: фон меняется в конструкторе' }, 'Как блок ' + (it.sameAs + 1) + ', только фон другой'));
+      }
+      if (templated) chips.append(h('span', { class: 'chip warn' }, 'Уже размечен для Mindbox'));
+      if (chips.childNodes.length) card.append(chips);
+      for (const i of g.ids) card.append(thumb(i));
+      const acts = h('div', { class: 'bactions' });
+      if (g.ids.length > 1) acts.append(h('button', { type: 'button', class: 'link', onclick: () => split(gi) }, 'Отменить склейку'));
+      if (g.ids.length === 1 && !templated && first.parts > 1) {
+        acts.append(h('button', { type: 'button', class: 'link', title: 'Разрезать блок по строкам на отдельные блоки. Вёрстка письма не меняется.', onclick: () => cut(gi) }, 'Разделить на ' + parts(first.parts)));
+      }
+      const next = S.groups[gi + 1];
+      const last = g.ids[g.ids.length - 1];
+      if (next && !templated && !isTemplated(next) && S.letter.list[last].mergeNext) {
+        acts.append(h('button', { type: 'button', class: 'link', title: 'Сделать из этого и следующего блока один', onclick: () => merge(gi) }, 'Склеить со следующим (' + (next.ids[0] + 1) + ')'));
+      }
+      if (templated) acts.append(h('button', { type: 'button', class: 'link', onclick: () => toCheck(first.source === 'marker' ? '\x3C!-- EDITOR_BLOCK_TEMPLATE: ' + first.title + ' -->\n' + first.html : first.html) }, 'Проверить этот блок'));
+      if (acts.childNodes.length) card.append(acts);
+      box.append(card);
+    });
+    syncSelection();
+  }
+
+  function syncSelection() {
+    for (const g of S.groups) {
+      if (g.card) g.card.className = 'bcard ' + (g.on ? 'on' : 'off');
+      if (g.cb) g.cb.checked = g.on;
+    }
+    const n = S.groups.filter((g) => g.on).length;
+    $('#sel-count').textContent = 'Выбрано ' + n + ' из ' + S.groups.length;
+    const btn = $('#make');
+    btn.disabled = !n;
+    btn.textContent = n ? 'Сделать блоки (' + n + ')' : 'Отметьте хотя бы один блок';
+  }
+
+  function merge(gi) {
+    const a = S.groups[gi];
+    const b = S.groups[gi + 1];
+    a.ids = a.ids.concat(b.ids);
+    a.on = true;
+    S.groups.splice(gi + 1, 1);
+    renderBlocks();
+  }
+
+  function split(gi) {
+    const g = S.groups[gi];
+    S.groups.splice(gi, 1, ...g.ids.map((i) => ({ ids: [i], on: g.on })));
+    renderBlocks();
+  }
+
+  function cut(gi) {
+    const i = S.groups[gi].ids[0];
+    let L;
+    try {
+      L = E.splitBlock(S.letter, i);
+    } catch (e) {
+      return toast(e.message);
+    }
+    const added = L.list.length - S.letter.list.length;
+    const on = S.groups[gi].on;
+    S.groups = S.groups.flatMap((g, k) => {
+      if (k < gi) return [g];
+      if (k === gi) return Array.from({ length: added + 1 }, (_, t) => ({ ids: [i + t], on }));
+      return [{ ids: g.ids.map((x) => x + added), on: g.on }];
+    });
+    S.letter = L;
+    S.results = [];
+    S.cur = 0;
+    $('#step-result').hidden = true;
+    renderInfo();
+    renderBlocks();
+    toast('Блок ' + (i + 1) + ' разделён на ' + parts(added + 1));
+  }
+
+  function optsPanel(o, onChange) {
+    const box = h('div', { class: 'opts' });
+    const inputs = {};
+    const sync = () => {
+      inputs.equalHeight.disabled = !o.toggles;
+    };
+    for (const d of OPTS) {
+      const cb = h('input', {
+        type: 'checkbox',
+        checked: !!o[d.key],
+        onchange: () => {
+          o[d.key] = cb.checked;
+          sync();
+          onChange();
+        }
+      });
+      inputs[d.key] = cb;
+      box.append(h('label', { class: 'opt' }, cb, h('span', null, h('b', null, d.label), h('small', null, d.hint))));
+    }
+    sync();
+    return box;
+  }
+
+  function renderOpts() {
+    $('#opts').replaceChildren(optsPanel(S.opts, () => {
+      store.set('opts', S.opts);
+      if (S.results.length) {
+        rebuildAll(true);
+        renderResults();
+      }
+    }));
+  }
+
+  function buildOne(res) {
+    const o = Object.assign({}, res.opts, res.name ? { name: res.name } : {});
+    try {
+      res.r = res.ids.length > 1 ? E.buildMerged(S.letter, res.ids, o) : E.buildBlock(S.letter, res.ids[0], o);
+    } catch (e) {
+      res.r = {
+        name: res.name || S.letter.list[res.ids[0]].suggested,
+        html: '',
+        json: [],
+        checks: [{ level: 'error', code: 'crash', text: 'Не получилось разметить блок: ' + e.message + '. Сохраните письмо — по нему инструмент доработают.' }],
+        same: { equal: true },
+        notes: [],
+        report: {},
+        failed: true
+      };
+    }
+  }
+
+  function dedupeNames() {
+    const used = new Set();
+    for (const res of S.results) {
+      const n = res.r.name;
+      if (used.has(n.toLowerCase())) {
+        let k = 2;
+        while (used.has((n + '_' + k).toLowerCase())) k++;
+        res.name = n + '_' + k;
+        buildOne(res);
+      }
+      used.add(res.r.name.toLowerCase());
+    }
+  }
+
+  function rebuildAll(keepOwn) {
+    for (const res of S.results) {
+      if (keepOwn && res.own) continue;
+      if (!res.own) res.opts = Object.assign({}, S.opts);
+      buildOne(res);
+    }
+    dedupeNames();
+  }
+
+  function statusOf(r) {
+    if (r.checks.some((c) => c.level === 'error')) return 'err';
+    if (r.checks.some((c) => c.level === 'warn') || (r.same && !r.same.equal)) return 'warn';
+    return 'ok';
+  }
+
+  const resTitle = (res) => res.ids.map((i) => (i + 1) + '. ' + (S.letter.list[i].title || 'Блок ' + (i + 1))).join(' + ');
+
+  function renderResults() {
+    const list = $('#res-list');
+    list.replaceChildren();
+    const cnt = { ok: 0, warn: 0, err: 0 };
+    S.results.forEach((res, i) => {
+      const st = statusOf(res.r);
+      cnt[st]++;
+      list.append(h('li', null, h('button', {
+        type: 'button',
+        'aria-current': String(i === S.cur),
+        onclick: () => {
+          S.cur = i;
+          renderResults();
+        }
+      }, h('span', { class: 'dot ' + st, role: 'img', 'aria-label': STATUS[st], title: STATUS[st] }),
+      h('span', { class: 'rtext' },
+        h('span', { class: 'rname' }, res.r.name),
+        h('span', { class: 'rtitle' }, resTitle(res)),
+        st !== 'ok' ? h('span', { class: 'rstatus ' + st }, STATUS[st]) : null))));
+    });
+    $('#result-sum').textContent = [plural(S.results.length, 'блок', 'блока', 'блоков') + ': готово ' + cnt.ok, cnt.warn ? 'с замечанием ' + cnt.warn : null, cnt.err ? 'Mindbox не примет ' + cnt.err : null].filter(Boolean).join(', ');
+    renderView();
+  }
+
+  function firstIssue(r) {
+    const e = r.checks.find((c) => c.level === 'error');
+    if (e) return { level: 'err', text: e.text };
+    const w = r.checks.find((c) => c.level === 'warn');
+    if (w) return { level: 'warn', text: w.text };
+    if (r.same && !r.same.equal) return { level: 'warn', text: r.same.diff || 'Вёрстка отличается от письма.' };
+    return null;
+  }
+
+  function renderView() {
+    const view = $('#res-view');
+    const res = S.results[S.cur];
+    if (!res) {
+      view.replaceChildren(h('p', { class: 'empty' }, 'Блоков нет.'));
+      return;
+    }
+    const r = res.r;
+    const st = statusOf(r);
+    const nameIn = h('input', { value: r.name, spellcheck: 'false', title: 'Латиница, цифры и _. Русские буквы переведутся сами' });
+    nameIn.addEventListener('change', () => {
+      const v = translit(nameIn.value);
+      if (!v) {
+        nameIn.value = r.name;
+        return;
+      }
+      res.name = v;
+      buildOne(res);
+      dedupeNames();
+      renderResults();
+    });
+    const jsonText = JSON.stringify(r.json, null, 2) + '\n';
+    const head = h('div', { class: 'res-head' },
+      h('label', null, h('span', null, 'Название в Mindbox'), nameIn),
+      h('span', { class: 'status ' + st }, STATUS[st]),
+      r.failed ? null : h('span', { class: 'copy-btns' },
+        h('button', { type: 'button', class: 'btn primary', onclick: () => copy(r.html, 'HTML') }, 'Копировать HTML'),
+        h('button', { type: 'button', class: 'btn primary', onclick: () => copy(jsonText, 'JSON') }, 'Копировать JSON')));
+    const toggles = r.json.filter((p) => p.type === 'DISPLAY_TOGGLE').length;
+    const sum = h('div', { class: 'res-sum' }, [
+      resTitle(res),
+      'в конструкторе ' + plural(r.json.length - toggles, 'поле', 'поля', 'полей') + ' и ' + plural(toggles, 'переключатель', 'переключателя', 'переключателей') + ' «показывать»',
+      r.merged ? 'склеены блоки ' + r.merged.map((i) => i + 1).join(', ') : null
+    ].filter(Boolean).join(' · '));
+    const issues = r.checks.filter((c) => c.level !== 'ok').length + (r.same && !r.same.equal ? 1 : 0);
+    const fi = firstIssue(r);
+    const alert = fi && S.sub !== 'check' ? h('div', { class: 'res-alert ' + fi.level },
+      h('b', null, fi.level === 'err' ? 'Mindbox не примет. ' : 'Замечание. '), fi.text, ' ',
+      h('button', { type: 'button', class: 'link', onclick: () => {
+        S.sub = 'check';
+        renderView();
+      } }, issues > 1 ? 'Все замечания (' + issues + ')' : 'Открыть «Проверку»')) : null;
+    const sub = h('div', { class: 'subtabs', role: 'tablist' });
+    for (const [k, t] of [['look', 'Как выглядит'], ['html', 'HTML'], ['json', 'JSON'], ['check', 'Проверка' + (issues ? ' (' + issues + ')' : '')]]) {
+      sub.append(h('button', {
+        type: 'button',
+        role: 'tab',
+        'aria-selected': String(S.sub === k),
+        onclick: () => {
+          S.sub = k;
+          renderView();
+        }
+      }, t));
+    }
+    let pane;
+    if (S.sub === 'look') pane = r.failed ? checksPane(r) : lookPane(r.html, r.json, S.letter.styles, S.letter.bodyStyle, res.state);
+    else if (S.sub === 'html') pane = codePane(r.html, 'HTML', r.name + '.html');
+    else if (S.sub === 'json') pane = jsonPane(r.json, r.name);
+    else pane = checksPane(r);
+    const own = h('details', { class: 'own', open: res.own || null },
+      h('summary', null, res.own ? 'Свои настройки этого блока' : 'Настроить только этот блок'),
+      optsPanel(res.opts, () => {
+        res.own = true;
+        res.state = {};
+        buildOne(res);
+        dedupeNames();
+        renderResults();
+      }),
+      res.own ? h('button', {
+        type: 'button',
+        class: 'link',
+        onclick: () => {
+          res.own = false;
+          res.opts = Object.assign({}, S.opts);
+          res.state = {};
+          buildOne(res);
+          dedupeNames();
+          renderResults();
+        }
+      }, 'Вернуть общие настройки') : null);
+    view.replaceChildren(...[head, sum, alert, sub, pane, own].filter(Boolean));
+  }
+
+  function numLabel(p) {
+    if (p.name === 'spacing_top') return 'Сверху';
+    if (p.name === 'spacing_bottom') return 'Снизу';
+    return groupLabel(p.group);
+  }
+
+  function lookPane(html, json, styles, bodyStyle, state) {
+    const wrap = h('div', { class: 'look' });
+    const fw = h('div', { class: 'frame-wrap' + (S.device === 'phone' ? ' phone' : '') });
+    const controls = h('div', { class: 'controls' });
+    const draw = () => {
+      let out;
+      try {
+        out = E.renderTemplate(html, json, state);
+      } catch (e) {
+        fw.replaceChildren(h('div', { class: 'error-box' }, 'Не получилось показать блок: ' + e.message));
+        return;
+      }
+      const f = frame(pageDoc(out, styles, bodyStyle), (H) => {
+        f.style.height = H + 'px';
+      });
+      fw.replaceChildren(f);
+    };
+    const seg = h('div', { class: 'seg' });
+    for (const [k, t] of [['desktop', 'Компьютер'], ['phone', 'Телефон']]) {
+      seg.append(h('button', {
+        type: 'button',
+        'aria-pressed': String(S.device === k),
+        onclick: () => {
+          S.device = k;
+          fw.classList.toggle('phone', k === 'phone');
+          for (const b of seg.children) b.setAttribute('aria-pressed', String(b.textContent === t));
+          draw();
+        }
+      }, t));
+    }
+    controls.append(h('h4', null, 'Экран'), seg);
+    const toggles = json.filter((p) => p && p.type === 'DISPLAY_TOGGLE');
+    const nums = json.filter((p) => p && p.type === 'NUMBER');
+    if (toggles.length) {
+      controls.append(h('h4', null, 'Показывать'));
+      for (const p of toggles) {
+        const cb = h('input', {
+          type: 'checkbox',
+          checked: String(state[p.name] != null ? state[p.name] : p.defaultValue) === 'true',
+          onchange: () => {
+            state[p.name] = cb.checked ? 'true' : 'false';
+            draw();
+          }
+        });
+        controls.append(h('label', { title: p.name }, cb, groupLabel(p.group) || p.name));
+      }
+      controls.append(h('small', { class: 'muted' }, 'Снимите галочку — так блок будет выглядеть без этой части.'));
+    }
+    if (nums.length) {
+      controls.append(h('h4', null, 'Отступы, px'));
+      for (const p of nums) {
+        const inp = h('input', {
+          type: 'number',
+          min: '0',
+          max: '300',
+          value: String(state[p.name] != null ? state[p.name] : p.defaultValue),
+          oninput: () => {
+            state[p.name] = String(Math.max(0, parseInt(inp.value || '0', 10) || 0));
+            draw();
+          }
+        });
+        controls.append(h('label', { title: p.name }, inp, numLabel(p)));
+      }
+    }
+    draw();
+    wrap.append(fw, controls);
+    return wrap;
+  }
+
+  function highlight(code) {
+    return esc(code)
+      .replace(/&lt;!--[\s\S]*?--&gt;/g, (m) => '<i>' + m + '</i>')
+      .replace(/[$@]\{[^}]*\}/g, (m) => '<mark>' + m + '</mark>');
+  }
+
+  function codePane(text, what, file) {
+    return h('div', null,
+      h('div', { class: 'code-bar' },
+        h('button', { type: 'button', class: 'btn', onclick: () => download(file, text, 'text/html;charset=utf-8') }, 'Скачать ' + file),
+        h('span', { class: 'muted' }, 'Жёлтым — то, что меняется в конструкторе.')),
+      h('pre', { class: 'code', html: highlight(text) }));
+  }
+
+  function shortVal(p) {
+    const v = p.defaultValue;
+    if (p.type === 'DISPLAY_TOGGLE') return String(v) === 'true' ? 'показано' : 'скрыто';
+    if (p.type === 'BACKGROUND') return v && v.type === 'color' ? v.color : v && v.type === 'image' ? 'картинка' : 'прозрачный';
+    if (v == null) return '';
+    const s = typeof v === 'string' ? v : JSON.stringify(v);
+    return s.length > 90 ? s.slice(0, 90) + '…' : s;
+  }
+
+  function jsonPane(json, name) {
+    const text = JSON.stringify(json, null, 2) + '\n';
+    const tb = h('tbody');
+    let last = null;
+    for (const p of json) {
+      if (p.group !== last) {
+        last = p.group;
+        tb.append(h('tr', { class: 'g' }, h('td', { colspan: '3' }, groupLabel(p.group))));
+      }
+      tb.append(h('tr', null, h('td', null, h('code', null, p.name)), h('td', null, TYPE_RU[p.type] || p.type), h('td', { class: 'val' }, shortVal(p))));
+    }
+    return h('div', null,
+      h('div', { class: 'code-bar' },
+        h('button', { type: 'button', class: 'btn', onclick: () => download(name + '.json', text, 'application/json;charset=utf-8') }, 'Скачать ' + name + '.json')),
+      h('p', { class: 'hint' }, 'Поля по группам — в таком порядке их покажет конструктор.'),
+      h('table', { class: 'ptable' }, h('thead', null, h('tr', null, h('th', null, 'Поле'), h('th', null, 'Что это'), h('th', null, 'Сейчас'))), tb),
+      h('details', null, h('summary', null, 'Показать JSON целиком'), h('pre', { class: 'code', html: esc(text) })));
+  }
+
+  function checksPane(r) {
+    const ul = h('ul', { class: 'checks' });
+    const LV = { error: 'Mindbox не примет. ', warn: 'Посмотрите. ' };
+    for (const c of r.checks) ul.append(h('li', { class: c.level }, LV[c.level] ? h('b', null, LV[c.level]) : null, c.text));
+    if (r.same) {
+      if (r.same.equal) ul.append(h('li', { class: 'ok' }, 'Вёрстка такая же, как в письме.'));
+      else if (r.same.diff) ul.append(h('li', { class: 'error' }, r.same.diff));
+      else ul.append(h('li', { class: 'warn' }, h('b', null, 'Вёрстка отличается от письма.'), ' Было: ', h('code', null, String(r.same.was)), ' Стало: ', h('code', null, String(r.same.now))));
+    }
+    for (const n of r.notes || []) ul.append(h('li', { class: 'note' }, n));
+    return ul;
+  }
+
+  const ck = { state: {}, t: null };
+
+  function runCheck() {
+    const html = $('#ck-html').value.trim();
+    const json = $('#ck-json').value.trim();
+    const out = $('#ck-out');
+    if (!html && !json) {
+      out.replaceChildren(h('p', { class: 'empty' }, 'Вставьте HTML и JSON блока — проверка начнётся сама.'));
+      return;
+    }
+    if (!html || !json) {
+      out.replaceChildren(h('p', { class: 'empty' }, 'Нужны оба поля: и HTML, и JSON.'));
+      return;
+    }
+    let arr = null;
+    try {
+      arr = JSON.parse(json);
+    } catch (e) {}
+    const kids = [checksPane({ checks: E.validate(html, json), same: null, notes: [] })];
+    if (Array.isArray(arr)) kids.push(lookPane(html, arr, '', '', ck.state));
+    out.replaceChildren(...kids);
+  }
+
+  function toCheck(html) {
+    $('#ck-html').value = html;
+    $('#ck-json').value = '';
+    ck.state = {};
+    showTab('check');
+    runCheck();
+    $('#ck-json').focus();
+  }
+
+  function docsStatus() {
+    const d = R.docs;
+    const fmt = (s) => {
+      const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || '');
+      return m ? m[3] + '.' + m[2] + '.' + m[1] : s;
+    };
+    const parts = [];
+    if (d && d.changedAt) {
+      parts.push('Правила сверены с документацией Mindbox в редакции от ' + fmt(d.changedAt) + '. Её проверяют каждый день. ');
+      if (d.unknownTypes && d.unknownTypes.length) parts.push('В документации появились новые типы: ' + d.unknownTypes.join(', ') + ' — инструмент их пока не использует. ');
+    } else {
+      parts.push('Сверки с документацией Mindbox ещё не было. ');
+    }
+    const link = (i, t) => h('a', { href: R.docsPages[i], target: '_blank', rel: 'noopener' }, t);
+    const make = () => h('span', null, parts.join(''), 'Документация: ', link(0, 'загрузка блоков'), ', ', link(1, 'обзор'), '.');
+    $('#docs-status').replaceChildren(make());
+    $('#docs-help').replaceChildren(make());
+  }
+
+  function initTheme() {
+    const root = document.documentElement;
+    const btn = $('#theme');
+    const sys = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+    const current = () => root.getAttribute('data-theme') || (sys && sys.matches ? 'dark' : 'light');
+    const paint = () => btn.setAttribute('aria-checked', String(current() === 'dark'));
+    const saved = store.get('theme', null);
+    if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved);
+    btn.addEventListener('click', () => {
+      const next = current() === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      store.set('theme', next);
+      paint();
+    });
+    if (sys && sys.addEventListener) sys.addEventListener('change', paint);
+    paint();
+  }
+
+  function init() {
+    initTheme();
+    $$('.tabs button').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
+    const drop = $('#drop');
+    drop.addEventListener('click', () => $('#file').click());
+    drop.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        $('#file').click();
+      }
+    });
+    $('#pick').addEventListener('click', (e) => {
+      e.stopPropagation();
+      $('#file').click();
+    });
+    $('#paste-open').addEventListener('click', (e) => {
+      e.stopPropagation();
+      $('#paste-box').hidden = false;
+      $('#paste').focus();
+    });
+    $('#paste-go').addEventListener('click', () => {
+      const t = $('#paste').value;
+      if (t.trim()) openLetter(t, 'вставленный код');
+    });
+    $('#paste-cancel').addEventListener('click', () => {
+      $('#paste-box').hidden = true;
+    });
+    for (const t of ['dragenter', 'dragover']) drop.addEventListener(t, (e) => {
+      e.preventDefault();
+      drop.classList.add('over');
+    });
+    for (const t of ['dragleave', 'drop']) drop.addEventListener(t, (e) => {
+      e.preventDefault();
+      drop.classList.remove('over');
+    });
+    drop.addEventListener('drop', (e) => {
+      const f = e.dataTransfer.files[0];
+      if (f) readFile(f);
+    });
+    $('#file').addEventListener('change', (e) => {
+      const f = e.target.files[0];
+      if (f) readFile(f);
+      e.target.value = '';
+    });
+    window.addEventListener('dragover', (e) => e.preventDefault());
+    window.addEventListener('drop', (e) => e.preventDefault());
+    document.addEventListener('paste', (e) => {
+      if (S.letter || $('#tab-make').hidden) return;
+      if (e.target && /^(TEXTAREA|INPUT)$/.test(e.target.tagName)) return;
+      const t = e.clipboardData && e.clipboardData.getData('text/plain');
+      if (t && /<(table|html|body)\b/i.test(t)) openLetter(t, 'вставленный код');
+    });
+    $$('[data-sel]').forEach((b) => b.addEventListener('click', () => {
+      const mode = b.dataset.sel;
+      for (const g of S.groups) {
+        const its = g.ids.map((i) => S.letter.list[i]);
+        if (isTemplated(g)) g.on = false;
+        else if (mode === 'all') g.on = its.every((x) => x.sameAs == null);
+        else if (mode === 'none') g.on = false;
+        else g.on = its.some((x) => /^(header|footer)/.test(x.suggested));
+      }
+      syncSelection();
+    }));
+    $('#make').addEventListener('click', () => {
+      const btn = $('#make');
+      btn.disabled = true;
+      btn.textContent = 'Делаю блоки…';
+      setTimeout(() => {
+        S.results = S.groups.filter((g) => g.on).map((g) => ({ ids: g.ids.slice(), opts: Object.assign({}, S.opts), own: false, name: null, r: null, state: {} }));
+        rebuildAll(false);
+        S.cur = 0;
+        S.sub = 'look';
+        $('#step-result').hidden = false;
+        renderResults();
+        syncSelection();
+        $('#step-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 30);
+    });
+    $('#zip').addEventListener('click', () => {
+      const files = [];
+      for (const res of S.results) {
+        if (res.r.failed) continue;
+        files.push({ name: res.r.name + '.html', data: res.r.html });
+        files.push({ name: res.r.name + '.json', data: JSON.stringify(res.r.json, null, 2) + '\n' });
+      }
+      download(baseName(S.file) + '-mindbox-blocks.zip', new Blob([Z.makeZip(files)], { type: 'application/zip' }));
+      toast('Архив скачан, блоков в нём: ' + files.length / 2);
+    });
+    for (const id of ['#ck-html', '#ck-json']) {
+      const ta = $(id);
+      ta.addEventListener('input', () => {
+        ck.state = {};
+        clearTimeout(ck.t);
+        ck.t = setTimeout(runCheck, 300);
+      });
+      ta.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        ta.classList.add('over');
+      });
+      ta.addEventListener('dragleave', () => ta.classList.remove('over'));
+      ta.addEventListener('drop', (e) => {
+        e.preventDefault();
+        ta.classList.remove('over');
+        const f = e.dataTransfer.files[0];
+        if (!f) return;
+        f.text().then((t) => {
+          const target = /\.json$/i.test(f.name) ? $('#ck-json') : /\.html?$/i.test(f.name) ? $('#ck-html') : ta;
+          target.value = t;
+          ck.state = {};
+          runCheck();
+        });
+      });
+    }
+    docsStatus();
+    runCheck();
+  }
+
+  init();
+})();
+
+</script>
+</body>
+</html>
