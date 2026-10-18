@@ -2654,9 +2654,8 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         const next = tokens.slice(i + 1).find((x) => x.t !== 'text' || /\S/.test(x.s));
         if (next && (next.t !== 'text' || !/^\s*</.test(next.s))) {
           if (!(next.t === 'stmt' && /^(if|for)\b/i.test(next.body))) {
-            const text = 'После ' + tk.s + ' сразу должен идти HTML-тег. Mindbox: «' + RULES.errors.conditionStart + '»';
-            if (/^if\s+editor\./i.test(b)) err('cond', text);
-            else warn('cond', text + ' Это условие было в письме до нас — если Mindbox на него ругается, оберните текст внутри условия в <span>.');
+            if (/^if\s+editor\./i.test(b)) err('cond', 'После ' + tk.s + ' сразу должен идти HTML-тег. Mindbox: «' + RULES.errors.conditionStart + '»');
+            else warn('cond', 'Условие ' + tk.s + ' было в письме до нас: оно показывает разный текст разным получателям. Сразу после него идёт текст, а Mindbox ждёт там тег и может не принять блок: «' + RULES.errors.conditionStart + '» Если не примет — в HTML оберните текст после @{if …} и после @{else} в <span>…</span>: вид письма не изменится.');
           }
         }
       } else if (/^else\b/i.test(b)) {
