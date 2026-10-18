@@ -296,7 +296,7 @@ h3 { margin: 18px 0 6px; font-size: 15px; }
 .intro { text-align: center; margin: 12px auto 0; max-width: 620px; }
 .drop.over { border-color: var(--accent); background: var(--accent-soft); }
 
-.paste-box textarea, .field textarea {
+.paste-box textarea {
   width: 100%;
   min-height: 180px;
   border: 1px solid var(--line);
@@ -581,13 +581,6 @@ details.own { margin-top: 16px; border: 1px solid var(--line); border-radius: 10
 details.own summary { cursor: pointer; font-weight: 600; }
 details.own .opts { margin-top: 10px; }
 
-.check-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 12px; }
-.field { display: grid; gap: 6px; font-weight: 600; }
-.field textarea { min-height: 220px; font-weight: 400; }
-.field textarea.over { border-color: var(--accent); background: var(--accent-soft); }
-
-.ck-out { margin-top: 14px; display: grid; gap: 14px; }
-
 .help { max-width: 760px; }
 .help li { margin: 4px 0; }
 .legend { list-style: none; padding: 0; }
@@ -656,7 +649,6 @@ details.own .opts { margin-top: 10px; }
     <button type="button" id="theme" class="theme" role="switch" aria-checked="false" aria-label="Тёмная тема" title="Тёмная тема: включить или выключить"><span class="sw" aria-hidden="true"></span><span class="theme-label">Тёмная тема</span></button>
     <nav class="tabs" role="tablist">
       <button type="button" role="tab" data-tab="make" aria-selected="true">Сделать блоки</button>
-      <button type="button" role="tab" data-tab="check" aria-selected="false">Проверить блок</button>
       <button type="button" role="tab" data-tab="help" aria-selected="false">Как это работает</button>
     </nav>
   </div>
@@ -717,18 +709,6 @@ details.own .opts { margin-top: 10px; }
         <ul id="res-list" class="res-list"></ul>
         <div id="res-view" class="res-view"></div>
       </div>
-    </div>
-  </section>
-
-  <section id="tab-check" class="tab" hidden>
-    <div class="step">
-      <h2>Проверить готовый блок</h2>
-      <p class="hint">Вставьте HTML и JSON блока — инструмент найдёт то, на что ругается Mindbox, и покажет блок с переключателями. Файлы можно перетащить прямо в поля.</p>
-      <div class="check-grid">
-        <label class="field"><span>HTML блока</span><textarea id="ck-html" spellcheck="false" placeholder="<!-- EDITOR_BLOCK_TEMPLATE: footer -->&#10;<table …"></textarea></label>
-        <label class="field"><span>JSON блока</span><textarea id="ck-json" spellcheck="false" placeholder='[ { "name": "title", "type": "TEXT", … } ]'></textarea></label>
-      </div>
-      <div id="ck-out" class="ck-out"></div>
     </div>
   </section>
 
@@ -3791,7 +3771,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     if (!opt.name) opt.name = item.suggested;
     if (item.templated) {
       const html = '\x3C!-- EDITOR_BLOCK_TEMPLATE: ' + opt.name + ' -->\n' + dedent(item.html);
-      return { name: opt.name, html, json: [], checks: [{ level: 'error', code: 'templated', text: 'Блок уже размечен для Mindbox (есть ${editor.…}). Проверьте его на вкладке «Проверить блок» вместе с его JSON.' }], same: { equal: true }, notes: [], report: { replaced: 0, toggles: 0, placeholders: 0 }, stats: item.stats, original: html, templated: true };
+      return { name: opt.name, html, json: [], checks: [{ level: 'error', code: 'templated', text: 'Блок уже размечен для Mindbox (есть ${editor.…}).' }], same: { equal: true }, notes: [], report: { replaced: 0, toggles: 0, placeholders: 0 }, stats: item.stats, original: html, templated: true };
     }
     return build(letter.src, letter.doc, letter.blocks[index], opt);
   }
@@ -4350,7 +4330,6 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       if (next && !templated && !isTemplated(next) && S.letter.list[last].mergeNext) {
         acts.append(h('button', { type: 'button', class: 'link', title: 'Сделать из этого и следующего блока один блок для Mindbox', onclick: () => merge(gi) }, 'Склеить в единый блок со следующим (' + (next.ids[0] + 1) + ')'));
       }
-      if (templated) acts.append(h('button', { type: 'button', class: 'link', onclick: () => toCheck(first.source === 'marker' ? '\x3C!-- EDITOR_BLOCK_TEMPLATE: ' + first.title + ' -->\n' + first.html : first.html) }, 'Проверить этот блок'));
       if (acts.childNodes.length) card.append(acts);
       box.append(card);
     });
@@ -4724,38 +4703,6 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return ul;
   }
 
-  const ck = { state: {}, t: null };
-
-  function runCheck() {
-    const html = $('#ck-html').value.trim();
-    const json = $('#ck-json').value.trim();
-    const out = $('#ck-out');
-    if (!html && !json) {
-      out.replaceChildren(h('p', { class: 'empty' }, 'Вставьте HTML и JSON блока — проверка начнётся сама.'));
-      return;
-    }
-    if (!html || !json) {
-      out.replaceChildren(h('p', { class: 'empty' }, 'Нужны оба поля: и HTML, и JSON.'));
-      return;
-    }
-    let arr = null;
-    try {
-      arr = JSON.parse(json);
-    } catch (e) {}
-    const kids = [checksPane({ checks: E.validate(html, json), same: null, notes: [] })];
-    if (Array.isArray(arr)) kids.push(lookPane(html, arr, '', '', ck.state));
-    out.replaceChildren(...kids);
-  }
-
-  function toCheck(html) {
-    $('#ck-html').value = html;
-    $('#ck-json').value = '';
-    ck.state = {};
-    showTab('check');
-    runCheck();
-    $('#ck-json').focus();
-  }
-
   function docsStatus() {
     const d = R.docs;
     const fmt = (s) => {
@@ -4881,33 +4828,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       download(baseName(S.file) + '-mindbox-blocks.zip', new Blob([Z.makeZip(files)], { type: 'application/zip' }));
       toast('Архив скачан, блоков в нём: ' + files.length / 2);
     });
-    for (const id of ['#ck-html', '#ck-json']) {
-      const ta = $(id);
-      ta.addEventListener('input', () => {
-        ck.state = {};
-        clearTimeout(ck.t);
-        ck.t = setTimeout(runCheck, 300);
-      });
-      ta.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        ta.classList.add('over');
-      });
-      ta.addEventListener('dragleave', () => ta.classList.remove('over'));
-      ta.addEventListener('drop', (e) => {
-        e.preventDefault();
-        ta.classList.remove('over');
-        const f = e.dataTransfer.files[0];
-        if (!f) return;
-        f.text().then((t) => {
-          const target = /\.json$/i.test(f.name) ? $('#ck-json') : /\.html?$/i.test(f.name) ? $('#ck-html') : ta;
-          target.value = t;
-          ck.state = {};
-          runCheck();
-        });
-      });
-    }
     docsStatus();
-    runCheck();
   }
 
   init();
