@@ -724,7 +724,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     nameRe: /^[A-Za-z0-9_]+$/,
     types: {
       DISPLAY_TOGGLE: { fields: [], composite: false },
-      URL: { fields: ['url'], composite: false },
+      URL: { fields: ['url'], composite: false, reject: 'тип URL Mindbox сейчас не принимает даже в href и отвечает «Тип URL является составным…». Поменяйте в JSON "type": "URL" на "type": "SIMPLE_TEXT", HTML менять не нужно.' },
       INNER_SPACING: { fields: ['formattedValue', 'class'], composite: true },
       ALIGN: { fields: ['align', 'formattedValue', 'class'], composite: true },
       BACKGROUND: { fields: ['color', 'formattedBackgroundStyles', 'type', 'image'], composite: true },
@@ -1715,7 +1715,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const addParam = (p, g0) => {
       let g = g0;
       let n = 1;
-      while (p.type !== 'DISPLAY_TOGGLE' && g0.key !== 'spacing' && g.params.some((x) => x.type === p.type)) {
+      while (p.type !== 'DISPLAY_TOGGLE' && g0.key !== 'spacing' && g.params.some((x) => x.type === p.type && !x.link === !p.link)) {
         n++;
         g = group(g0.key + '__' + n, g0.label + ' — часть ' + n, g0.pos + n / 1000);
       }
@@ -1784,7 +1784,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         def = RULES.unsubscribeDefault;
         notes.push('Ссылка отписки: по умолчанию подставлена ' + RULES.unsubscribeDefault + '.');
       }
-      const p = addParam({ name: nameBase, type: 'URL', defaultValue: def, pos: h.vStart }, g);
+      const p = addParam({ name: nameBase, type: 'SIMPLE_TEXT', link: true, defaultValue: def, pos: h.vStart }, g);
       rep(h.vStart, h.vEnd, '${editor.' + p.name + '}');
       linked.set(linkEl, p);
       return p;
@@ -2230,6 +2230,13 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       report.toggles -= g.params.length - kept.length;
       g.params = kept;
     }
+    for (const g of [...groups.values()]) {
+      const links = g.params.filter((p) => p.link);
+      if (!links.length || !g.params.some((p) => !p.link && p.type === 'SIMPLE_TEXT')) continue;
+      const lg = group(g.key + '__link', g.label + ' — ссылка', g.pos + 0.0005);
+      lg.params.push(...links);
+      g.params = g.params.filter((p) => !p.link);
+    }
     const glist = [...groups.values()].filter((g) => g.params.length);
     const special = (g) => (g.key === 'background' ? -2 : g.key === 'spacing' ? Number.MAX_SAFE_INTEGER : g.pos);
     glist.sort((x, y) => special(x) - special(y));
@@ -2582,6 +2589,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const inDocs = !!(RULES.docs && Array.isArray(RULES.docs.types) && RULES.docs.types.some((t) => t.type === p.type));
       if (!T && inDocs) warn('type', '«' + p.name + '»: тип ' + p.type + ' есть в документации Mindbox, но инструмент его пока не проверяет.');
       else if (!T) err('type', 'У «' + p.name + '» неизвестный тип ' + p.type + '.');
+      else if (T.reject) err('type', '«' + p.name + '»: ' + T.reject);
       else if (T.avoid) warn('type', '«' + p.name + '»: ' + T.avoid);
       if (p.defaultValue === undefined || p.defaultValue === null) {
         if (p.type !== 'URL') err('default', '«' + p.name + '»: не заполнено значение по умолчанию (defaultValue). ' + RULES.errors.missingParam);
@@ -4359,7 +4367,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         last = p.group;
         tb.append(h('tr', { class: 'g' }, h('td', { colspan: '3' }, groupLabel(p.group))));
       }
-      tb.append(h('tr', null, h('td', null, h('code', null, p.name)), h('td', null, TYPE_RU[p.type] || p.type), h('td', { class: 'val' }, shortVal(p))));
+      tb.append(h('tr', null, h('td', null, h('code', null, p.name)), h('td', null, (p.type === 'SIMPLE_TEXT' && /_url(_\d+)?$/.test(p.name) ? 'ссылка' : TYPE_RU[p.type]) || p.type), h('td', { class: 'val' }, shortVal(p))));
     }
     return h('div', null,
       h('div', { class: 'code-bar' },
