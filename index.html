@@ -3358,26 +3358,47 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return blocks.filter((b) => isTemplatedSrc(src.slice(b.node.start, b.node.end))).map((b) => [b.node.start, b.node.end]);
   }
 
-  function fitWidth(src, target, frozen) {
-    const doc = parse(src);
-    fixEnds(doc);
-    const nodes = [];
-    walk(doc, (n) => {
-      if (n.type === 'el' && /^(head|style|script|title)$/.test(n.tag)) return false;
-      if (frozen && inRanges(frozen, n.start, n.end)) return false;
-      if (n.type === 'el' || n.type === 'comment') nodes.push(n);
-    });
-    let from = 0;
-    for (const n of nodes) {
-      if (n.type !== 'el' || n.tag === 'img') continue;
-      const w = px(attrVal(n, 'width'));
-      if (w > from) from = w;
-      for (const d of styleDecls(src, attr(n, 'style'))) {
-        if ((d.prop === 'width' || d.prop === 'max-width') && px(d.value) > from) from = px(d.value);
-      }
+  function pxWidths(src, n) {
+    const out = [];
+    const w = attr(n, 'width');
+    if (w && !w.raw && w.vStart != null && px(w.value) != null) out.push({ start: w.vStart, end: w.vEnd, value: w.value });
+    for (const d of styleDecls(src, attr(n, 'style'))) {
+      if ((d.prop === 'width' || d.prop === 'max-width') && px(d.value) != null) out.push({ start: d.vStart, end: d.vEnd, value: d.value });
     }
-    if (!(from > target) || from > 1000) return null;
-    const sc = (v) => (v > 0 ? Math.max(1, Math.floor((v * target) / from + 1e-9)) : v);
+    return out;
+  }
+
+  function sidePads(src, td) {
+    let l = 0;
+    let r = 0;
+    for (const d of styleDecls(src, attr(td, 'style'))) {
+      if (d.prop === 'padding') {
+        const v = boxValues(d.value);
+        if (!v) return null;
+        r = px(v[1]);
+        l = px(v[3]);
+      } else if (d.prop === 'padding-left') l = px(d.value);
+      else if (d.prop === 'padding-right') r = px(d.value);
+      if (l == null || r == null) return null;
+    }
+    return { l, r };
+  }
+
+  function padEdits(src, td, l, r) {
+    const fmt = (v) => (v === 0 ? '0' : v + 'px');
+    const edits = [];
+    for (const d of styleDecls(src, attr(td, 'style'))) {
+      const imp = /!important/i.test(d.value) ? ' !important' : '';
+      if (d.prop === 'padding') {
+        const v = boxValues(d.value);
+        edits.push({ start: d.vStart, end: d.vEnd, text: (l === r ? [v[0], fmt(r), v[2]] : [v[0], fmt(r), v[2], fmt(l)]).join(' ') + imp });
+      } else if (d.prop === 'padding-left') edits.push({ start: d.vStart, end: d.vEnd, text: fmt(l) + imp });
+      else if (d.prop === 'padding-right') edits.push({ start: d.vStart, end: d.vEnd, text: fmt(r) + imp });
+    }
+    return edits;
+  }
+
+  function scaleEdits(src, nodes, sc) {
     const len = (v) => (px(v) == null ? null : String(v).replace(/-?\d+(?:\.\d+)?/, (m) => String(sc(parseFloat(m)))));
     const edits = [];
     for (const n of nodes) {
@@ -3404,7 +3425,59 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         }
       }
     }
-    return { src: spliceEdits(src, 0, src.length, edits), from, to: target };
+    return edits;
+  }
+
+  function fitBlock(src, root, target) {
+    const td = findFrame(src, root);
+    const pads = (td && sidePads(src, td)) || { l: 0, r: 0 };
+    const box = td && pads.l + pads.r > 0 ? td : root;
+    const nodes = [];
+    walk(box, (n) => {
+      if (n.type === 'el' && /^(head|style|script|title)$/.test(n.tag)) return false;
+      if (n !== root && n !== box && (n.type === 'el' || n.type === 'comment')) nodes.push(n);
+    });
+    let inner = 0;
+    for (const n of nodes) {
+      if (n.type !== 'el' || n.tag === 'img') continue;
+      for (const w of pxWidths(src, n)) inner = Math.max(inner, px(w.value));
+    }
+    const outer = Math.max(0, ...pxWidths(src, root).map((w) => px(w.value))) || inner + pads.l + pads.r;
+    if (!(outer > target) || outer > 1000) return null;
+    const area = outer - pads.l - pads.r;
+    const edits = pxWidths(src, root).filter((w) => px(w.value) > target)
+      .map((w) => ({ start: w.start, end: w.end, text: String(w.value).replace(/-?\d+(?:\.\d+)?/, String(target)) }));
+    const cut = Math.min(outer - target, pads.l + pads.r);
+    if (cut > 0) {
+      const dl = Math.min(pads.l, Math.ceil(cut / 2));
+      const dr = Math.min(pads.r, cut - dl);
+      edits.push(...padEdits(src, td, pads.l - (cut - dr), pads.r - dr));
+    }
+    const room = target - (pads.l + pads.r - cut);
+    const content = inner >= area / 2 ? Math.min(inner, area) : area;
+    const scaled = content > room;
+    const k = room / content;
+    const sc = scaled ? (v) => (v > 0 ? Math.max(1, Math.floor(v * k + 1e-9)) : v) : (v) => Math.min(v, target);
+    edits.push(...(scaled ? scaleEdits(src, nodes, sc) : scaleEdits(src, nodes.filter((n) => n.type === 'comment'), sc)));
+    return { edits, outer, scaled };
+  }
+
+  function fitWidth(src, target) {
+    const doc = parse(src);
+    fixEnds(doc);
+    const edits = [];
+    let from = 0;
+    let scaled = false;
+    for (const b of findBlocks(src, doc)) {
+      if (isTemplatedSrc(src.slice(b.node.start, b.node.end))) continue;
+      const f = fitBlock(src, b.node, target);
+      if (!f) continue;
+      edits.push(...f.edits);
+      from = Math.max(from, f.outer);
+      scaled = scaled || f.scaled;
+    }
+    if (!edits.length) return null;
+    return { src: spliceEdits(src, 0, src.length, edits), from, to: target, scaled };
   }
 
   const INLINE_TAGS = /^(a|abbr|b|big|br|em|font|i|img|nobr|s|small|span|strike|strong|sub|sup|u|wbr)$/;
@@ -3460,7 +3533,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       splits.push({ reason: next.reason, title: next.title, parts: next.parts });
       src = next.src;
     }
-    const fit = opts && opts.width ? fitWidth(src, opts.width, frozenBlocks(src, blocks)) : null;
+    const fit = opts && opts.width ? fitWidth(src, opts.width) : null;
     const wrapped = wrapCondText(fit ? fit.src : src, frozenBlocks(fit ? fit.src : src, fit ? null : blocks));
     if (wrapped !== src) {
       src = wrapped;
@@ -3498,7 +3571,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const plan = x.templated || blocks[i].source === 'marker' ? null : splitPlan(src, blocks[i].node);
       x.parts = plan ? plan.cuts.length + 1 : 0;
     });
-    const letter = { src, original: input, fit: fit ? { from: fit.from, to: fit.to } : null, doc, blocks, list, splits, styles: headStyles(src, doc), bodyStyle: bodyStyle(src, doc) };
+    const letter = { src, original: input, fit: fit ? { from: fit.from, to: fit.to, scaled: fit.scaled } : null, doc, blocks, list, splits, styles: headStyles(src, doc), bodyStyle: bodyStyle(src, doc) };
     list.forEach((x, i) => {
       x.mergeNext = canMerge(letter, i);
     });
@@ -4073,7 +4146,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
           store.set('width', S.width);
           openLetter(S.raw, S.file, true);
         } }), ' px'),
-      L.fit ? h('div', { class: 'fit-note' }, 'Письмо шире Mindbox: ' + L.fit.from + ' px. Ширины и боковые отступы уменьшили пропорционально до ' + L.fit.to + ' px — иначе в Mindbox колонки встанут друг под друга. Шрифты и отступы сверху и снизу — как в письме.') : null,
+      L.fit ? h('div', { class: 'fit-note' }, 'Письмо шире Mindbox: ' + L.fit.from + ' px. Блоки — ' + L.fit.to + ' px, как в мастер-шаблоне: лишние поля слева и справа убрали, содержимое как в письме.' + (L.fit.scaled ? ' Где содержимое само шире ' + L.fit.to + ' px, его ширины уменьшили пропорционально — иначе колонки встанут друг под друга. Шрифты и отступы сверху и снизу не меняли.' : '')) : null,
       L.splits.length ? h('div', { class: 'auto-split' }, L.splits.map(splitNote).join('. ') + '. Вёрстка письма от этого не меняется.') : null);
   }
 
