@@ -307,6 +307,7 @@ h3 { margin: 18px 0 6px; font-size: 15px; }
   overflow: hidden;
   position: relative;
   height: 120px;
+  cursor: zoom-in;
 }
 
 .thumb iframe {
@@ -318,6 +319,8 @@ h3 { margin: 18px 0 6px; font-size: 15px; }
   left: 0;
   pointer-events: none;
 }
+
+.thumb:hover, .thumb:focus-visible { border-color: var(--accent); }
 
 .thumb.cut::after {
   content: "";
@@ -472,8 +475,8 @@ h3 { margin: 18px 0 6px; font-size: 15px; }
   overflow: auto;
 }
 
-.frame-wrap iframe { display: block; border: 0; width: 100%; max-width: 660px; margin: 0 auto; background: #fff; min-height: 60px; }
-.frame-wrap.phone iframe { width: 375px; max-width: 100%; }
+.fit { margin: 0 auto; position: relative; overflow: hidden; }
+.fit iframe { display: block; border: 0; background: #fff; min-height: 60px; transform-origin: 0 0; }
 
 .controls { display: grid; gap: 8px; font-size: 14px; }
 .controls h4 { margin: 4px 0 0; font-size: 13px; color: var(--muted); font-weight: 600; }
@@ -554,6 +557,32 @@ details.own .opts { margin-top: 10px; }
 
 .empty { color: var(--muted); padding: 12px 0; }
 .error-box { background: var(--err-soft); color: var(--err); padding: 10px 12px; border-radius: 9px; }
+
+.preview {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0;
+  width: min(760px, calc(100vw - 32px));
+  max-width: none;
+  max-height: calc(100vh - 32px);
+  overflow: hidden;
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.preview::backdrop { background: rgba(0, 0, 0, .55); }
+.pv-in { display: flex; flex-direction: column; max-height: calc(100vh - 34px); }
+.pv-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.pv-head h3 { margin: 0; font-size: 16px; flex: 1 1 220px; min-width: 0; overflow-wrap: anywhere; }
+.pv-frame { flex: 1 1 auto; overflow: auto; padding: 14px; background: var(--code-bg); }
+.pv-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 14px; border-top: 1px solid var(--line); }
+.pv-foot > * { white-space: nowrap; }
+
+@media (max-width: 480px) {
+  .pv-head, .pv-foot { padding: 8px 10px; gap: 6px; }
+  .pv-frame { padding: 8px; }
+  .pv-foot .btn { padding-inline: 8px; font-size: 14px; }
+}
 </style>
 </head>
 <body>
@@ -592,7 +621,7 @@ details.own .opts { margin-top: 10px; }
     <div id="pick-area" class="pick-area" hidden>
       <div class="step" id="step-blocks">
         <h2><span class="num">2</span>Какие блоки нужны</h2>
-        <p class="hint">Отметьте блоки, которые нужны в Mindbox. Соседние блоки можно склеить в один, а большой блок — разделить по строкам. Вёрстка письма от этого не меняется.</p>
+        <p class="hint">Отметьте блоки, которые нужны в Mindbox. Нажмите на картинку блока, чтобы рассмотреть его крупно. «Склеить в единый блок» делает из соседних блоков один, большой блок можно разделить по строкам. Вёрстка письма от этого не меняется.</p>
         <div class="toolbar">
           <span class="muted">Отметить:</span>
           <button type="button" class="btn" data-sel="all">Все</button>
@@ -648,7 +677,7 @@ details.own .opts { margin-top: 10px; }
       <h3>Четыре шага</h3>
       <ol>
         <li>Перетащите файл письма или вставьте его код.</li>
-        <li>Отметьте нужные блоки. Соседние блоки можно склеить в один, большой — разделить по строкам.</li>
+        <li>Отметьте нужные блоки. Нажмите на картинку блока — он откроется крупно, на компьютере и на телефоне. Соседние блоки можно склеить в единый блок, большой — разделить по строкам.</li>
         <li>Выберите, что можно будет менять в конструкторе.</li>
         <li>Нажмите «Сделать блоки». У каждого блока — «Копировать HTML» и «Копировать JSON»: вставьте их в Mindbox. Или скачайте все блоки архивом.</li>
       </ol>
@@ -3451,7 +3480,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return next;
   }
 
-  const api = { parse, fixEnds, loadLetter, splitBlock, buildBlock, buildMerged, canMerge, validate, renderTemplate, compareRendered, canon, decode, dedent, scanTemplate, RULES };
+  const api = { parse, fixEnds, loadLetter, splitBlock, buildBlock, buildMerged, canMerge, mergeSource, validate, renderTemplate, compareRendered, canon, decode, dedent, scanTemplate, RULES };
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.MBEngine = api;
 })(typeof self !== 'undefined' ? self : this);
@@ -3672,7 +3701,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
   function pageDoc(html, styles, bodyStyle) {
     html = noDynamicUrls(html);
     return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
-      (styles || '') + '<style>html,body{margin:0;padding:0}</style></head><body style="' + esc(bodyStyle || '') +
+      (styles || '').replace(/(min|max)-device-width/gi, '$1-width') + '<style>html,body{margin:0;padding:0}</style></head><body style="' + esc(bodyStyle || '') +
       '"><div style="max-width:660px;margin:0 auto">' + html + '</div></body></html>';
   }
 
@@ -3714,12 +3743,139 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     io.observe(el);
   }
 
-  function thumb(idx) {
-    const box = h('div', { class: 'thumb' });
+  const WIDTH = { desktop: 660, phone: 375 };
+
+  function fitFrame(box, doc) {
+    const w = WIDTH[S.device] || WIDTH.desktop;
+    const fit = h('div', { class: 'fit' });
+    let H = 60;
+    let f = null;
+    const size = () => {
+      const cs = getComputedStyle(box);
+      const free = box.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+      const sc = free > 0 ? Math.min(1, free / w) : 1;
+      f.style.transform = sc < 1 ? 'scale(' + sc + ')' : '';
+      fit.style.width = Math.floor(w * sc) + 'px';
+      fit.style.height = Math.ceil(H * sc) + 'px';
+    };
+    f = frame(doc, (x) => {
+      H = x;
+      f.style.height = x + 'px';
+      size();
+    });
+    f.style.width = w + 'px';
+    fit.append(f);
+    box.replaceChildren(fit);
+    size();
+    if (box._ro) box._ro.disconnect();
+    if ('ResizeObserver' in window) {
+      box._ro = new ResizeObserver(size);
+      box._ro.observe(box);
+    }
+    return f;
+  }
+
+  function deviceSeg(onPick) {
+    const seg = h('div', { class: 'seg' });
+    for (const [k, t] of [['desktop', 'Компьютер'], ['phone', 'Телефон']]) {
+      seg.append(h('button', {
+        type: 'button',
+        'aria-pressed': String(S.device === k),
+        onclick: () => {
+          S.device = k;
+          for (const b of seg.children) b.setAttribute('aria-pressed', String(b.textContent === t));
+          onPick(k);
+        }
+      }, t));
+    }
+    return seg;
+  }
+
+  const cleanHtml = (item) => (item.templated ? item.html.replace(/[$@]\{[^}]*\}/g, '') : item.html);
+
+  function groupHtml(g) {
+    if (g.ids.length > 1) {
+      try {
+        return E.mergeSource(S.letter, g.ids).html;
+      } catch (e) {}
+    }
+    return g.ids.map((i) => cleanHtml(S.letter.list[i])).join('\n');
+  }
+
+  const groupNums = (g) => g.ids.map((i) => i + 1).join('+');
+  const groupTitle = (g) => g.ids.map((i) => S.letter.list[i].title || 'Блок ' + (i + 1)).join(' + ');
+
+  const PV = { gi: 0 };
+
+  function previewDialog() {
+    if (PV.d) return PV.d;
+    PV.title = h('h3', { id: 'pv-title' });
+    PV.box = h('div', { class: 'pv-frame' });
+    PV.pos = h('span', { class: 'muted' });
+    PV.prev = h('button', { type: 'button', class: 'btn', onclick: () => stepPreview(-1) }, '← Предыдущий');
+    PV.next = h('button', { type: 'button', class: 'btn', onclick: () => stepPreview(1) }, 'Следующий →');
+    PV.seg = deviceSeg(drawPreview);
+    const d = h('dialog', { id: 'preview', class: 'preview', 'aria-labelledby': 'pv-title' },
+      h('div', { class: 'pv-in' },
+        h('div', { class: 'pv-head' }, PV.title, PV.seg, h('button', { type: 'button', class: 'btn', onclick: () => d.close() }, 'Закрыть')),
+        PV.box,
+        h('div', { class: 'pv-foot' }, PV.prev, PV.pos, PV.next)));
+    d.addEventListener('click', (e) => {
+      if (e.target === d) d.close();
+    });
+    d.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        stepPreview(e.key === 'ArrowRight' ? 1 : -1);
+      }
+    });
+    document.body.append(d);
+    PV.d = d;
+    return d;
+  }
+
+  function drawPreview() {
+    const g = S.groups[PV.gi];
+    if (!g) return;
+    PV.title.textContent = groupNums(g) + '. ' + groupTitle(g);
+    PV.pos.textContent = (PV.gi + 1) + ' из ' + S.groups.length;
+    PV.prev.disabled = PV.gi === 0;
+    PV.next.disabled = PV.gi === S.groups.length - 1;
+    for (const b of PV.seg.children) b.setAttribute('aria-pressed', String((b.textContent === 'Телефон') === (S.device === 'phone')));
+    fitFrame(PV.box, pageDoc(groupHtml(g), S.letter.styles, S.letter.bodyStyle));
+  }
+
+  function stepPreview(dir) {
+    const gi = PV.gi + dir;
+    if (gi < 0 || gi >= S.groups.length) return;
+    PV.gi = gi;
+    drawPreview();
+  }
+
+  function openPreview(gi) {
+    const d = previewDialog();
+    PV.gi = gi;
+    if (!d.open) d.showModal();
+    drawPreview();
+  }
+
+  function thumb(g, gi) {
+    const box = h('div', {
+      class: 'thumb',
+      role: 'button',
+      tabindex: '0',
+      title: 'Посмотреть крупно',
+      'aria-label': 'Посмотреть блок ' + groupNums(g) + ' крупно',
+      onclick: () => openPreview(gi),
+      onkeydown: (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openPreview(gi);
+        }
+      }
+    });
     lazy(box, () => {
-      const item = S.letter.list[idx];
-      const html = item.templated ? item.html.replace(/[$@]\{[^}]*\}/g, '') : item.html;
-      const f = frame(pageDoc(html, S.letter.styles, S.letter.bodyStyle), (H) => {
+      const f = frame(pageDoc(groupHtml(g), S.letter.styles, S.letter.bodyStyle), (H) => {
         const sc = (box.clientWidth || 320) / 640;
         f.style.transform = 'scale(' + sc + ')';
         f.style.height = H + 'px';
@@ -3829,10 +3985,9 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       });
       g.card = card;
       g.cb = cb;
-      const title = items.map((it) => it.title || 'Блок ' + (it.index + 1)).join(' + ');
       card.append(h('label', { class: 'bhead' }, cb, h('span', null,
-        h('span', { class: 'bnum' }, g.ids.map((i) => i + 1).join('+') + '. '),
-        h('span', { class: 'btitle' }, title),
+        h('span', { class: 'bnum' }, groupNums(g) + '. '),
+        h('span', { class: 'btitle' }, groupTitle(g)),
         first.category ? h('span', { class: 'bcat' }, first.category) : null)));
       const chips = h('div', { class: 'chips' });
       for (const c of chipsFor(items)) chips.append(h('span', { class: 'chip' }, c));
@@ -3841,8 +3996,9 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       }
       if (templated) chips.append(h('span', { class: 'chip warn' }, 'Уже размечен для Mindbox'));
       if (chips.childNodes.length) card.append(chips);
-      for (const i of g.ids) card.append(thumb(i));
+      card.append(thumb(g, gi));
       const acts = h('div', { class: 'bactions' });
+      acts.append(h('button', { type: 'button', class: 'link', onclick: () => openPreview(gi) }, 'Посмотреть крупно'));
       if (g.ids.length > 1) acts.append(h('button', { type: 'button', class: 'link', onclick: () => split(gi) }, 'Отменить склейку'));
       if (g.ids.length === 1 && !templated && first.parts > 1) {
         acts.append(h('button', { type: 'button', class: 'link', title: 'Разрезать блок по строкам на отдельные блоки. Вёрстка письма не меняется.', onclick: () => cut(gi) }, 'Разделить на ' + parts(first.parts)));
@@ -3850,7 +4006,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const next = S.groups[gi + 1];
       const last = g.ids[g.ids.length - 1];
       if (next && !templated && !isTemplated(next) && S.letter.list[last].mergeNext) {
-        acts.append(h('button', { type: 'button', class: 'link', title: 'Сделать из этого и следующего блока один', onclick: () => merge(gi) }, 'Склеить со следующим (' + (next.ids[0] + 1) + ')'));
+        acts.append(h('button', { type: 'button', class: 'link', title: 'Сделать из этого и следующего блока один блок для Mindbox', onclick: () => merge(gi) }, 'Склеить в единый блок со следующим (' + (next.ids[0] + 1) + ')'));
       }
       if (templated) acts.append(h('button', { type: 'button', class: 'link', onclick: () => toCheck(first.source === 'marker' ? '\x3C!-- EDITOR_BLOCK_TEMPLATE: ' + first.title + ' -->\n' + first.html : first.html) }, 'Проверить этот блок'));
       if (acts.childNodes.length) card.append(acts);
@@ -4126,24 +4282,12 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         fw.replaceChildren(h('div', { class: 'error-box' }, 'Не получилось показать блок: ' + e.message));
         return;
       }
-      const f = frame(pageDoc(out, styles, bodyStyle), (H) => {
-        f.style.height = H + 'px';
-      });
-      fw.replaceChildren(f);
+      fitFrame(fw, pageDoc(out, styles, bodyStyle));
     };
-    const seg = h('div', { class: 'seg' });
-    for (const [k, t] of [['desktop', 'Компьютер'], ['phone', 'Телефон']]) {
-      seg.append(h('button', {
-        type: 'button',
-        'aria-pressed': String(S.device === k),
-        onclick: () => {
-          S.device = k;
-          fw.classList.toggle('phone', k === 'phone');
-          for (const b of seg.children) b.setAttribute('aria-pressed', String(b.textContent === t));
-          draw();
-        }
-      }, t));
-    }
+    const seg = deviceSeg((k) => {
+      fw.classList.toggle('phone', k === 'phone');
+      draw();
+    });
     controls.append(h('h4', null, 'Экран'), seg);
     const toggles = json.filter((p) => p && p.type === 'DISPLAY_TOGGLE');
     const nums = json.filter((p) => p && p.type === 'NUMBER');
