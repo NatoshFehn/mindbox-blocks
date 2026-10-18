@@ -1903,13 +1903,22 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const last = prefix.split('_').pop();
       return suffix ? prefix + '_' + suffix : roleWords.has(last) ? prefix : prefix + '_text';
     };
-    const processContainer = (a, g, nodesOverride, depthLevel) => {
+    const letterDyn = (c) => c.el.children.slice(c.from, c.to + 1).some((n) => {
+      let hit = false;
+      walk(n, (x) => {
+        if (hit) return false;
+        if (x.type === 'stmt' || (x.type === 'text' && /\$\{/.test(src.slice(x.start, x.end)))) hit = true;
+      });
+      return hit;
+    });
+    const processContainer = (a, g, nodesOverride, depthLevel, keepText) => {
       const c = a.container;
+      const keep = keepText || letterDyn(c);
       const segs = nodesOverride ? nodesOverride : textSegments(c);
       const meaningfulSegs = segs.filter((x) => x.kind === 'el' || x.nodes.some((n) => n.type === 'text' && meaningfulText(src.slice(n.start, n.end))));
       for (const sgm of segs) {
         if (sgm.kind === 'run') {
-          if (opt.texts) textParam(sgm.nodes, textName(a.prefix, a.suffix), g);
+          if (opt.texts && !keep) textParam(sgm.nodes, textName(a.prefix, a.suffix), g);
         } else {
           const el = sgm.node;
           let g2 = g;
@@ -1927,7 +1936,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
             suffix = 'accent';
           }
           const inner = { el, from: firstContent(src, el), to: lastContent(src, el), whole: true };
-          if (inner.from <= inner.to && depthLevel < 5) processContainer({ container: inner, prefix: a.prefix, role: a.role, suffix }, g2, null, depthLevel + 1);
+          if (inner.from <= inner.to && depthLevel < 5) processContainer({ container: inner, prefix: a.prefix, role: a.role, suffix }, g2, null, depthLevel + 1, keep);
         }
       }
     };
@@ -1960,6 +1969,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         if (opt.links) urlParam(a.link, base + '_url', g, 'button');
         if (opt.texts) {
           for (const c of a.texts || []) {
+            if (letterDyn(c)) continue;
             for (const sgm of textSegments(c)) {
               if (sgm.kind === 'run') textParam(sgm.nodes, base + '_text', g);
               else {
