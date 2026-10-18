@@ -1911,9 +1911,57 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       });
       return hit;
     });
+    const globalsOnly = (raw) => {
+      let depth = 0;
+      for (const m of raw.matchAll(/@\{\s*(if|else|end\s+if)\b/gi)) {
+        const k = m[1].toLowerCase();
+        if (k === 'if') depth++;
+        else if (k === 'else' ? depth < 1 : --depth < 0) return false;
+      }
+      if (depth) return false;
+      for (const m of raw.matchAll(/[$@]\{([^}]*)\}/g)) {
+        const body = m[1].replace(/"[^"]*"|'[^']*'/g, ' ').replace(/^\s*(else\s+if|if|else|end\s+if)\b/i, ' ');
+        for (const t of body.match(/[A-Za-z_]\w*(\s*\.\s*[A-Za-z_]\w*)*\s*\(?/g) || []) {
+          if (/\($/.test(t) && !/\./.test(t)) continue;
+          if (/^(and|or|not|true|false|null)$/i.test(t.trim())) continue;
+          if (!/^(Recipient|Message)$/.test(t.split('.')[0].trim())) return false;
+        }
+      }
+      return true;
+    };
+    const dynRange = (c) => {
+      const nodes = c.el.children.slice(c.from, c.to + 1);
+      if (!nodes.length) return null;
+      let ok = true;
+      for (const n of nodes) {
+        walk(n, (x) => {
+          if (!ok) return false;
+          if (x.type === 'stmt' && !/^@\{\s*(if|else|end\s+if)\b/i.test(x.text)) ok = false;
+          else if (x.type === 'el' && (!INLINE.has(x.tag) || x.tag === 'a' || (x.attrs.length && x.tag !== 'br'))) ok = false;
+        });
+      }
+      if (!ok) return null;
+      let s = nodes[0].start;
+      let e = nodes[nodes.length - 1].end;
+      while (s < e && /[ \t\r\n]/.test(src[s])) s++;
+      while (e > s && /[ \t\r\n]/.test(src[e - 1])) e--;
+      const raw = src.slice(s, e);
+      return globalsOnly(raw) && meaningfulText(raw.replace(/[$@]\{[^}]*\}/g, ' ').replace(/<[^>]+>/g, ' ')) ? { s, e, raw } : null;
+    };
+    const dynParam = (r, nameBase, g) => {
+      const p = addParam({ name: nameBase, type: 'TEXT', defaultValue: r.raw.replace(/[ \t\r\n]+/g, ' ').trim(), pos: r.s }, g);
+      rep(r.s, r.e, '${editor.' + p.name + '}');
+      return p;
+    };
     const processContainer = (a, g, nodesOverride, depthLevel, keepText) => {
       const c = a.container;
-      const keep = keepText || letterDyn(c);
+      const dyn = !keepText && letterDyn(c);
+      const r = dyn && opt.texts && !nodesOverride ? dynRange(c) : null;
+      if (r) {
+        dynParam(r, textName(a.prefix, a.suffix), g);
+        return;
+      }
+      const keep = keepText || dyn;
       const segs = nodesOverride ? nodesOverride : textSegments(c);
       const meaningfulSegs = segs.filter((x) => x.kind === 'el' || x.nodes.some((n) => n.type === 'text' && meaningfulText(src.slice(n.start, n.end))));
       for (const sgm of segs) {
@@ -1969,7 +2017,11 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         if (opt.links) urlParam(a.link, base + '_url', g, 'button');
         if (opt.texts) {
           for (const c of a.texts || []) {
-            if (letterDyn(c)) continue;
+            if (letterDyn(c)) {
+              const r = dynRange(c);
+              if (r) dynParam(r, base + '_text', g);
+              continue;
+            }
             for (const sgm of textSegments(c)) {
               if (sgm.kind === 'run') textParam(sgm.nodes, base + '_text', g);
               else {
