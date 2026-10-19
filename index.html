@@ -577,9 +577,25 @@ pre.code i { color: var(--muted); }
 .checks li.note { background: var(--code-bg); }
 .checks li b { margin-right: 6px; }
 
-details.own { margin-top: 16px; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; }
-details.own summary { cursor: pointer; font-weight: 600; }
-details.own .opts { margin-top: 10px; }
+.tune h3 { margin: 18px 0 2px; font-size: 15px; }
+.tune h3:first-child { margin-top: 4px; }
+.tune > .link { margin: 4px 0 8px; }
+.spares { display: grid; gap: 6px; margin-bottom: 8px; }
+.spare { display: grid; grid-template-columns: 1fr 64px 44px; gap: 4px 10px; align-items: center; padding: 6px 4px; font-size: 14px; }
+.spare b { display: block; font-weight: 600; }
+.spare small { display: block; color: var(--muted); font-size: 13px; }
+.spare input { width: 64px; border: 1px solid var(--line); border-radius: 7px; padding: 3px 6px; background: var(--panel); color: inherit; }
+.tune-fields td:first-child, .tune-fields th:first-child { width: 1%; white-space: nowrap; }
+.tune-fields input[type="checkbox"] { width: 16px; height: 16px; margin: 1px 0 0; }
+.tune-fields tr.off td:not(:first-child) { color: var(--muted); text-decoration: line-through; }
+.tune-fields .hide { display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; color: var(--muted); font-weight: 400; }
+.tune-fields .glabel { width: 100%; max-width: 360px; border: 1px solid transparent; border-radius: 7px; padding: 2px 6px; margin-left: -6px; background: transparent; color: inherit; font: inherit; font-weight: 600; }
+.tune-fields .glabel:hover, .tune-fields .glabel:focus { border-color: var(--line); background: var(--panel); }
+@media (max-width: 560px) {
+  .spare { grid-template-columns: 1fr 64px; }
+  .spare > span:last-child { display: none; }
+  .tune-fields td, .tune-fields th { padding: 5px 4px; }
+}
 
 .help { max-width: 760px; }
 .help li { margin: 4px 0; }
@@ -721,7 +737,7 @@ details.own .opts { margin-top: 10px; }
         <li>Перетащите файл письма или вставьте его код.</li>
         <li>Отметьте нужные блоки. Нажмите на картинку блока — он откроется крупно, на компьютере и на телефоне. Соседние блоки можно склеить в единый блок, большой — разделить по строкам.</li>
         <li>Выберите, что можно будет менять в конструкторе.</li>
-        <li>Нажмите «Сделать блоки». У каждого блока — «Копировать HTML» и «Копировать JSON»: вставьте их в Mindbox. Или скачайте все блоки архивом.</li>
+        <li>Нажмите «Сделать блоки». У каждого блока — «Копировать HTML» и «Копировать JSON»: вставьте их в Mindbox. Или скачайте все блоки архивом. На вкладке «Настройка» у блока можно добавить запасные карточки, убрать лишние поля из конструктора, скрыть части по умолчанию и переименовать группы.</li>
       </ol>
       <h3>Чего инструмент не делает — специально</h3>
       <ul>
@@ -2811,11 +2827,8 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return out;
   }
 
-  function renderTemplate(html, json, state) {
-    const P = new Map();
-    for (const p of json) P.set(String(p.name).toLowerCase(), p);
-    const st = state || {};
-    const valueOf = (expr) => {
+  function editorValue(P, st) {
+    return (expr) => {
       const m = /^editor\.([A-Za-z0-9_]+)((?:\.[A-Za-z0-9_]+)*)$/.exec(expr.trim());
       if (!m) {
         const im = /^if\(\s*editor\.([A-Za-z0-9_]+)\.type\s*=\s*"image"/.exec(expr.trim());
@@ -2845,6 +2858,13 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       if (typeof v === 'object') return '';
       return v == null ? '' : String(v);
     };
+  }
+
+  function renderTemplate(html, json, state) {
+    const P = new Map();
+    for (const p of json) P.set(String(p.name).toLowerCase(), p);
+    const st = state || {};
+    const valueOf = editorValue(P, st);
     const tokens = scanTemplate(html);
     let out = '';
     const stack = [{ on: true }];
@@ -2886,6 +2906,267 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       } else if (on) out += tk.s;
     }
     return out;
+  }
+
+  function pinTemplate(html, json, names) {
+    const pin = new Set([...names].map((n) => String(n).toLowerCase()));
+    const P = new Map();
+    for (const p of json) P.set(String(p.name).toLowerCase(), p);
+    const valueOf = editorValue(P, {});
+    const stack = [];
+    const on = () => stack.every((x) => x.on);
+    let out = '';
+    for (const tk of scanTemplate(html)) {
+      if (tk.t === 'text') {
+        if (on()) out += tk.s;
+        continue;
+      }
+      if (tk.t === 'expr') {
+        if (!on()) continue;
+        const refs = [...tk.body.matchAll(/editor\.([A-Za-z0-9_]+)/g)].map((m) => m[1].toLowerCase());
+        const v = refs.length && refs.every((n) => pin.has(n)) ? valueOf(tk.body) : null;
+        out += v == null || typeof v === 'boolean' ? tk.s : v;
+        continue;
+      }
+      const b = tk.body.replace(/\s+/g, ' ').trim();
+      const top = stack[stack.length - 1];
+      if (/^if /i.test(b)) {
+        const m = /^editor\.([A-Za-z0-9_]+)$/.exec(b.slice(3).trim());
+        if (m && pin.has(m[1].toLowerCase())) {
+          const p = P.get(m[1].toLowerCase());
+          stack.push({ on: String(p ? p.defaultValue : '') === 'true', pinned: true });
+        } else {
+          if (on()) out += tk.s;
+          stack.push({ on: true });
+        }
+      } else if (/^else\b/i.test(b) && top && top.pinned) {
+        top.on = !top.on;
+      } else if (/^end if$/i.test(b) && top && top.pinned) {
+        stack.pop();
+      } else if (/^(end if|end for)$/i.test(b)) {
+        stack.pop();
+        if (on()) out += tk.s;
+      } else {
+        if (on()) out += tk.s;
+        if (/^for /i.test(b)) stack.push({ on: true });
+      }
+    }
+    return out;
+  }
+
+  function toggleSpans(html) {
+    const doc = parse(html);
+    fixEnds(doc);
+    const spans = [];
+    walk(doc, (node) => {
+      if (!node.children) return;
+      const open = [];
+      for (const c of node.children) {
+        if (c.type !== 'stmt') continue;
+        const b = c.text.slice(2, -1).replace(/\s+/g, ' ').trim();
+        if (/^if /i.test(b)) open.push({ c, m: /^if editor\.([A-Za-z0-9_]+)$/i.exec(b) });
+        else if (/^end if$/i.test(b) && open.length) {
+          const o = open.pop();
+          if (!o.m) continue;
+          const inside = node.children.filter((x) => x.start >= o.c.end && x.end <= c.start);
+          const unit = inside.find((x) => x.type === 'el') || null;
+          spans.push({ name: o.m[1], start: o.c.start, end: c.end, closeStart: c.start, parent: node, unit, inside });
+        }
+      }
+    });
+    return { doc, spans: spans.sort((a, b) => a.start - b.start) };
+  }
+
+  const ITEM_RE = /^show_(card|item|phone|social|icon|step)_(\d+)$/;
+
+  function itemLists(html) {
+    const { spans } = toggleSpans(html);
+    const named = spans.filter((s) => ITEM_RE.test(s.name) && s.unit);
+    const nested = (s) => named.some((o) => o !== s && o.start <= s.start && o.end >= s.end && (o.start < s.start || o.end > s.end));
+    const glue = new Map();
+    for (const s of named) if (nested(s)) glue.set(s.name, s);
+    const items = named.filter((s) => !nested(s)).map((s) => {
+      const m = ITEM_RE.exec(s.name);
+      const u = s.unit;
+      const row = u.tag === 'td' || u.tag === 'th' || /display\s*:\s*inline-block/i.test(attrVal(u, 'style') || '');
+      return Object.assign(s, { kind: m[1], n: Number(m[2]), row });
+    });
+    const editorIn = (a, b, skip) => {
+      let t = html.slice(a, b);
+      for (const x of skip.filter((x) => x.start >= a && x.end <= b).sort((p, q) => q.start - p.start)) t = t.slice(0, x.start - a) + t.slice(x.end - a);
+      return /[$@]\{\s*(if\s+)?editor\./.test(t);
+    };
+    const lists = [];
+    const seen = new Set();
+    for (const it of items) {
+      if (seen.has(it)) continue;
+      if (!it.row) {
+        const run = items.filter((x) => !x.row && x.kind === it.kind && x.parent === it.parent);
+        run.forEach((x) => seen.add(x));
+        if (run.length < 2) continue;
+        lists.push({ id: it.name, kind: it.kind, layout: 'stack', nums: run.map((x) => x.n), slots: run.map((x) => ({ start: x.start, end: x.end, items: [x] })) });
+        continue;
+      }
+      let rowEl = it.unit.tag === 'td' || it.unit.tag === 'th' ? it.parent : it.parent;
+      while (rowEl && rowEl.type === 'el' && !/^(tr|table)$/.test(rowEl.tag)) rowEl = rowEl.parent;
+      if (it.unit.tag !== 'td' && it.unit.tag !== 'th') while (rowEl && rowEl.tag === 'tr') rowEl = rowEl.parent;
+      if (!rowEl || rowEl.type !== 'el' || !rowEl.parent || rowEl.parent.type === 'root') {
+        seen.add(it);
+        continue;
+      }
+      const inRow = items.filter((x) => x.row && x.kind === it.kind && x.start >= rowEl.start && x.end <= rowEl.end);
+      inRow.forEach((x) => seen.add(x));
+      if (inRow.length < 2 || editorIn(rowEl.start, rowEl.end, inRow)) continue;
+      const prev = lists.find((l) => l.layout === 'row' && l.kind === it.kind && l.parent === rowEl.parent);
+      const slot = { start: rowEl.start, end: rowEl.end, items: inRow };
+      if (prev) {
+        prev.slots.push(slot);
+        prev.nums.push(...inRow.map((x) => x.n));
+      } else lists.push({ id: it.name, kind: it.kind, layout: 'row', parent: rowEl.parent, perRow: inRow.length, nums: inRow.map((x) => x.n), slots: [slot] });
+    }
+    for (const l of lists) {
+      const last = l.slots[l.slots.length - 1];
+      const before = l.slots[l.slots.length - 2];
+      const gapFrom = before ? before.end : last.start;
+      l.copyFrom = before && !editorIn(gapFrom, last.start, []) ? gapFrom : last.start;
+      l.copyTo = last.end;
+      l.slotStart = last.start;
+      l.lastItems = last.items.map((x) => x.n);
+      const lastItem = last.items[last.items.length - 1];
+      const g = l.layout === 'stack' && before ? glue.get(lastItem.name) : null;
+      if (g && g.start > before.start && g.end < before.end) {
+        l.glue = html.slice(g.start, g.end);
+        l.closeAt = lastItem.closeStart;
+      }
+      delete l.parent;
+      delete l.slots;
+    }
+    return lists;
+  }
+
+  const groupText = (g) => String(g || '').replace(/^#\d+\s*/, '');
+
+  function renumberGroups(json) {
+    const map = new Map();
+    let num = 100;
+    for (const p of json) {
+      if (!p.group || map.has(p.group)) continue;
+      const m = /^#(\d+)\s+(.*)$/.exec(p.group);
+      if (!m) {
+        map.set(p.group, p.group);
+        continue;
+      }
+      if (m[1] === '90' || m[1] === '990') map.set(p.group, p.group);
+      else {
+        map.set(p.group, '#' + num + ' ' + m[2]);
+        num += 10;
+      }
+    }
+    return json.map((p) => (p.group ? Object.assign({}, p, { group: map.get(p.group) }) : p));
+  }
+
+  function addSpares(r, spares) {
+    if (!r || r.failed || r.templated || !spares) return r;
+    let html = r.html;
+    let json = r.json.slice();
+    const added = [];
+    for (const l of itemLists(r.html)) {
+      const count = Math.max(0, Math.min(10, Math.floor(Number(spares[l.id]) || 0)));
+      if (!count) continue;
+      const lists = itemLists(html).filter((x) => x.kind === l.kind);
+      const cur = lists.find((x) => x.nums.includes(l.nums[0]));
+      if (!cur) continue;
+      const ru = RULES.kinds[l.kind].ru;
+      let max = 0;
+      for (const p of json) {
+        const m = new RegExp('^(?:show_)?' + l.kind + '_(\\d+)(?:_|$)').exec(p.name);
+        if (m) max = Math.max(max, Number(m[1]));
+      }
+      const gap = html.slice(cur.copyFrom, cur.slotStart).replace(/\x3C!--(?!\[if|\[endif|<!\[endif)[\s\S]*?-->/g, '').replace(/\n[ \t]*(?=\n)/g, '');
+      const body = html.slice(cur.slotStart, cur.copyTo);
+      const lineStart = html.lastIndexOf('\n', cur.copyFrom - 1) + 1;
+      const indent = /^[ \t]*/.exec(html.slice(lineStart))[0];
+      let copies = '';
+      let glueAt = cur.glue ? cur.closeAt : -1;
+      let glueText = '';
+      const newParams = [];
+      const anchor = json.reduce((k, p, i) => (cur.lastItems.some((n) => new RegExp('^(?:show_)?' + l.kind + '_' + n + '(?:_|$)').test(p.name)) ? i : k), -1);
+      for (let c = 1; c <= count; c++) {
+        const map = new Map();
+        for (const n of cur.lastItems) map.set(n, ++max);
+        const rename = (s) => s.replace(new RegExp('(editor\\.(?:show_)?' + l.kind + '_)(\\d+)(?=[_}.\\s])', 'g'), (a, pre, n) => (map.has(Number(n)) ? pre + map.get(Number(n)) : a));
+        const g0 = gap.replace(/^\s+/, '');
+        let text = /</.test(gap) && cur.layout === 'stack'
+          ? gap.slice(0, gap.length - g0.length) + '@{if editor.show_' + l.kind + '_' + map.get(cur.lastItems[0]) + '}\n' + indent + g0.replace(/\s+$/, '') + '\n' + indent + '@{end if}' + rename(body).replace(/^[ \t]*(?=@)/, '\n' + indent)
+          : gap.replace(/\S[\s\S]*$/, '') + rename(gap.trim() ? gap.trim() + '\n' + indent : '') + rename(body);
+        if (cur.glue) {
+          const g = cur.glue.replace(new RegExp('(editor\\.show_' + l.kind + '_)' + cur.lastItems[0] + '(?=})'), '$1' + map.get(cur.lastItems[0]));
+          if (c === 1) glueText = g;
+          else {
+            const k = copies.lastIndexOf('@{');
+            copies = copies.slice(0, k) + g + copies.slice(k);
+          }
+        }
+        let rowToggle = null;
+        if (cur.layout === 'row') {
+          const rows = json.concat(newParams).filter((p) => /^show_more_/.test(p.name)).length + 1;
+          rowToggle = { name: 'show_more_' + l.kind + '_' + rows, type: 'DISPLAY_TOGGLE', defaultValue: 'false', extra: null, role: null, group: '#999 Дополнительный ряд ' + rows };
+          const body = text.replace(/^\s+/, '');
+          text = text.slice(0, text.length - body.length) + '@{if editor.' + rowToggle.name + '}\n' + indent + body + '\n' + indent + '@{end if}';
+          newParams.push(rowToggle);
+        }
+        copies += text;
+        for (const [from, to] of map) {
+          const re = new RegExp('^(show_)?' + l.kind + '_' + from + '(?=_|$)');
+          for (const p of r.json.filter((x) => re.test(x.name))) {
+            const q = Object.assign({}, p, { name: p.name.replace(re, (a, s) => (s || '') + l.kind + '_' + to) });
+            if (p.group) q.group = p.group.replace(new RegExp('^(#\\d+ )' + ru + ' ' + from + '(?=$| )'), '$1' + ru + ' ' + to);
+            if (q.type === 'DISPLAY_TOGGLE' && q.name === 'show_' + l.kind + '_' + to) q.defaultValue = cur.layout === 'row' ? p.defaultValue : 'false';
+            newParams.push(q);
+          }
+        }
+        added.push({ id: l.id, kind: l.kind, layout: cur.layout, nums: [...map.values()] });
+      }
+      html = glueAt >= 0
+        ? html.slice(0, glueAt) + glueText + html.slice(glueAt, cur.copyTo) + copies + html.slice(cur.copyTo)
+        : html.slice(0, cur.copyTo) + copies + html.slice(cur.copyTo);
+      json = json.slice(0, anchor + 1).concat(newParams, json.slice(anchor + 1));
+    }
+    if (!added.length) return r;
+    json = renumberGroups(json);
+    return Object.assign({}, r, { html, json, checks: validate(html, json), same: r.original ? compareRendered(r.original, html, json) : r.same, spares: added });
+  }
+
+  function tuneBlock(r, tune) {
+    if (!r || r.failed || r.templated || !tune) return r;
+    const low = (x) => String(x).toLowerCase();
+    const skip = new Set((tune.skip || []).map(low));
+    const off = new Set((tune.off || []).map(low));
+    const on = new Set((tune.on || []).map(low));
+    const toggle = (p, set, v) => p.type === 'DISPLAY_TOGGLE' && set.has(low(p.name)) && !skip.has(low(p.name)) && String(p.defaultValue) !== v;
+    const names = r.json.filter((p) => skip.has(low(p.name))).map((p) => p.name);
+    const hidden = r.json.filter((p) => toggle(p, off, 'false')).map((p) => p.name);
+    const shown = r.json.filter((p) => toggle(p, on, 'true') && !off.has(low(p.name))).map((p) => p.name);
+    const labels = new Map();
+    const taken = new Set(r.json.map((p) => groupText(p.group)));
+    for (const [from, to] of Object.entries(tune.labels || {})) {
+      const v = String(to).replace(/\s+/g, ' ').trim().slice(0, 60);
+      if (!v || v === from || !taken.has(from) || taken.has(v) || [...labels.values()].includes(v)) continue;
+      labels.set(from, v);
+    }
+    if (!names.length && !hidden.length && !shown.length && !labels.size) return r;
+    const html = names.length ? pinTemplate(r.html, r.json, names) : r.html;
+    const base = r.json.filter((p) => !skip.has(low(p.name)));
+    const json = base.map((p) => {
+      const q = Object.assign({}, p);
+      if (hidden.includes(p.name)) q.defaultValue = 'false';
+      if (shown.includes(p.name)) q.defaultValue = 'true';
+      const gt = groupText(p.group);
+      const from = labels.has(gt) ? gt : [...labels.keys()].find((k) => gt.startsWith(k + ' — '));
+      if (p.group && from) q.group = p.group.slice(0, p.group.length - gt.length) + labels.get(from) + gt.slice(from.length);
+      return q;
+    });
+    return Object.assign({}, r, { html, json, checks: validate(html, json), same: r.original ? compareRendered(r.original, html, base) : r.same, pinned: names, hidden, shown, renamed: [...labels.keys()] });
   }
 
   function canon(html) {
@@ -3797,7 +4078,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return next;
   }
 
-  const api = { parse, fixEnds, loadLetter, splitBlock, buildBlock, buildMerged, canMerge, mergeSource, validate, renderTemplate, compareRendered, canon, decode, dedent, scanTemplate, RULES };
+  const api = { parse, fixEnds, loadLetter, splitBlock, buildBlock, buildMerged, canMerge, mergeSource, validate, renderTemplate, pinTemplate, itemLists, addSpares, tuneBlock, compareRendered, canon, decode, dedent, scanTemplate, RULES };
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.MBEngine = api;
 })(typeof self !== 'undefined' ? self : this);
@@ -4443,8 +4724,22 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
 
   function buildOne(res) {
     const o = Object.assign({}, res.opts, res.name ? { name: res.name } : {});
+    if (!res.tune) res.tune = { skip: [], off: [], on: [], spares: {}, labels: {} };
+    res.lists = [];
+    res.fields = [];
     try {
-      res.r = res.ids.length > 1 ? E.buildMerged(S.letter, res.ids, o) : E.buildBlock(S.letter, res.ids[0], o);
+      const r0 = res.ids.length > 1 ? E.buildMerged(S.letter, res.ids, o) : E.buildBlock(S.letter, res.ids[0], o);
+      res.r = r0;
+      if (r0.failed || r0.templated) return;
+      res.fields = r0.json;
+      try {
+        res.lists = E.itemLists(r0.html);
+        const r1 = E.addSpares(r0, res.tune.spares);
+        res.fields = r1.json;
+        res.r = E.tuneBlock(r1, res.tune);
+      } catch (e) {
+        res.r = Object.assign({}, r0, { checks: r0.checks.concat([{ level: 'warn', code: 'tune', text: 'Настройку блока не удалось применить, блок собран без неё. Подробности: ' + e.message }]) });
+      }
     } catch (e) {
       res.r = {
         name: res.name || S.letter.list[res.ids[0]].suggested,
@@ -4552,9 +4847,12 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         h('button', { type: 'button', class: 'btn primary', onclick: () => copy(r.html, 'HTML') }, 'Копировать HTML'),
         h('button', { type: 'button', class: 'btn primary', onclick: () => copy(jsonText, 'JSON') }, 'Копировать JSON')));
     const toggles = r.json.filter((p) => p.type === 'DISPLAY_TOGGLE').length;
+    const spares = (r.spares || []).reduce((n, s) => n + s.nums.length, 0);
     const sum = h('div', { class: 'res-sum' }, [
       resTitle(res),
       'в конструкторе ' + plural(r.json.length - toggles, 'поле', 'поля', 'полей') + ' и ' + plural(toggles, 'переключатель', 'переключателя', 'переключателей') + ' «показывать»',
+      r.pinned && r.pinned.length ? 'не меняются в конструкторе: ' + r.pinned.length : null,
+      spares ? 'запасных: ' + spares : null,
       r.merged ? 'склеены блоки ' + r.merged.map((i) => i + 1).join(', ') : null
     ].filter(Boolean).join(' · '));
     const issues = r.checks.filter((c) => c.level !== 'ok').length + (r.same && !r.same.equal ? 1 : 0);
@@ -4566,7 +4864,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         renderView();
       } }, issues > 1 ? 'Все замечания (' + issues + ')' : 'Открыть «Проверку»')) : null;
     const sub = h('div', { class: 'subtabs', role: 'tablist' });
-    for (const [k, t] of [['look', 'Как выглядит'], ['html', 'HTML'], ['json', 'JSON'], ['check', 'Проверка' + (issues ? ' (' + issues + ')' : '')]]) {
+    for (const [k, t] of [['look', 'Как выглядит'], ['tune', 'Настройка'], ['html', 'HTML'], ['json', 'JSON'], ['check', 'Проверка' + (issues ? ' (' + issues + ')' : '')]]) {
       sub.append(h('button', {
         type: 'button',
         role: 'tab',
@@ -4579,17 +4877,38 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     }
     let pane;
     if (S.sub === 'look') pane = r.failed ? checksPane(r) : lookPane(r.html, r.json, S.letter.styles, S.letter.bodyStyle, res.state);
+    else if (S.sub === 'tune') pane = tunePane(res);
     else if (S.sub === 'html') pane = codePane(r.html, 'HTML', r.name + '.html');
     else if (S.sub === 'json') pane = jsonPane(r.json, r.name);
     else pane = checksPane(r);
-    const own = h('details', { class: 'own', open: res.own || null },
-      h('summary', null, res.own ? 'Свои настройки этого блока' : 'Настроить только этот блок'),
+    view.replaceChildren(...[head, sum, alert, sub, pane].filter(Boolean));
+  }
+
+  const typeRu = (p) => (p.type === 'SIMPLE_TEXT' && /_url(_\d+)?$/.test(p.name) ? 'ссылка' : TYPE_RU[p.type]) || p.type;
+  const low = (s) => String(s).toLowerCase();
+  const range = (nums) => (nums.length > 2 && nums[nums.length - 1] - nums[0] === nums.length - 1 ? nums[0] + '–' + nums[nums.length - 1] : nums.join(', '));
+
+  function tunePane(res) {
+    const t = res.tune;
+    const apply = () => {
+      res.state = {};
+      buildOne(res);
+      dedupeNames();
+      renderResults();
+    };
+    const has = (list, name) => list.some((x) => low(x) === low(name));
+    const put = (list, name, yes) => {
+      const rest = list.filter((x) => low(x) !== low(name));
+      if (yes) rest.push(name);
+      return rest;
+    };
+    const box = h('div', { class: 'tune' });
+
+    box.append(...[h('h3', null, 'Что можно менять в этом блоке'),
+      h('p', { class: 'hint' }, res.own ? 'У этого блока свои настройки, общие настройки шага 3 на него не действуют.' : 'Сейчас — как в шаге 3. Если изменить здесь, изменится только этот блок.'),
       optsPanel(res.opts, () => {
         res.own = true;
-        res.state = {};
-        buildOne(res);
-        dedupeNames();
-        renderResults();
+        apply();
       }),
       res.own ? h('button', {
         type: 'button',
@@ -4597,13 +4916,141 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         onclick: () => {
           res.own = false;
           res.opts = Object.assign({}, S.opts);
-          res.state = {};
-          buildOne(res);
-          dedupeNames();
-          renderResults();
+          apply();
         }
-      }, 'Вернуть общие настройки') : null);
-    view.replaceChildren(...[head, sum, alert, sub, pane, own].filter(Boolean));
+      }, 'Вернуть общие настройки') : null].filter(Boolean));
+
+    if (res.r.failed) return box;
+    if (res.r.templated) {
+      box.append(h('p', { class: 'hint' }, 'Блок уже размечен для конструктора в исходном HTML-файле, поэтому поля и карточки здесь не настраиваются.'));
+      return box;
+    }
+
+    if (res.lists.length) {
+      box.append(h('h3', null, 'Запасные карточки'),
+        h('p', { class: 'hint' }, 'Запасные карточки добавляются в блок скрытыми. В конструкторе их можно включить, как остальные. Новых карточек в конструкторе добавить нельзя — только включить запасные.'));
+      const ul = h('div', { class: 'spares' });
+      for (const l of res.lists) {
+        const kind = R.kinds[l.kind] || { plural: l.kind };
+        const row = l.layout === 'row';
+        const inp = h('input', {
+          type: 'number',
+          min: '0',
+          max: '10',
+          value: String(t.spares[l.id] || 0),
+          onchange: () => {
+            const n = Math.max(0, Math.min(10, parseInt(inp.value || '0', 10) || 0));
+            if (n) t.spares[l.id] = n;
+            else delete t.spares[l.id];
+            apply();
+          }
+        });
+        ul.append(h('label', { class: 'spare' },
+          h('span', null, h('b', null, cap(kind.plural) + ' ' + range(l.nums)), h('small', null, row ? 'в ряд по ' + l.perRow + '. Запасные добавляются рядами под последним рядом, ряд включается переключателем «Дополнительный ряд»' : 'друг под другом. Запасные добавляются под последней')),
+          inp,
+          h('span', null, row ? 'рядов' : 'шт.')));
+      }
+      box.append(ul);
+    }
+
+    const fields = res.fields;
+    if (!fields.length) return box;
+    const shown = (p) => {
+      if (has(t.off, p.name)) return false;
+      if (has(t.on, p.name)) return true;
+      return String(p.defaultValue) === 'true';
+    };
+    box.append(h('h3', null, 'Поля в конструкторе'),
+      h('p', { class: 'hint' }, 'Снимите галочку — поля не будет в конструкторе, в блоке останется значение из письма. Название группы — подпись, которую маркетолог увидит в конструкторе.'));
+    const tb = h('tbody');
+    const groups = [];
+    for (const p of fields) {
+      const g = groups.find((x) => x.group === p.group);
+      if (g) g.list.push(p);
+      else groups.push({ group: p.group, list: [p] });
+    }
+    const accepted = res.r.renamed || [];
+    const shownLabel = (label) => {
+      const k = accepted.includes(label) ? label : accepted.find((x) => label.startsWith(x + ' — '));
+      return k ? t.labels[k] + label.slice(k.length) : label;
+    };
+    for (const g of groups) {
+      const label = groupLabel(g.group);
+      const on = g.list.filter((p) => !has(t.skip, p.name)).length;
+      const all = h('input', {
+        type: 'checkbox',
+        checked: on === g.list.length,
+        'aria-label': 'Все поля группы «' + label + '»',
+        onchange: () => {
+          for (const p of g.list) t.skip = put(t.skip, p.name, !all.checked);
+          apply();
+        }
+      });
+      all.indeterminate = on > 0 && on < g.list.length;
+      const name = h('input', {
+        class: 'glabel',
+        value: shownLabel(label),
+        spellcheck: 'false',
+        'aria-label': 'Название группы',
+        onchange: () => {
+          const v = name.value.replace(/\s+/g, ' ').trim();
+          const taken = groups.some((x) => x !== g && [groupLabel(x.group), t.labels[groupLabel(x.group)]].includes(v));
+          if (taken) {
+            name.value = shownLabel(label);
+            return toast('Группа «' + v + '» уже есть в этом блоке.');
+          }
+          if (v === shownLabel(label)) return;
+          if (!v || v === label) delete t.labels[label];
+          else t.labels[label] = v;
+          apply();
+        }
+      });
+      tb.append(h('tr', { class: 'g' }, h('td', null, all), h('td', { colspan: '2' }, name)));
+      for (const p of g.list) {
+        const skip = has(t.skip, p.name);
+        const cb = h('input', {
+          type: 'checkbox',
+          checked: !skip,
+          'aria-label': 'Менять в конструкторе: ' + label + ', ' + typeRu(p),
+          onchange: () => {
+            t.skip = put(t.skip, p.name, !cb.checked);
+            apply();
+          }
+        });
+        let extra = null;
+        if (p.type === 'DISPLAY_TOGGLE') {
+          const hide = h('input', {
+            type: 'checkbox',
+            checked: !shown(p),
+            disabled: skip || null,
+            onchange: () => {
+              const natural = String(p.defaultValue) === 'true';
+              t.off = put(t.off, p.name, hide.checked && natural);
+              t.on = put(t.on, p.name, !hide.checked && !natural);
+              apply();
+            }
+          });
+          extra = h('label', { class: 'hide' }, hide, 'скрыто сразу');
+        }
+        tb.append(h('tr', { class: skip ? 'off' : null },
+          h('td', null, cb),
+          h('td', null, typeRu(p)),
+          h('td', { class: 'val' }, extra || shortVal(p))));
+      }
+    }
+    box.append(h('table', { class: 'ptable tune-fields' }, h('thead', null, h('tr', null, h('th', null, 'Менять'), h('th', null, 'Что это'), h('th', null, 'В письме'))), tb));
+    const changed = t.skip.length + t.off.length + t.on.length + Object.keys(t.labels).length + Object.keys(t.spares).length;
+    if (changed) {
+      box.append(h('button', {
+        type: 'button',
+        class: 'link',
+        onclick: () => {
+          res.tune = { skip: [], off: [], on: [], spares: {}, labels: {} };
+          apply();
+        }
+      }, 'Вернуть все поля и убрать запасные карточки'));
+    }
+    return box;
   }
 
   function numLabel(p) {
