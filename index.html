@@ -2754,19 +2754,29 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       if (tk.t !== 'stmt') continue;
       const b = tk.body.replace(/\s+/g, ' ').trim();
       if (/^if\b/i.test(b)) {
-        stack.push({ kind: 'if', tk });
+        const entry = { kind: 'if', tk, branches: 1, letter: !/^if\s+editor\./i.test(b) && !stack.some((s) => s.kind === 'for'), noted: false };
+        stack.push(entry);
         const next = tokens.slice(i + 1).find((x) => x.t !== 'text' || /\S/.test(x.s));
         if (next && (next.t !== 'text' || !/^\s*</.test(next.s))) {
           if (/^if\s+editor\./i.test(b)) err('cond', 'После ' + tk.s + ' сразу должен идти HTML-тег, а идёт ' + (next.t === 'stmt' ? 'другое условие ' + next.s : 'текст') + '. Mindbox: «' + RULES.errors.conditionStart + '»');
           else if (!(next.t === 'stmt' && /^(if|for)\b/i.test(next.body))) {
+            entry.noted = true;
             warn('cond', 'Условие ' + tk.s + ' было в письме до нас: оно показывает разный текст разным получателям. Сразу после него идёт текст, а Mindbox ждёт там тег и может не принять блок: «' + RULES.errors.conditionStart + '» Если не примет — в HTML оберните текст после @{if …} и после @{else} в <span>…</span>: вид письма не изменится.');
           }
         }
       } else if (/^else\b/i.test(b)) {
         if (!stack.length || stack[stack.length - 1].kind !== 'if') err('balance', 'Лишний @{else} без @{if}.');
+        else stack[stack.length - 1].branches++;
       } else if (/^end if\b/i.test(b)) {
         if (!stack.length || stack[stack.length - 1].kind !== 'if') err('balance', 'Лишний @{end if}.');
-        else stack.pop();
+        else {
+          const top = stack.pop();
+          if (top.letter && !top.noted && top.branches > 1 && /<(table|tr|td|div|img|p|h[1-6]|ul|ol|li)\b/i.test(html.slice(top.tk.pos, tk.pos))) {
+            const [of, all] = ({ 2: ['двух', 'обе'], 3: ['трёх', 'все три'], 4: ['четырёх', 'все четыре'] })[top.branches] || [String(top.branches), 'все ' + top.branches];
+            const text = 'Получатель увидит только одну из ' + of + ' частей блока — какую, решает условие письма ' + top.tk.s + '. Здесь в превью видны ' + all + ' сразу, в Mindbox — одна.';
+            if (!out.some((c) => c.text === text)) warn('branches', text);
+          }
+        }
       } else if (/^for\b/i.test(b)) {
         stack.push({ kind: 'for', tk });
         if (/^for\s+cell\b/i.test(b)) {
