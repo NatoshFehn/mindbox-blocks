@@ -311,8 +311,6 @@ h3 { margin: 18px 0 6px; font-size: 15px; }
 
 .letter-info { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
 .letter-info b { word-break: break-all; }
-.letter-info .width-pick { display: inline-flex; align-items: center; gap: 6px; }
-.letter-info .width-pick input { width: 76px; border: 1px solid var(--line); border-radius: 7px; padding: 3px 6px; background: var(--panel); }
 .letter-info .auto-split, .letter-info .fit-note { flex-basis: 100%; padding: 8px 12px; border-radius: 8px; background: var(--accent-soft); color: var(--ink); font-size: 14px; }
 
 .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
@@ -335,6 +333,13 @@ h3 { margin: 18px 0 6px; font-size: 15px; }
 }
 
 .bcard.on { border-color: var(--accent); background: var(--panel); }
+.bcard.just { animation: just 1.8s ease-out; }
+
+@keyframes just {
+  0%, 35% { box-shadow: 0 0 0 4px var(--accent-soft), 0 0 0 6px var(--accent); }
+  100% { box-shadow: 0 0 0 4px transparent, 0 0 0 6px transparent; }
+}
+
 .bcard.off { border-style: dashed; background: var(--bg); }
 .bcard.off .thumb { opacity: .45; }
 .bcard.off .btitle { color: var(--muted); }
@@ -577,24 +582,76 @@ pre.code i { color: var(--muted); }
 .checks li.note { background: var(--code-bg); }
 .checks li b { margin-right: 6px; }
 
-.tune h3 { margin: 18px 0 2px; font-size: 15px; }
-.tune h3:first-child { margin-top: 4px; }
-.tune > .link { margin: 4px 0 8px; }
-.spares { display: grid; gap: 6px; margin-bottom: 8px; }
-.spare { display: grid; grid-template-columns: 1fr 64px 44px; gap: 4px 10px; align-items: center; padding: 6px 4px; font-size: 14px; }
-.spare b { display: block; font-weight: 600; }
-.spare small { display: block; color: var(--muted); font-size: 13px; }
-.spare input { width: 64px; border: 1px solid var(--line); border-radius: 7px; padding: 3px 6px; background: var(--panel); color: inherit; }
-.tune-fields td:first-child, .tune-fields th:first-child { width: 1%; white-space: nowrap; }
-.tune-fields input[type="checkbox"] { width: 16px; height: 16px; margin: 1px 0 0; }
-.tune-fields tr.off td:not(:first-child) { color: var(--muted); text-decoration: line-through; }
-.tune-fields .hide { display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; color: var(--muted); font-weight: 400; }
-.tune-fields .glabel { width: 100%; max-width: 360px; border: 1px solid transparent; border-radius: 7px; padding: 2px 6px; margin-left: -6px; background: transparent; color: inherit; font: inherit; font-weight: 600; }
-.tune-fields .glabel:hover, .tune-fields .glabel:focus { border-color: var(--line); background: var(--panel); }
+.tune { display: grid; gap: 14px; }
+.tune > .hint { margin: 0; }
+.tune-opts { padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.tune-opts-head { display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; margin-bottom: 8px; font-size: 14px; }
+.opts.compact { display: flex; flex-wrap: wrap; gap: 6px; }
+.opts.compact .opt { align-items: center; gap: 6px; padding: 3px 10px 3px 8px; border: 1px solid var(--line); border-radius: 999px; font-size: 13.5px; }
+.opts.compact .opt input { margin: 0; width: 15px; height: 15px; }
+.opts.compact .opt:has(input:checked) { background: var(--accent-soft); border-color: var(--accent); }
+.opts.compact .opt:has(input:disabled) { opacity: .5; cursor: default; }
+
+.tune-grid { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.tune-side { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; padding: 10px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px; }
+.tune-list { display: grid; gap: 18px; align-content: start; min-width: 0; }
+.tune-list > .link { justify-self: start; font-size: 14px; }
+.tune-sec h4 { margin: 0; font-size: 15px; }
+.tune-sec .hint { margin: 2px 0 8px; font-size: 13.5px; }
+.tune-cap { margin: 0 0 8px; color: var(--muted); font-size: 13px; }
+
+.tune-spares { display: grid; gap: 2px; }
+.spare { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 4px 12px; align-items: center; padding: 5px 6px; border-radius: 8px; font-size: 14px; }
+.spare-what { font-weight: 600; }
+.spare-what small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+.spare-label { color: var(--muted); font-size: 13.5px; }
+.stepper { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--panel); }
+.stepper .btn { border: none; border-radius: 0; padding: 2px 10px; min-width: 30px; font-size: 16px; line-height: 1.4; color: inherit; }
+.stepper .btn:hover:not(:disabled) { background: var(--accent-soft); }
+.stepper output { min-width: 26px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.el + .el { border-top: 1px solid var(--line); }
+.el-row { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 4px 8px; padding: 5px 6px; border-radius: 8px; font-size: 14px; }
+.el-row > .fchips, .el-row > .el-sum { grid-column: 2 / -1; }
+.el-row.flat, .el-parts .el-row { grid-template-columns: minmax(0, 1fr) auto; }
+.el-row.flat { padding-left: 36px; }
+.el-row.flat .el-title { max-width: none; }
+.el-row.flat > .fchips { grid-column: auto; justify-content: flex-end; }
+.el-parts .el-row > .fchips { grid-column: 1 / -1; padding-left: 7px; }
+.el-row:hover, .el-row:focus-within { background: var(--accent-soft); }
+.el-row.just { animation: just-row 1.8s ease-out; }
+@keyframes just-row { 0%, 40% { background: var(--accent-soft); box-shadow: inset 0 0 0 2px var(--accent); } 100% { box-shadow: inset 0 0 0 2px transparent; } }
+.chev, .chev-gap { flex: none; width: 22px; height: 22px; }
+.chev { display: grid; place-items: center; padding: 0; border: none; border-radius: 6px; background: none; color: var(--muted); cursor: pointer; }
+.chev::before { content: ""; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateX(-1px) rotate(-45deg); transition: transform .15s; }
+.chev[aria-expanded="true"]::before { transform: translateY(-2px) rotate(45deg); }
+.chev:hover { color: var(--ink); background: var(--panel); }
+.el-title { min-width: 0; max-width: 340px; padding: 2px 6px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: inherit; font: inherit; font-weight: 600; text-overflow: ellipsis; }
+input.el-title:hover, input.el-title:focus { border-color: var(--line); background: var(--panel); }
+input.el-title:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.el-name { min-width: 0; padding-left: 7px; }
+.el-sum { padding-left: 7px; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.el-parts { margin: 0 0 6px 22px; padding-left: 6px; border-left: 2px solid var(--line); }
+
+select.vis { padding: 2px 6px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); color: inherit; font: inherit; font-size: 13px; }
+select.vis.is-hidden, select.vis.is-fixed { color: var(--muted); background: var(--code-bg); }
+
+.fchips { display: flex; flex-wrap: wrap; gap: 4px; padding-left: 7px; }
+.el-row.flat > .fchips { padding-left: 0; }
+.fchip { display: inline-flex; align-items: center; gap: 5px; padding: 1px 9px; border: 1px solid var(--accent); border-radius: 999px; background: var(--accent-soft); color: var(--ink); font: inherit; font-size: 12.5px; line-height: 1.6; cursor: pointer; }
+.fchip[aria-pressed="false"] { border-style: dashed; border-color: var(--line); background: transparent; color: var(--muted); text-decoration: line-through; }
+.fchip:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.fchip .sw { width: 10px; height: 10px; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25); }
+
+@media (max-width: 860px) {
+  .tune-grid { grid-template-columns: minmax(0, 1fr); }
+  .tune-side { position: static; max-height: 45vh; }
+}
 @media (max-width: 560px) {
-  .spare { grid-template-columns: 1fr 64px; }
-  .spare > span:last-child { display: none; }
-  .tune-fields td, .tune-fields th { padding: 5px 4px; }
+  .spare { grid-template-columns: minmax(0, 1fr) auto; }
+  .spare-label { display: none; }
+  .el-row > select.vis { grid-column: 2 / -1; justify-self: start; margin-left: 7px; }
+  .el-parts .el-row > select.vis { grid-column: 1 / -1; }
 }
 
 .g-setup { display: grid; gap: 12px; }
@@ -702,7 +759,7 @@ pre.code i { color: var(--muted); }
         <span>или <button type="button" class="link" id="pick">выберите файл</button>, или <button type="button" class="link" id="paste-open">вставьте код</button></span>
         <input type="file" id="file" accept=".html,.htm,text/html" hidden>
       </div>
-      <p id="intro" class="hint intro">Инструмент разделит письмо на блоки и к каждому подготовит JSON для нового конструктора Mindbox. Письмо никуда не отправляется — всё работает на вашем компьютере.</p>
+      <p id="intro" class="hint intro">Письмо никуда не отправляется: всё работает на вашем компьютере.</p>
       <div id="paste-box" class="paste-box" hidden>
         <textarea id="paste" spellcheck="false" placeholder="Вставьте сюда код письма целиком — от <html> до </html>"></textarea>
         <div class="row"><button type="button" id="paste-go" class="btn primary">Разобрать письмо</button><button type="button" id="paste-cancel" class="btn">Отмена</button></div>
@@ -713,7 +770,7 @@ pre.code i { color: var(--muted); }
     <div id="pick-area" class="pick-area" hidden>
       <div class="step" id="step-blocks">
         <h2><span class="num">2</span>Какие блоки нужны</h2>
-        <p class="hint">Отметьте блоки, которые нужны в Mindbox. Нажмите на картинку блока, чтобы рассмотреть его крупно. Соседние блоки можно склеить в один, большой блок — разделить по строкам. Вид письма от этого не меняется.</p>
+        <p class="hint">Отметьте блоки, которые нужны в Mindbox. Соседние блоки можно склеить в один, а большой блок — разделить по строкам.</p>
         <div class="toolbar">
           <span class="muted">Отметить:</span>
           <button type="button" class="btn" data-sel="all">Все</button>
@@ -725,9 +782,9 @@ pre.code i { color: var(--muted); }
 
       <div class="step" id="step-opts">
         <h2><span class="num">3</span>Что можно будет менять в конструкторе</h2>
-        <p class="hint">Выбор запоминается. Для отдельного блока его можно поменять, когда блоки будут готовы.</p>
+        <p class="hint">Выбор запоминается. Для отдельного блока его можно изменить на вкладке «Настройка», когда блоки будут готовы.</p>
         <div id="opts"></div>
-        <p class="never">Ширина, скругления углов и боковые отступы в конструкторе не меняются: от них зависит вёрстка. Отступы — только сверху и снизу, до соседних блоков.</p>
+        <p class="never">Ширину блока и отступы слева и справа в конструкторе менять нельзя: блок другой ширины не совпадёт по краям с соседними блоками письма. Нужна другая ширина — измените её в исходном HTML-файле.</p>
       </div>
 
       <div class="make-bar">
@@ -742,7 +799,7 @@ pre.code i { color: var(--muted); }
         <span id="result-sum"></span>
         <button type="button" id="zip" class="btn">Скачать все блоки архивом</button>
       </div>
-      <p class="hint">Выберите блок в списке. Кнопки «Копировать HTML» и «Копировать JSON» кладут код в буфер — вставьте его в Mindbox.</p>
+      <p class="hint">Как загрузить в Mindbox: в любой рассылке или шаблоне откройте меню «Блоки» и нажмите &lt; &gt;. Вставьте HTML на вкладку HTML, JSON — на вкладку JSON. Блок появится во вкладке «Сохранённые».</p>
       <div class="result">
         <ul id="res-list" class="res-list"></ul>
         <div id="res-view" class="res-view"></div>
@@ -775,7 +832,7 @@ pre.code i { color: var(--muted); }
 
     <div class="step" id="g-step-result" hidden>
       <h2><span class="num">3</span>Товарная сетка</h2>
-      <p class="hint">Кнопки «Копировать HTML» и «Копировать JSON» кладут код в буфер — вставьте его в Mindbox.</p>
+      <p class="hint">Как загрузить в Mindbox: в любой рассылке или шаблоне откройте меню «Блоки» и нажмите &lt; &gt;. Вставьте HTML на вкладку HTML, JSON — на вкладку JSON. Блок появится во вкладке «Сохранённые».</p>
       <div id="g-view" class="res-view g-view"></div>
     </div>
   </section>
@@ -787,9 +844,9 @@ pre.code i { color: var(--muted); }
       <h3>Четыре шага</h3>
       <ol>
         <li>Перетащите файл письма или вставьте его код.</li>
-        <li>Отметьте нужные блоки. Нажмите на картинку блока — он откроется крупно, на компьютере и на телефоне. Соседние блоки можно склеить в единый блок, большой — разделить по строкам.</li>
+        <li>Отметьте нужные блоки. Нажмите на картинку блока — он откроется крупно, на компьютере и на телефоне. Соседние блоки можно склеить в один, а большой — разделить по строкам.</li>
         <li>Выберите, что можно будет менять в конструкторе.</li>
-        <li>Нажмите «Сделать блоки». У каждого блока — «Копировать HTML» и «Копировать JSON»: вставьте их в Mindbox. Или скачайте все блоки архивом. На вкладке «Настройка» у блока можно добавить запасные карточки, убрать лишние поля из конструктора, скрыть части по умолчанию и переименовать группы.</li>
+        <li>Нажмите «Сделать блоки». У каждого блока — «Копировать HTML» и «Копировать JSON»: вставьте их в Mindbox. Или скачайте все блоки архивом. На вкладке «Настройка» у блока — превью и все его элементы: что маркетолог сможет менять, что скрыто по умолчанию, запасные карточки, названия в конструкторе. Нажмите на элемент в превью — откроется его строка.</li>
       </ol>
       <h3>Товарная сетка</h3>
       <p>На вкладке «Товарная сетка» обычный блок с карточками товаров превращается в динамическую товарную сетку нового конструктора. Mindbox подставит в каждую карточку название, цену, картинку и ссылку товара. Какие товары показать, выбирается в конструкторе, в настройках блока.</p>
@@ -802,9 +859,8 @@ pre.code i { color: var(--muted); }
       <h3>Чего инструмент не делает — специально</h3>
       <ul>
         <li>Не меняет вёрстку. Исключение — письмо шире 600 px: ширина блоков уменьшается до 600 px. Каждый готовый блок сравнивается с письмом, результат — на вкладке «Проверка».</li>
-        <li>Не даёт менять в конструкторе ширину и скругления углов: от них зависит вёрстка.</li>
+        <li>Не даёт менять в конструкторе ширину блока и отступы слева и справа: блок другой ширины не совпадёт по краям с соседними.</li>
         <li>Не придумывает фон: прозрачный блок остаётся прозрачным.</li>
-        <li>Отступы — только сверху и снизу, до соседних блоков. По умолчанию — как в письме.</li>
         <li>Не отмечает блок, который повторяет соседний и отличается только фоном.</li>
       </ul>
       <h3>Что значат отметки</h3>
@@ -815,7 +871,6 @@ pre.code i { color: var(--muted); }
       </ul>
       <h3>Документация Mindbox</h3>
       <p id="docs-help"></p>
-      <p class="muted">Письмо никуда не отправляется: всё работает на вашем компьютере.</p>
     </div>
   </section>
 </main>
@@ -1768,15 +1823,17 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     let tel = false;
     let mail = false;
     let strike = false;
+    let rest = raw;
     for (const n of nodes) {
       walk(n, (x) => {
         if (x.type !== 'el') return;
         const h = attrVal(x, 'href') || '';
         if (/^tel:/i.test(h)) tel = true;
         if (/^mailto:/i.test(h)) mail = true;
-        if (STRIKE.has(x.tag)) strike = true;
+        if (STRIKE.has(x.tag)) rest = rest.replace(src.slice(x.start, x.end), ' ');
       });
     }
+    if (rest !== raw && !decode(rest.replace(/<[^>]+>/g, ' ')).replace(/[\s\u00a0]+/g, '')) strike = true;
     for (let x = c.el; x && x !== block.node.parent; x = x.parent) {
       if (x.type === 'el' && (STRIKE.has(x.tag) || /line-through/i.test(attrVal(x, 'style') || ''))) strike = true;
     }
@@ -2091,6 +2148,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
           const el = sgm.node;
           let g2 = g;
           let suffix = a.suffix;
+          let prefix = a.prefix;
           if (el.tag === 'a' && attr(el, 'href')) {
             if (meaningfulSegs.length > 1) {
               const k = (g.linkCount = (g.linkCount || 0) + 1);
@@ -2098,13 +2156,17 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
               suffix = 'link_text';
             }
             if (opt.links) urlParam(el, a.prefix + (suffix === 'link_text' && g.linkCount > 1 ? '_link_' + g.linkCount : '') + '_url', g2, a.role);
+          } else if ((STRIKE.has(el.tag) || /line-through/i.test(attrVal(el, 'style') || '')) && segs.some((x) => x !== sgm && meaningfulText((x.node ? src.slice(x.node.start, x.node.end) : src.slice(x.nodes[0].start, x.nodes[x.nodes.length - 1].end)).replace(/<[^>]+>/g, ' ')))) {
+            g2 = group(g.key + '_old', / — [^—]+$/.test(g.label) ? g.label.replace(/ — [^—]+$/, ' — старая цена') : 'Старая цена', el.start);
+            prefix = a.role && a.prefix.endsWith('_' + a.role) ? a.prefix.slice(0, -a.role.length - 1) : a.prefix === a.role ? 'old' : a.prefix;
+            suffix = prefix === 'old' ? 'price' : 'old_price';
           } else if (INLINE.has(el.tag) && el.attrs.length && meaningfulSegs.length > 1 && !a.suffix) {
             const k = (g.accentCount = (g.accentCount || 0) + 1);
             g2 = group(g.key + '_accent' + k, g.label + ' — выделение' + (k > 1 ? ' ' + k : ''), el.start);
             suffix = 'accent';
           }
           const inner = { el, from: firstContent(src, el), to: lastContent(src, el), whole: true };
-          if (inner.from <= inner.to && depthLevel < 5) processContainer({ container: inner, prefix: a.prefix, role: a.role, suffix }, g2, null, depthLevel + 1, keep);
+          if (inner.from <= inner.to && depthLevel < 5) processContainer({ container: inner, prefix, role: a.role, suffix }, g2, null, depthLevel + 1, keep);
         }
       }
     };
@@ -2200,6 +2262,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
           const own = textOf(src, el);
           const all = textOf(src, t.container.el);
           if (own && all.replace(own, '').replace(/[\s\u00a0]+/g, '')) accent = el.tag === 'a' ? 'link' : 'accent';
+          if (accent === 'accent' && t.role === 'price' && (STRIKE.has(el.tag) || /line-through/i.test(attrVal(el, 'style') || ''))) return { role: 'old_price', itemKind: t.item ? t.item.kind : null, accent: false };
         }
         return { role: t.role, itemKind: t.item ? t.item.kind : null, accent };
       };
@@ -2841,7 +2904,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
           if (/^if\s+editor\./i.test(b)) err('cond', 'После ' + tk.s + ' сразу должен идти HTML-тег, а идёт ' + (next.t === 'stmt' ? 'другое условие ' + next.s : 'текст') + '. Mindbox: «' + RULES.errors.conditionStart + '»');
           else if (!(next.t === 'stmt' && /^(if|for)\b/i.test(next.body))) {
             entry.noted = true;
-            warn('cond', 'Условие письма ' + tk.s + ' показывает разный текст разным получателям. Сразу после условия идёт текст, а не HTML-тег, и Mindbox может не принять блок с ошибкой «' + RULES.errors.conditionStart + '» В этом случае в исходном HTML-файле оберните текст после @{if …} и после @{else} в <span>…</span> — вид письма не изменится.');
+            warn('cond', 'Условие письма ' + tk.s + ' показывает разный текст разным получателям. Сразу после условия идёт текст, а не HTML-тег, и Mindbox может не принять блок с ошибкой «' + RULES.errors.conditionStart + '» В этом случае в исходном HTML-файле оберните текст после @{if …} и после @{else} в <span>…</span>.');
           }
         }
       } else if (/^else\b/i.test(b)) {
@@ -3224,7 +3287,8 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const taken = new Set(r.json.map((p) => groupText(p.group)));
     for (const [from, to] of Object.entries(tune.labels || {})) {
       const v = String(to).replace(/\s+/g, ' ').trim().slice(0, 60);
-      if (!v || v === from || !taken.has(from) || taken.has(v) || [...labels.values()].includes(v)) continue;
+      const known = taken.has(from) || [...taken].some((g) => g.startsWith(from + ' — '));
+      if (!v || v === from || !known || taken.has(v) || [...labels.values()].includes(v)) continue;
       labels.set(from, v);
     }
     if (!names.length && !hidden.length && !shown.length && !labels.size) return r;
@@ -4541,10 +4605,10 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
 
   const OPTS = [
     { key: 'texts', label: 'Тексты', hint: 'Заголовки, абзацы, цены, надписи на кнопках' },
-    { key: 'images', label: 'Картинки', hint: 'Можно заменить картинку и её alt' },
+    { key: 'images', label: 'Картинки', hint: 'Картинка и её alt' },
     { key: 'links', label: 'Ссылки', hint: 'Адреса у кнопок, картинок и ссылок в тексте' },
-    { key: 'colors', label: 'Цвета и фон', hint: 'Цвет текста, кнопок, плашек и фона — только те, что есть в письме' },
-    { key: 'itemToggles', label: 'Скрывать карточки целиком', hint: 'Карточку, пункт, телефон, соцсеть — одной галочкой' },
+    { key: 'colors', label: 'Цвета и фон', hint: 'Цвет текста, кнопок, плашек и фона' },
+    { key: 'itemToggles', label: 'Скрывать карточки целиком', hint: 'Карточку, пункт, телефон или соцсеть целиком' },
     { key: 'toggles', label: 'Скрывать части', hint: 'Отдельно картинку, кнопку, заголовок, текст' },
     { key: 'equalHeight', label: 'Карточки одной высоты', hint: 'Если скрыть часть карточки, соседние карточки не сдвинутся' },
     { key: 'spacing', label: 'Отступы сверху и снизу', hint: 'Расстояние до соседних блоков. По умолчанию — как в письме' }
@@ -4579,12 +4643,11 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
   };
 
   const MB_WIDTH = 600;
-  const okWidth = (v) => (Number.isInteger(v) && v >= 320 && v <= 1000 ? v : MB_WIDTH);
   const S = {
     letter: null,
     file: '',
     raw: '',
-    width: okWidth(store.get('width', MB_WIDTH)),
+    width: MB_WIDTH,
     groups: [],
     opts: Object.assign({}, DEFAULTS, store.get('opts', {})),
     results: [],
@@ -4663,14 +4726,35 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         onSize(Math.max(d.body.scrollHeight, d.body.firstElementChild ? d.body.firstElementChild.scrollHeight : 0));
       } catch (e) {}
     };
-    f.addEventListener('load', () => {
-      measure();
+    let ready = null;
+    const waiting = [];
+    const check = () => {
+      let d;
       try {
-        for (const img of f.contentDocument.images) if (!img.complete) img.addEventListener('load', measure);
-      } catch (e) {}
+        d = f.contentDocument;
+      } catch (e) {
+        return true;
+      }
+      if (!d || d.URL !== 'about:srcdoc' || d.readyState === 'loading' || !d.body) return false;
+      if (ready === d) return true;
+      ready = d;
+      measure();
+      for (const img of d.images) if (!img.complete) img.addEventListener('load', measure);
+      for (const fn of waiting.splice(0)) fn(d);
+      return true;
+    };
+    let tries = 0;
+    const poll = () => {
+      if (!check() && ++tries < 300) setTimeout(poll, 30);
+    };
+    f.whenReady = (fn) => (ready ? fn(ready) : waiting.push(fn));
+    f.addEventListener('load', () => {
+      check();
+      measure();
       setTimeout(measure, 500);
     });
     f.srcdoc = doc;
+    setTimeout(poll, 0);
     return f;
   }
 
@@ -4808,18 +4892,19 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     drawPreview();
   }
 
-  function thumb(g, gi) {
+  function thumb(g) {
+    const gi = () => S.groups.indexOf(g);
     const box = h('div', {
       class: 'thumb',
       role: 'button',
       tabindex: '0',
       title: 'Посмотреть крупно',
       'aria-label': 'Посмотреть блок ' + groupNums(g) + ' крупно',
-      onclick: () => openPreview(gi),
+      onclick: () => openPreview(gi()),
       onkeydown: (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          openPreview(gi);
+          openPreview(gi());
         }
       }
     });
@@ -4838,7 +4923,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return box;
   }
 
-  function openLetter(src, name, keep) {
+  function openLetter(src, name) {
     let L;
     try {
       L = E.loadLetter(src, { width: S.width });
@@ -4846,13 +4931,12 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       return fail('Не удалось прочитать письмо. Проверьте, что это HTML письма целиком, от <html> до </html>. Подробности: ' + e.message);
     }
     if (!L.blocks.length) return fail('В письме не нашлось блоков. Проверьте, что это HTML письма целиком.');
-    const old = keep && S.letter && S.letter.list.length === L.list.length ? S.groups : null;
     S.letter = L;
     S.raw = src;
     S.file = name || 'письмо';
     S.results = [];
     S.cur = 0;
-    S.groups = old || L.list.map((it) => ({ ids: [it.index], on: it.sameAs == null && !it.templated }));
+    S.groups = L.list.map((it) => ({ ids: [it.index], on: it.sameAs == null && !it.templated }));
     $('#drop').hidden = true;
     $('#intro').hidden = true;
     $('#paste-box').hidden = true;
@@ -4875,12 +4959,9 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
   }
 
   function fitNote(f) {
-    const std = f.to === 600 ? 'стандартная ширина мастер-шаблона для нового конструктора' : 'ширина из поля «Ширина в Mindbox»';
-    return 'Письмо шире (' + f.from + ' px), чем ' + std + ' (' + f.to + ' px). ' +
-      (f.scaled
-        ? 'Ширина блоков будет уменьшена до ' + f.to + ' px: сначала за счёт пустых полей слева и справа, затем пропорционально уменьшится ширина колонок и картинок, чтобы колонки остались в один ряд. Шрифты и отступы сверху и снизу не изменятся. '
-        : 'Ширина блоков будет уменьшена до ' + f.to + ' px за счёт пустых полей слева и справа. Содержимое, шрифты и отступы не изменятся. ') +
-      'Если результат не подходит, укажите другую ширину в поле «Ширина в Mindbox» или измените ширину в исходном HTML-файле.';
+    return 'Текущее письмо шире (' + f.from + ' px), чем стандартная ширина мастер-шаблона для нового конструктора (' + f.to + ' px). ' +
+      'Ширина письма будет изменена автоматически путём уменьшения пустых полей слева и справа' + (f.scaled ? ', а затем пропорционального уменьшения колонок и картинок' : '') + '. ' +
+      'Если результат вас не устроил, измените ширину самостоятельно в исходном HTML-файле.';
   }
 
   function renderInfo() {
@@ -4889,15 +4970,8 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       h('span', null, 'Письмо: ', h('b', null, S.file)),
       h('span', { class: 'muted' }, 'Нашлось блоков: ' + L.blocks.length),
       h('button', { type: 'button', class: 'link', onclick: reset }, 'Взять другое письмо'),
-      h('label', { class: 'width-pick', title: 'Блоки в Mindbox — 600 px, как в примерах справки Mindbox' }, 'Ширина в Mindbox ',
-        h('input', { type: 'number', min: '320', max: '1000', step: '10', value: String(S.width), onchange: (e) => {
-          S.width = okWidth(Math.round(Number(e.target.value)));
-          e.target.value = String(S.width);
-          store.set('width', S.width);
-          openLetter(S.raw, S.file, true);
-        } }), ' px'),
       L.fit ? h('div', { class: 'fit-note' }, fitNote(L.fit)) : null,
-      L.splits.length ? h('div', { class: 'auto-split' }, L.splits.map(splitNote).join('. ') + '. Вид письма от этого не меняется.') : null].filter(Boolean));
+      L.splits.length ? h('div', { class: 'auto-split' }, L.splits.map(splitNote).join('. ') + '.') : null].filter(Boolean));
   }
 
   function fail(text) {
@@ -4932,52 +5006,82 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
 
   const isTemplated = (g) => g.ids.some((i) => S.letter.list[i].templated);
 
+  function joinable(gi) {
+    const g = S.groups[gi];
+    const next = S.groups[gi + 1];
+    return !!(next && !isTemplated(g) && !isTemplated(next) && S.letter.list[g.ids[g.ids.length - 1]].mergeNext);
+  }
+
+  function blockCard(g, gi) {
+    const at = () => S.groups.indexOf(g);
+    const items = g.ids.map((i) => S.letter.list[i]);
+    const first = items[0];
+    const templated = isTemplated(g);
+    const card = h('div', { class: 'bcard ' + (g.on ? 'on' : 'off') });
+    const cb = h('input', {
+      type: 'checkbox',
+      checked: g.on,
+      disabled: templated,
+      onchange: () => {
+        g.on = cb.checked;
+        syncSelection();
+      }
+    });
+    g.cb = cb;
+    card.append(h('label', { class: 'bhead' }, cb, h('span', null,
+      h('span', { class: 'bnum' }, groupNums(g) + '. '),
+      h('span', { class: 'btitle' }, groupTitle(g)),
+      first.category ? h('span', { class: 'bcat' }, first.category) : null)));
+    const chips = h('div', { class: 'chips' });
+    for (const c of chipsFor(items)) chips.append(h('span', { class: 'chip' }, c));
+    for (const it of items) {
+      if (it.sameAs != null) chips.append(h('span', { class: 'chip warn', title: 'Обычно достаточно одного из двух блоков: фон можно поменять в конструкторе, если включено «Цвета и фон»' }, 'Как блок ' + (it.sameAs + 1) + ', только фон другой'));
+    }
+    if (templated) chips.append(h('span', { class: 'chip warn' }, 'Уже размечен для Mindbox'));
+    if (chips.childNodes.length) card.append(chips);
+    card.append(thumb(g));
+    const acts = h('div', { class: 'bactions' });
+    acts.append(h('button', { type: 'button', class: 'link', onclick: () => openPreview(at()) }, 'Посмотреть крупно'));
+    if (g.ids.length > 1) acts.append(h('button', { type: 'button', class: 'link', onclick: () => split(at()) }, 'Отменить склейку'));
+    if (g.ids.length === 1 && !templated && first.parts > 1) {
+      acts.append(h('button', { type: 'button', class: 'link', onclick: () => cut(at()) }, 'Разделить на ' + parts(first.parts)));
+    }
+    if (joinable(gi)) {
+      acts.append(h('button', { type: 'button', class: 'link', onclick: () => merge(at()) }, 'Склеить со следующим (' + (S.groups[gi + 1].ids[0] + 1) + ')'));
+    }
+    if (acts.childNodes.length) card.append(acts);
+    return card;
+  }
+
   function renderBlocks() {
     const box = $('#blocks');
-    box.replaceChildren();
-    S.groups.forEach((g, gi) => {
-      const items = g.ids.map((i) => S.letter.list[i]);
-      const first = items[0];
-      const templated = isTemplated(g);
-      const card = h('div', { class: 'bcard ' + (g.on ? 'on' : 'off') });
-      const cb = h('input', {
-        type: 'checkbox',
-        checked: g.on,
-        disabled: templated,
-        onchange: () => {
-          g.on = cb.checked;
-          syncSelection();
-        }
-      });
-      g.card = card;
-      g.cb = cb;
-      card.append(h('label', { class: 'bhead' }, cb, h('span', null,
-        h('span', { class: 'bnum' }, groupNums(g) + '. '),
-        h('span', { class: 'btitle' }, groupTitle(g)),
-        first.category ? h('span', { class: 'bcat' }, first.category) : null)));
-      const chips = h('div', { class: 'chips' });
-      for (const c of chipsFor(items)) chips.append(h('span', { class: 'chip' }, c));
-      for (const it of items) {
-        if (it.sameAs != null) chips.append(h('span', { class: 'chip warn', title: 'Обычно достаточно одного из двух блоков: фон можно поменять в конструкторе, если включено «Цвета и фон»' }, 'Как блок ' + (it.sameAs + 1) + ', только фон другой'));
+    const want = S.groups.map((g, gi) => {
+      const key = g.ids.join('+') + '|' + (joinable(gi) ? S.groups[gi + 1].ids[0] : '');
+      if (!g.card || g.cardKey !== key || g.cardOf !== S.letter) {
+        g.card = blockCard(g, gi);
+        g.cardKey = key;
+        g.cardOf = S.letter;
       }
-      if (templated) chips.append(h('span', { class: 'chip warn' }, 'Уже размечен для Mindbox'));
-      if (chips.childNodes.length) card.append(chips);
-      card.append(thumb(g, gi));
-      const acts = h('div', { class: 'bactions' });
-      acts.append(h('button', { type: 'button', class: 'link', onclick: () => openPreview(gi) }, 'Посмотреть крупно'));
-      if (g.ids.length > 1) acts.append(h('button', { type: 'button', class: 'link', onclick: () => split(gi) }, 'Отменить склейку'));
-      if (g.ids.length === 1 && !templated && first.parts > 1) {
-        acts.append(h('button', { type: 'button', class: 'link', title: 'Разделить блок по строкам на отдельные блоки. Вид письма не изменится.', onclick: () => cut(gi) }, 'Разделить на ' + parts(first.parts)));
-      }
-      const next = S.groups[gi + 1];
-      const last = g.ids[g.ids.length - 1];
-      if (next && !templated && !isTemplated(next) && S.letter.list[last].mergeNext) {
-        acts.append(h('button', { type: 'button', class: 'link', title: 'Сделать из этого и следующего блока один блок для Mindbox', onclick: () => merge(gi) }, 'Склеить в единый блок со следующим (' + (next.ids[0] + 1) + ')'));
-      }
-      if (acts.childNodes.length) card.append(acts);
-      box.append(card);
+      return g.card;
+    });
+    for (const c of [...box.children]) if (!want.includes(c)) c.remove();
+    want.forEach((c, i) => {
+      if (box.children[i] !== c) box.insertBefore(c, box.children[i] || null);
     });
     syncSelection();
+  }
+
+  function keepPlace(was, g, fn) {
+    const top = was && was.isConnected ? was.getBoundingClientRect().top : null;
+    fn();
+    const now = g.card;
+    if (!now) return;
+    if (top != null) window.scrollBy(0, now.getBoundingClientRect().top - top);
+    if (g.cb && !g.cb.disabled) g.cb.focus({ preventScroll: true });
+    now.classList.remove('just');
+    void now.offsetWidth;
+    now.classList.add('just');
+    setTimeout(() => now.classList.remove('just'), 1800);
   }
 
   function syncSelection() {
@@ -4995,16 +5099,21 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
   function merge(gi) {
     const a = S.groups[gi];
     const b = S.groups[gi + 1];
-    a.ids = a.ids.concat(b.ids);
-    a.on = true;
-    S.groups.splice(gi + 1, 1);
-    renderBlocks();
+    keepPlace(a.card, a, () => {
+      a.ids = a.ids.concat(b.ids);
+      a.on = true;
+      S.groups.splice(gi + 1, 1);
+      renderBlocks();
+    });
   }
 
   function split(gi) {
     const g = S.groups[gi];
-    S.groups.splice(gi, 1, ...g.ids.map((i) => ({ ids: [i], on: g.on })));
-    renderBlocks();
+    const singles = g.ids.map((i) => ({ ids: [i], on: g.on }));
+    keepPlace(g.card, singles[0], () => {
+      S.groups.splice(gi, 1, ...singles);
+      renderBlocks();
+    });
   }
 
   function cut(gi) {
@@ -5016,23 +5125,25 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       return toast(/^Блок \d+ нельзя/.test(e.message) ? e.message : 'Блок ' + (i + 1) + ' нельзя разделить: изменится вид письма.');
     }
     const added = L.list.length - S.letter.list.length;
-    const on = S.groups[gi].on;
+    const was = S.groups[gi];
+    const on = was.on;
     S.groups = S.groups.flatMap((g, k) => {
       if (k < gi) return [g];
       if (k === gi) return Array.from({ length: added + 1 }, (_, t) => ({ ids: [i + t], on }));
       return [{ ids: g.ids.map((x) => x + added), on: g.on }];
     });
+    for (const g of S.groups.slice(0, gi)) if (g.cardOf === S.letter) g.cardOf = L;
     S.letter = L;
     S.results = [];
     S.cur = 0;
     $('#step-result').hidden = true;
     renderInfo();
-    renderBlocks();
+    keepPlace(was.card, S.groups[gi], renderBlocks);
     toast('Блок ' + (i + 1) + ' разделён на ' + parts(added + 1));
   }
 
-  function optsPanel(o, onChange) {
-    const box = h('div', { class: 'opts' });
+  function optsPanel(o, onChange, compact) {
+    const box = h('div', { class: compact ? 'opts compact' : 'opts' });
     const inputs = {};
     const sync = () => {
       inputs.equalHeight.disabled = !o.toggles;
@@ -5048,7 +5159,9 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         }
       });
       inputs[d.key] = cb;
-      box.append(h('label', { class: 'opt' }, cb, h('span', null, h('b', null, d.label), h('small', null, d.hint))));
+      box.append(compact
+        ? h('label', { class: 'opt', title: d.hint }, cb, h('span', null, d.label))
+        : h('label', { class: 'opt' }, cb, h('span', null, h('b', null, d.label), h('small', null, d.hint))));
     }
     sync();
     return box;
@@ -5069,6 +5182,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     if (!res.tune) res.tune = { skip: [], off: [], on: [], spares: {}, labels: {} };
     res.lists = [];
     res.fields = [];
+    res.base = null;
     try {
       const r0 = res.ids.length > 1 ? E.buildMerged(S.letter, res.ids, o) : E.buildBlock(S.letter, res.ids[0], o);
       res.r = r0;
@@ -5077,6 +5191,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       try {
         res.lists = E.itemLists(r0.html);
         const r1 = E.addSpares(r0, res.tune.spares);
+        res.base = r1;
         res.fields = r1.json;
         res.r = E.tuneBlock(r1, res.tune);
       } catch (e) {
@@ -5230,8 +5345,152 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
   const low = (s) => String(s).toLowerCase();
   const range = (nums) => (nums.length > 2 && nums[nums.length - 1] - nums[0] === nums.length - 1 ? nums[0] + '–' + nums[nums.length - 1] : nums.join(', '));
 
+  const SUBS = /\s—\s(ссылка|выделение)$/;
+  const DESIGN = new Set(['COLOR', 'BACKGROUND', 'NUMBER']);
+
+  function markTemplate(html) {
+    const tags = [];
+    const re = /<(\/?)([a-zA-Z][\w:-]*)\b[^>]*>/g;
+    let m;
+    while ((m = re.exec(html))) tags.push({ at: m.index, end: m.index + m[0].length, name: m[2].length + 1, tag: m[2].toLowerCase(), close: !!m[1] });
+    const VOID = /^(br|img|hr|meta|link|input|col|source|wbr|area|base)$/;
+    const marks = new Map();
+    const add = (t, key, name) => {
+      if (!t) return;
+      const x = marks.get(t) || { mb: new Set(), mbt: new Set() };
+      x[key].add(name);
+      marks.set(t, x);
+    };
+    const owner = (pos) => {
+      const inTag = tags.find((t) => t.at < pos && t.end > pos);
+      if (inTag) return inTag.close ? null : inTag;
+      let depth = 0;
+      for (let k = tags.length - 1; k >= 0; k--) {
+        const t = tags[k];
+        if (t.end > pos || VOID.test(t.tag)) continue;
+        if (t.close) depth++;
+        else if (depth) depth--;
+        else return t;
+      }
+      return null;
+    };
+    const expr = /\$\{[^}]*?\beditor\.(\w+)/g;
+    while ((m = expr.exec(html))) add(owner(m.index), 'mb', m[1]);
+    const cond = /@\{\s*if\s+editor\.(\w+)[^}]*\}/g;
+    while ((m = cond.exec(html))) {
+      const end = m.index + m[0].length;
+      const t = tags.find((x) => x.at >= end && !x.close);
+      add(t, 'mb', m[1]);
+      add(t, 'mbt', m[1]);
+    }
+    let out = html;
+    for (const [t, x] of [...marks].sort((a, b) => b[0].at - a[0].at)) {
+      const at = t.at + t.name;
+      const attrs = ' data-mb="' + [...x.mb].join(' ') + '"' + (x.mbt.size ? ' data-mbt="' + [...x.mbt].join(' ') + '"' : '');
+      out = out.slice(0, at) + attrs + out.slice(at);
+    }
+    return out;
+  }
+
+  function tuneTree(fields) {
+    const groups = [];
+    for (const p of fields) {
+      const g = groups.find((x) => x.group === p.group);
+      if (g) g.list.push(p);
+      else groups.push({ group: p.group, label: groupLabel(p.group), list: [p] });
+    }
+    const items = [];
+    const design = [];
+    for (const g of groups) {
+      if (g.list.every((p) => DESIGN.has(p.type))) {
+        design.push({ label: g.label, labels: [g.label], fields: g.list });
+        continue;
+      }
+      const ownerLabel = g.label.replace(SUBS, '');
+      const cut = ownerLabel.indexOf(' — ');
+      const top = cut < 0 ? ownerLabel : ownerLabel.slice(0, cut);
+      const part = cut < 0 ? null : ownerLabel.slice(cut + 3);
+      let it = items.find((x) => x.label === top);
+      if (!it) {
+        it = { label: top, own: { labels: [], fields: [] }, parts: [] };
+        items.push(it);
+      }
+      let slot = it.own;
+      if (part) {
+        slot = it.parts.find((x) => x.label === part);
+        if (!slot) {
+          slot = { label: part, labels: [], fields: [] };
+          it.parts.push(slot);
+        }
+      }
+      slot.labels.push(g.label);
+      slot.fields.push(...g.list);
+    }
+    return { items, design };
+  }
+
+  function tunePreview(res, styles, bodyStyle) {
+    const base = res.base || res.r;
+    const tuned = new Map(res.r.json.map((p) => [p.name, p]));
+    const state = {};
+    const dim = [];
+    for (const p of base.json) {
+      if (p.type !== 'DISPLAY_TOGGLE') continue;
+      state[p.name] = 'true';
+      const q = tuned.get(p.name);
+      if (String(q ? q.defaultValue : p.defaultValue) !== 'true') dim.push(p.name);
+    }
+    const box = h('div', { class: 'tune-frame' });
+    const api = { el: box, frame: null, pick: null };
+    let out;
+    try {
+      out = E.renderTemplate(markTemplate(base.html), base.json, state);
+    } catch (e) {
+      box.append(h('div', { class: 'error-box' }, 'Не удалось показать превью блока. Подробности: ' + e.message));
+      api.light = () => {};
+      return api;
+    }
+    const css = '<style>[data-mb]{cursor:pointer}' + dim.map((n) => '[data-mbt~="' + n + '"]{opacity:.35}').join('') +
+      '.mb-hl{outline:3px solid #e4002b!important;outline-offset:1px}tr.mb-hl>td{box-shadow:inset 0 0 0 3px #e4002b}</style>';
+    const f = fitFrame(box, pageDoc(out, styles, bodyStyle).replace('</head>', css + '</head>'));
+    api.frame = f;
+    f.whenReady((d) => {
+      d.addEventListener('click', (e) => {
+        const el = e.target.closest && e.target.closest('[data-mb]');
+        if (!el) return;
+        e.preventDefault();
+        if (api.pick) api.pick(el.getAttribute('data-mb').split(' '));
+      });
+    });
+    let lastLight = 0;
+    api.light = (names, scroll) => {
+      const n = ++lastLight;
+      f.whenReady((d) => {
+        if (n === lastLight) paint(d, names, scroll);
+      });
+    };
+    const paint = (d, names, scroll) => {
+      for (const x of d.querySelectorAll('.mb-hl')) x.classList.remove('mb-hl');
+      let first = null;
+      for (const n of names || []) {
+        for (const x of d.querySelectorAll('[data-mb~="' + n + '"]')) {
+          x.classList.add('mb-hl');
+          if (!first) first = x;
+        }
+      }
+      if (first && scroll) {
+        const sc = f.getBoundingClientRect().height / (f.offsetHeight || 1);
+        const y = first.getBoundingClientRect().top * sc;
+        const view = box.closest('.tune-side');
+        if (view && (y < view.scrollTop || y > view.scrollTop + view.clientHeight - 40)) view.scrollTo({ top: Math.max(0, y - 40), behavior: 'smooth' });
+      }
+    };
+    return api;
+  }
+
   function tunePane(res) {
     const t = res.tune;
+    if (!res.open) res.open = new Set();
     const apply = () => {
       res.state = {};
       buildOne(res);
@@ -5246,21 +5505,22 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     };
     const box = h('div', { class: 'tune' });
 
-    box.append(...[h('h3', null, 'Что можно менять в этом блоке'),
-      h('p', { class: 'hint' }, res.own ? 'У этого блока свои настройки, общие настройки шага 3 на него не действуют.' : 'Сейчас — как в шаге 3. Если изменить здесь, изменится только этот блок.'),
-      optsPanel(res.opts, () => {
-        res.own = true;
-        apply();
-      }),
-      res.own ? h('button', {
-        type: 'button',
-        class: 'link',
-        onclick: () => {
-          res.own = false;
-          res.opts = Object.assign({}, S.opts);
-          apply();
-        }
-      }, 'Вернуть общие настройки') : null].filter(Boolean));
+    const head = h('div', { class: 'tune-opts-head' }, h('b', null, 'Что можно менять в этом блоке'),
+      res.own
+        ? h('span', { class: 'muted' }, 'свои настройки · ', h('button', {
+          type: 'button',
+          class: 'link',
+          onclick: () => {
+            res.own = false;
+            res.opts = Object.assign({}, S.opts);
+            apply();
+          }
+        }, 'Вернуть общие'))
+        : h('span', { class: 'muted' }, 'как в общих настройках'));
+    box.append(h('div', { class: 'tune-opts' }, head, optsPanel(res.opts, () => {
+      res.own = true;
+      apply();
+    }, true)));
 
     if (res.r.failed) return box;
     if (res.r.templated) {
@@ -5268,78 +5528,132 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       return box;
     }
 
+    const fields = res.fields;
+    const pv = tunePreview(res, S.letter.styles, S.letter.bodyStyle);
+    const side = h('div', { class: 'tune-side' }, h('p', { class: 'tune-cap' }, 'Нажмите на элемент, чтобы найти его настройку.'), pv.el);
+    const list = h('div', { class: 'tune-list' });
+    const rows = [];
+    const light = (row, scroll) => pv.light(row ? row.names : null, scroll);
+    const bindRow = (row, names, kind) => {
+      row.names = names;
+      row.kind = kind;
+      rows.push(row);
+      row.addEventListener('mouseenter', () => light(row));
+      row.addEventListener('mouseleave', () => light(null));
+      row.addEventListener('focusin', () => light(row, true));
+      return row;
+    };
+
     if (res.lists.length) {
-      box.append(h('h3', null, 'Запасные карточки'),
-        h('p', { class: 'hint' }, 'Запасные карточки добавляются в блок скрытыми. В конструкторе их можно включить, как остальные. Новых карточек в конструкторе добавить нельзя — только включить запасные.'));
-      const ul = h('div', { class: 'spares' });
+      const sp = h('div', { class: 'tune-spares' });
       for (const l of res.lists) {
         const kind = R.kinds[l.kind] || { plural: l.kind };
         const row = l.layout === 'row';
-        const inp = h('input', {
-          type: 'number',
-          min: '0',
-          max: '10',
-          value: String(t.spares[l.id] || 0),
-          onchange: () => {
-            const n = Math.max(0, Math.min(10, parseInt(inp.value || '0', 10) || 0));
-            if (n) t.spares[l.id] = n;
-            else delete t.spares[l.id];
-            apply();
-          }
-        });
-        ul.append(h('label', { class: 'spare' },
-          h('span', null, h('b', null, cap(kind.plural) + ' ' + range(l.nums)), h('small', null, row ? 'в ряд по ' + l.perRow + '. Запасные добавляются рядами под последним рядом, ряд включается переключателем «Дополнительный ряд»' : 'друг под другом. Запасные добавляются под последней')),
-          inp,
-          h('span', null, row ? 'рядов' : 'шт.')));
+        const n = t.spares[l.id] || 0;
+        const set = (v) => {
+          v = Math.max(0, Math.min(10, v));
+          if (v) t.spares[l.id] = v;
+          else delete t.spares[l.id];
+          apply();
+        };
+        sp.append(h('div', { class: 'spare' },
+          h('span', { class: 'spare-what' }, cap(kind.plural) + ' ' + range(l.nums), h('small', null, row ? 'по ' + l.perRow + ' в ряд' : 'друг под другом')),
+          h('span', { class: 'spare-label' }, row ? 'Запасных рядов' : 'Запасных'),
+          h('span', { class: 'stepper' },
+            h('button', { type: 'button', class: 'btn', 'aria-label': 'Меньше', disabled: n === 0 || null, onclick: () => set(n - 1) }, '−'),
+            h('output', null, String(n)),
+            h('button', { type: 'button', class: 'btn', 'aria-label': 'Больше', disabled: n >= 10 || null, onclick: () => set(n + 1) }, '+'))));
       }
-      box.append(ul);
+      list.append(h('div', { class: 'tune-sec' }, h('h4', null, 'Запасные карточки'),
+        h('p', { class: 'hint' }, 'Запасные добавляются скрытыми: маркетолог включит их в конструкторе, когда понадобятся.'), sp));
     }
 
-    const fields = res.fields;
-    if (!fields.length) return box;
-    const shown = (p) => {
-      if (has(t.off, p.name)) return false;
-      if (has(t.on, p.name)) return true;
-      return String(p.defaultValue) === 'true';
-    };
-    box.append(h('h3', null, 'Поля в конструкторе'),
-      h('p', { class: 'hint' }, 'Снимите галочку — поля не будет в конструкторе, в блоке останется значение из письма. Название группы — подпись, которую маркетолог увидит в конструкторе.'));
-    const tb = h('tbody');
-    const groups = [];
-    for (const p of fields) {
-      const g = groups.find((x) => x.group === p.group);
-      if (g) g.list.push(p);
-      else groups.push({ group: p.group, list: [p] });
+    if (!fields.length) {
+      box.append(h('div', { class: 'tune-grid' }, side, list));
+      return box;
     }
+
     const accepted = res.r.renamed || [];
     const shownLabel = (label) => {
       const k = accepted.includes(label) ? label : accepted.find((x) => label.startsWith(x + ' — '));
       return k ? t.labels[k] + label.slice(k.length) : label;
     };
-    for (const g of groups) {
-      const label = groupLabel(g.group);
-      const on = g.list.filter((p) => !has(t.skip, p.name)).length;
-      const all = h('input', {
-        type: 'checkbox',
-        checked: on === g.list.length,
-        'aria-label': 'Все поля группы «' + label + '»',
+    const tree = tuneTree(fields);
+    const allLabels = fields.map((p) => groupLabel(p.group));
+
+    const chips = (list0) => {
+      const plain = list0.filter((p) => p.type !== 'DISPLAY_TOGGLE');
+      if (!plain.length) return null;
+      const box0 = h('span', { class: 'fchips' });
+      const cnt = {};
+      for (const p of plain) cnt[typeRu(p)] = (cnt[typeRu(p)] || 0) + 1;
+      const seen = {};
+      for (const p of plain) {
+        const k = typeRu(p);
+        seen[k] = (seen[k] || 0) + 1;
+        const on = !has(t.skip, p.name);
+        const val = shortVal(p);
+        const color = p.type === 'COLOR' ? String(p.defaultValue) : p.type === 'BACKGROUND' && p.defaultValue && p.defaultValue.type === 'color' ? p.defaultValue.color : '';
+        const sw = /^#/.test(color) ? h('i', { class: 'sw', style: 'background:' + color }) : null;
+        const text = sw ? color
+          : p.type === 'BACKGROUND' ? val
+            : p.type === 'NUMBER' && /^spacing_(top|bottom)$/.test(p.name) ? low(numLabel(p)) + ' ' + p.defaultValue + ' px'
+              : cnt[k] > 1 ? k + ' ' + seen[k] : k;
+        const b = h('button', {
+          type: 'button',
+          class: 'fchip',
+          'aria-pressed': String(on),
+          title: (on ? 'Меняется в конструкторе' : 'Как в письме') + (val && !sw ? ': ' + val : ''),
+          onclick: () => {
+            t.skip = put(t.skip, p.name, on);
+            apply();
+          }
+        }, sw, text);
+        box0.append(b);
+      }
+      return box0;
+    };
+
+    const showSel = (p) => {
+      if (!p) return null;
+      const natural = String(p.defaultValue) === 'true';
+      const skip = has(t.skip, p.name);
+      const hidden = has(t.off, p.name) ? true : has(t.on, p.name) ? false : !natural;
+      const cur = skip ? 'fixed' : hidden ? 'hidden' : 'shown';
+      const opts = natural
+        ? [['shown', 'Можно скрыть'], ['hidden', 'Скрыто по умолчанию'], ['fixed', 'Всегда видно']]
+        : [['hidden', 'Скрыто по умолчанию'], ['shown', 'Можно скрыть']];
+      const sel = h('select', {
+        class: 'vis' + (cur === 'hidden' ? ' is-hidden' : cur === 'fixed' ? ' is-fixed' : ''),
+        'aria-label': 'Показывать',
         onchange: () => {
-          for (const p of g.list) t.skip = put(t.skip, p.name, !all.checked);
+          const v = sel.value;
+          t.skip = put(t.skip, p.name, v === 'fixed');
+          t.off = put(t.off, p.name, v === 'hidden' && natural);
+          t.on = put(t.on, p.name, v === 'shown' && !natural);
           apply();
         }
-      });
-      all.indeterminate = on > 0 && on < g.list.length;
-      const name = h('input', {
-        class: 'glabel',
+      }, opts.map(([v, txt]) => h('option', { value: v, selected: v === cur || null }, txt)));
+      return sel;
+    };
+
+    const toggleOf = (slot) => slot.fields.find((p) => p.type === 'DISPLAY_TOGGLE' && slot.labels.includes(groupLabel(p.group)) && !SUBS.test(groupLabel(p.group)));
+    const names = (slot) => slot.fields.map((p) => p.name);
+    const itemNames = (it) => names(it.own).concat(...it.parts.map(names));
+
+    const renameInput = (label) => {
+      const inp = h('input', {
+        class: 'el-title',
         value: shownLabel(label),
         spellcheck: 'false',
-        'aria-label': 'Название группы',
+        title: 'Название в конструкторе: ' + shownLabel(label) + '. Нажмите, чтобы изменить',
+        'aria-label': 'Название «' + label + '» в конструкторе',
         onchange: () => {
-          const v = name.value.replace(/\s+/g, ' ').trim();
-          const taken = groups.some((x) => x !== g && [groupLabel(x.group), t.labels[groupLabel(x.group)]].includes(v));
+          const v = inp.value.replace(/\s+/g, ' ').trim();
+          const taken = allLabels.some((x) => x !== label && !x.startsWith(label + ' — ') && (x === v || shownLabel(x) === v));
           if (taken) {
-            name.value = shownLabel(label);
-            return toast('Группа «' + v + '» уже есть в этом блоке.');
+            inp.value = shownLabel(label);
+            return toast('Название «' + v + '» уже есть в этом блоке.');
           }
           if (v === shownLabel(label)) return;
           if (!v || v === label) delete t.labels[label];
@@ -5347,51 +5661,110 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
           apply();
         }
       });
-      tb.append(h('tr', { class: 'g' }, h('td', null, all), h('td', { colspan: '2' }, name)));
-      for (const p of g.list) {
-        const skip = has(t.skip, p.name);
-        const cb = h('input', {
-          type: 'checkbox',
-          checked: !skip,
-          'aria-label': 'Менять в конструкторе: ' + label + ', ' + typeRu(p),
-          onchange: () => {
-            t.skip = put(t.skip, p.name, !cb.checked);
-            apply();
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') inp.blur();
+      });
+      return inp;
+    };
+
+    if (tree.items.length) {
+      const sec = h('div', { class: 'tune-sec' }, h('h4', null, 'Элементы блока'),
+        h('p', { class: 'hint' }, 'Поле в рамке маркетолог сможет менять в конструкторе. Нажмите на поле, чтобы оставить его как в письме. Названия можно изменить: так они будут подписаны в конструкторе.'));
+      const many = tree.items.filter((it) => it.parts.length).length > 3;
+      for (const it of tree.items) {
+        const key = it.label;
+        const open = it.parts.length && (res.open.has(key) || (!many && !res.open.has('-' + key)));
+        const el = h('div', { class: 'el' + (open ? ' open' : '') });
+        const own = toggleOf(it.own);
+        const chev = it.parts.length ? h('button', {
+          type: 'button',
+          class: 'chev',
+          'aria-expanded': String(!!open),
+          'aria-label': (open ? 'Свернуть' : 'Развернуть') + ' «' + it.label + '»',
+          onclick: () => {
+            res.open.delete(open ? key : '-' + key);
+            res.open.add(open ? '-' + key : key);
+            renderView();
           }
-        });
-        let extra = null;
-        if (p.type === 'DISPLAY_TOGGLE') {
-          const hide = h('input', {
-            type: 'checkbox',
-            checked: !shown(p),
-            disabled: skip || null,
-            onchange: () => {
-              const natural = String(p.defaultValue) === 'true';
-              t.off = put(t.off, p.name, hide.checked && natural);
-              t.on = put(t.on, p.name, !hide.checked && !natural);
-              apply();
-            }
-          });
-          extra = h('label', { class: 'hide' }, hide, 'скрыто сразу');
+        }) : h('span', { class: 'chev-gap' });
+        const headRow = bindRow(h('div', { class: 'el-row el-head' },
+          chev,
+          it.own.labels.length || it.parts.length ? renameInput(it.label) : h('span', { class: 'el-title' }, it.label),
+          showSel(toggleOf(it.own)),
+          chips(it.own.fields),
+          !open && it.parts.length ? h('span', { class: 'el-sum muted' }, it.parts.map((x) => x.label).join(', ')) : null), own ? [own.name] : itemNames(it), 'head');
+        headRow.dataset.key = key;
+        el.append(headRow);
+        if (open) {
+          const ps = h('div', { class: 'el-parts' });
+          for (const part of it.parts) {
+            ps.append(bindRow(h('div', { class: 'el-row' },
+              h('span', { class: 'el-name' }, part.label),
+              showSel(toggleOf(part)),
+              chips(part.fields)), names(part), 'part'));
+          }
+          el.append(ps);
         }
-        tb.append(h('tr', { class: skip ? 'off' : null },
-          h('td', null, cb),
-          h('td', null, typeRu(p)),
-          h('td', { class: 'val' }, extra || shortVal(p))));
+        sec.append(el);
       }
+      list.append(sec);
     }
-    box.append(h('table', { class: 'ptable tune-fields' }, h('thead', null, h('tr', null, h('th', null, 'Менять'), h('th', null, 'Что это'), h('th', null, 'В письме'))), tb));
+
+    if (tree.design.length) {
+      const sec = h('div', { class: 'tune-sec' }, h('h4', null, 'Цвета и отступы'));
+      for (const d of tree.design) {
+        sec.append(bindRow(h('div', { class: 'el-row flat' },
+          renameInput(d.label),
+          chips(d.fields)), names(d), 'design'));
+      }
+      list.append(sec);
+    }
+
     const changed = t.skip.length + t.off.length + t.on.length + Object.keys(t.labels).length + Object.keys(t.spares).length;
     if (changed) {
-      box.append(h('button', {
+      list.append(h('button', {
         type: 'button',
         class: 'link',
         onclick: () => {
           res.tune = { skip: [], off: [], on: [], spares: {}, labels: {} };
           apply();
         }
-      }, 'Вернуть все поля и убрать запасные карточки'));
+      }, 'Сбросить настройку полей и запасные карточки'));
     }
+
+    const flashRow = (row) => {
+      row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      row.classList.remove('just');
+      void row.offsetWidth;
+      row.classList.add('just');
+      light(row);
+    };
+    const findRow = (picked) => {
+      const hit = (r) => r.names.some((n) => picked.includes(n));
+      return rows.find((r) => r.kind === 'part' && hit(r)) || rows.find((r) => r.kind === 'head' && hit(r)) || rows.find((r) => r.kind === 'design' && hit(r));
+    };
+    pv.pick = (picked) => {
+      const it = tree.items.find((x) => x.parts.length && !res.open.has(x.label) && itemNames(x).some((n) => picked.includes(n)) && !rows.some((r) => r.kind === 'part' && r.names.some((n) => picked.includes(n))));
+      if (it && !list.querySelector('.el-row.el-head[data-key="' + CSS.escape(it.label) + '"] + .el-parts')) {
+        res.open.delete('-' + it.label);
+        res.open.add(it.label);
+        res.pickAfter = picked;
+        renderView();
+        return;
+      }
+      const row = findRow(picked);
+      if (row) flashRow(row);
+    };
+    if (res.pickAfter) {
+      const picked = res.pickAfter;
+      res.pickAfter = null;
+      setTimeout(() => {
+        const row = findRow(picked);
+        if (row) flashRow(row);
+      }, 50);
+    }
+
+    box.append(h('div', { class: 'tune-grid' }, side, list));
     return box;
   }
 
