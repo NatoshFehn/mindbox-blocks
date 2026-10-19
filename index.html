@@ -664,7 +664,7 @@ details.own .opts { margin-top: 10px; }
         <span>или <button type="button" class="link" id="pick">выберите файл</button>, или <button type="button" class="link" id="paste-open">вставьте код</button></span>
         <input type="file" id="file" accept=".html,.htm,text/html" hidden>
       </div>
-      <p id="intro" class="hint intro">Инструмент разрежет письмо на блоки и к каждому сделает JSON для нового конструктора Mindbox. Вёрстка остаётся как в письме. Письмо никуда не отправляется — всё работает на вашем компьютере.</p>
+      <p id="intro" class="hint intro">Инструмент разделит письмо на блоки и к каждому подготовит JSON для нового конструктора Mindbox. Письмо никуда не отправляется — всё работает на вашем компьютере.</p>
       <div id="paste-box" class="paste-box" hidden>
         <textarea id="paste" spellcheck="false" placeholder="Вставьте сюда код письма целиком — от <html> до </html>"></textarea>
         <div class="row"><button type="button" id="paste-go" class="btn primary">Разобрать письмо</button><button type="button" id="paste-cancel" class="btn">Отмена</button></div>
@@ -675,7 +675,7 @@ details.own .opts { margin-top: 10px; }
     <div id="pick-area" class="pick-area" hidden>
       <div class="step" id="step-blocks">
         <h2><span class="num">2</span>Какие блоки нужны</h2>
-        <p class="hint">Отметьте блоки, которые нужны в Mindbox. Нажмите на картинку блока, чтобы рассмотреть его крупно. «Склеить в единый блок» делает из соседних блоков один, большой блок можно разделить по строкам. Вёрстка письма от этого не меняется.</p>
+        <p class="hint">Отметьте блоки, которые нужны в Mindbox. Нажмите на картинку блока, чтобы рассмотреть его крупно. Соседние блоки можно склеить в один, большой блок — разделить по строкам. Вид письма от этого не меняется.</p>
         <div class="toolbar">
           <span class="muted">Отметить:</span>
           <button type="button" class="btn" data-sel="all">Все</button>
@@ -687,9 +687,9 @@ details.own .opts { margin-top: 10px; }
 
       <div class="step" id="step-opts">
         <h2><span class="num">3</span>Что можно будет менять в конструкторе</h2>
-        <p class="hint">Выбор запоминается. Потом его можно поменять для одного блока.</p>
+        <p class="hint">Выбор запоминается. Для отдельного блока его можно поменять, когда блоки будут готовы.</p>
         <div id="opts"></div>
-        <p class="never">Вёрстку, ширину и скругления инструмент не трогает, фон не придумывает, отступы делает только сверху и снизу.</p>
+        <p class="never">Ширина, скругления углов и боковые отступы в конструкторе не меняются: от них зависит вёрстка. Отступы — только сверху и снизу, до соседних блоков.</p>
       </div>
 
       <div class="make-bar">
@@ -725,8 +725,8 @@ details.own .opts { margin-top: 10px; }
       </ol>
       <h3>Чего инструмент не делает — специально</h3>
       <ul>
-        <li>Не меняет вёрстку. После разметки блок выглядит точно как в письме — это проверяется автоматически.</li>
-        <li>Не делает настраиваемыми ширину и скругления углов.</li>
+        <li>Не меняет вёрстку. Исключение — письмо шире 600 px: ширина блоков уменьшается до 600 px. Каждый готовый блок сравнивается с письмом, результат — на вкладке «Проверка».</li>
+        <li>Не даёт менять в конструкторе ширину и скругления углов: от них зависит вёрстка.</li>
         <li>Не придумывает фон: прозрачный блок остаётся прозрачным.</li>
         <li>Отступы — только сверху и снизу, до соседних блоков. По умолчанию — как в письме.</li>
         <li>Не отмечает блок, который повторяет соседний и отличается только фоном.</li>
@@ -1824,7 +1824,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       let def = h.value;
       if (role === 'unsubscribe' && (def === '' || def === '#')) {
         def = RULES.unsubscribeDefault;
-        notes.push('Ссылка отписки: по умолчанию подставлена ' + RULES.unsubscribeDefault + '.');
+        notes.push('Ссылка отписки в письме пустая, поэтому в конструкторе по умолчанию стоит стандартная ссылка отписки Mindbox: ' + RULES.unsubscribeDefault + '.');
       }
       const p = addParam({ name: nameBase, type: 'SIMPLE_TEXT', link: true, defaultValue: def, pos: h.vStart }, g);
       rep(h.vStart, h.vEnd, '${editor.' + p.name + '}');
@@ -2094,7 +2094,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const colorVal = bgc && bgc.value ? bgc.value.trim() : decl ? (decl.value.match(HEX_RE) || [''])[0] : '';
       const styleVal = decl ? (decl.value.match(HEX_RE) || [''])[0] : '';
       const twoColors = bgc && bgc.value && styleVal && normHex(bgc.value.trim()).toLowerCase() !== normHex(styleVal).toLowerCase();
-      if (twoColors) notes.push('Фон не сделан настраиваемым: в письме у него два разных цвета — bgcolor ' + bgc.value.trim() + ' и background-color ' + styleVal + '. Оставьте в письме один цвет, и фон можно будет менять.');
+      if (twoColors) notes.push('Фон блока нельзя будет поменять в конструкторе: в письме у фона два разных цвета, ' + bgc.value.trim() + ' и ' + styleVal + '. Чтобы фон можно было менять, оставьте в исходном HTML-файле один цвет.');
       else if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(colorVal)) {
         const p = addParam({ name: 'background', type: 'BACKGROUND', defaultValue: { type: 'color', color: normHex(colorVal) }, pos: plate.start }, g);
         if (bgc && bgc.vStart != null) rep(bgc.vStart, bgc.vEnd, '${editor.' + p.name + '.color}');
@@ -2174,7 +2174,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         const pb = addParam({ name: 'spacing_bottom', type: 'NUMBER', defaultValue: String(r.bottom), pos: Number.MAX_SAFE_INTEGER - 1 }, g);
         for (const e of r.edits) edits.push({ start: e.start, end: e.end, text: e.text.replace('{T}', '${editor.' + pt.name + '}').replace('{B}', '${editor.' + pb.name + '}'), kind: 'rep', depth: 0 });
         if (r.note) notes.push(r.note);
-      } else notes.push('Отступы сверху и снизу не сделаны: у блока нет внешней ячейки с отступом.');
+      } else notes.push('Отступы сверху и снизу для этого блока недоступны: их некуда добавить, не меняя вёрстку.');
     }
 
     const toggleUnits = [];
@@ -2309,7 +2309,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
             h += x;
           }
           if (h != null && h > 0) placeholder = placeholderFor(u, h);
-          if (!placeholder) notes.push(g.label + ': высоту не вычислить, при скрытии карточка станет ниже соседних.');
+          if (!placeholder) notes.push('Если скрыть «' + g.label + '», карточка станет ниже соседних: высоту этой части не удаётся определить.');
         }
         wrapToggle(u, span, 'show_' + a.prefix, g, placeholder);
       }
@@ -2452,7 +2452,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         const close = td.openEnd - 1;
         edits.push({ start: close, end: close, text: ' style="padding:{T}px 0 {B}px;"' });
       }
-      note = 'У блока не было внешних отступов: добавлены отступы сверху и снизу со значением 0.';
+      note = 'В письме у блока нет отступов сверху и снизу, поэтому в конструкторе они по умолчанию равны 0.';
     }
     return { top, bottom, edits, note };
   }
@@ -2761,7 +2761,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
           if (/^if\s+editor\./i.test(b)) err('cond', 'После ' + tk.s + ' сразу должен идти HTML-тег, а идёт ' + (next.t === 'stmt' ? 'другое условие ' + next.s : 'текст') + '. Mindbox: «' + RULES.errors.conditionStart + '»');
           else if (!(next.t === 'stmt' && /^(if|for)\b/i.test(next.body))) {
             entry.noted = true;
-            warn('cond', 'Условие ' + tk.s + ' было в письме до нас: оно показывает разный текст разным получателям. Сразу после него идёт текст, а Mindbox ждёт там тег и может не принять блок: «' + RULES.errors.conditionStart + '» Если не примет — в HTML оберните текст после @{if …} и после @{else} в <span>…</span>: вид письма не изменится.');
+            warn('cond', 'Условие письма ' + tk.s + ' показывает разный текст разным получателям. Сразу после условия идёт текст, а не HTML-тег, и Mindbox может не принять блок с ошибкой «' + RULES.errors.conditionStart + '» В этом случае в исходном HTML-файле оберните текст после @{if …} и после @{else} в <span>…</span> — вид письма не изменится.');
           }
         }
       } else if (/^else\b/i.test(b)) {
@@ -2800,14 +2800,14 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       if (c.type === 'el' && !firstEl) firstEl = c;
     }
     if (!marker) warn('marker', 'Перед блоком нет метки \x3C!-- EDITOR_BLOCK_TEMPLATE: имя -->.');
-    if (firstEl && firstEl.tag !== 'table') warn('table', 'Блок лучше обернуть в <table>: сейчас снаружи <' + firstEl.tag + '>.');
+    if (firstEl && firstEl.tag !== 'table') warn('table', 'Блок начинается с <' + firstEl.tag + '>, а не с <table>, как обычно в письмах. Проверьте, как блок выглядит в конструкторе Mindbox на компьютере и на телефоне.');
     let pText = false;
     walk(doc, (n) => {
       if (n.type === 'el' && n.tag === 'p' && /\$\{editor\./.test(html.slice(n.start, n.end))) pText = true;
     });
-    if (pText) warn('p', 'Текст внутри <p>: в документации Mindbox вывод текста в <p> не поддерживается, нужен <div>.');
-    if (firstEl && /min-width\s*:\s*[1-9]/i.test(html.slice(firstEl.start, firstEl.openEnd))) warn('minwidth', 'У внешней таблицы min-width: блок не сожмётся на телефоне.');
-    if (!out.some((x) => x.level === 'error')) ok('ok', 'Ошибок, которые знает Mindbox, нет.');
+    if (pText) warn('p', 'Текст стоит внутри тега <p>. По документации Mindbox текст из полей конструктора в <p> не выводится: замените <p> на <div> в исходном HTML-файле.');
+    if (firstEl && /min-width\s*:\s*[1-9]/i.test(html.slice(firstEl.start, firstEl.openEnd))) warn('minwidth', 'У внешней таблицы блока задана минимальная ширина (min-width): на телефоне блок не сожмётся и будет шире экрана. Уберите min-width в исходном HTML-файле.');
+    if (!out.some((x) => x.level === 'error')) ok('ok', 'Ошибок, на которые обычно отвечает Mindbox, не найдено.');
     return out;
   }
 
@@ -2948,7 +2948,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     try {
       rendered = renderTemplate(html, json, {});
     } catch (e) {
-      return { equal: false, diff: 'Не удалось подставить значения: ' + e.message };
+      return { equal: false, diff: 'Не удалось сравнить блок с письмом: превью с настройками по умолчанию не строится. Подробности: ' + e.message };
     }
     const a = canon(original);
     const b = canon(rendered);
@@ -3770,7 +3770,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     sub.list[0].suggested = suggestName(sub.blocks[0], analyze(sub.src, sub.doc, sub.blocks[0], {}), sub.src);
     const opt = Object.assign({}, options || {});
     const r = buildBlock(sub, 0, opt);
-    r.notes.unshift('Склеены блоки ' + indices.map((i) => i + 1).join(', ') + ': отступы между ними сохранены пустыми строками нужной высоты.');
+    r.notes.unshift('Расстояния между склеенными блоками ' + indices.map((i) => i + 1).join(', ') + ' сохраняются пустыми строками той же высоты.');
     r.merged = indices.slice();
     return r;
   }
@@ -3789,7 +3789,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
   function splitBlock(letter, index) {
     const b = letter.blocks[index];
     const plan = b && !letter.list[index].templated && b.source !== 'marker' ? splitPlan(letter.src, b.node) : null;
-    if (!plan) throw new Error('Блок ' + (index + 1) + ' нельзя разделить, не меняя вёрстку.');
+    if (!plan) throw new Error('Блок ' + (index + 1) + ' нельзя разделить: изменится вид письма.');
     const next = loadLetter(rewriteSplit(letter.src, letter.blocks, index, plan), { auto: false });
     next.original = letter.original;
     next.fit = letter.fit;
@@ -3920,11 +3920,12 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     { key: 'colors', label: 'Цвета и фон', hint: 'Цвет текста, кнопок, плашек и фона — только те, что есть в письме' },
     { key: 'itemToggles', label: 'Скрывать карточки целиком', hint: 'Карточку, пункт, телефон, соцсеть — одной галочкой' },
     { key: 'toggles', label: 'Скрывать части', hint: 'Отдельно картинку, кнопку, заголовок, текст' },
-    { key: 'equalHeight', label: 'Карточки одной высоты', hint: 'Скрыли часть карточки — соседние не сдвигаются' },
-    { key: 'spacing', label: 'Отступы сверху и снизу', hint: 'Расстояние до соседних блоков. Сначала — как в письме' }
+    { key: 'equalHeight', label: 'Карточки одной высоты', hint: 'Если скрыть часть карточки, соседние карточки не сдвинутся' },
+    { key: 'spacing', label: 'Отступы сверху и снизу', hint: 'Расстояние до соседних блоков. По умолчанию — как в письме' }
   ];
   const DEFAULTS = { texts: true, images: true, links: true, colors: true, itemToggles: true, toggles: true, equalHeight: true, spacing: true };
   const STATUS = { ok: 'Готово', warn: 'Есть замечание', err: 'Не примет' };
+  const LEVEL = { error: 'Mindbox не примет. ', err: 'Mindbox не примет. ', warn: 'Замечание. ' };
   const TYPE_RU = {
     TEXT: 'текст', SIMPLE_TEXT: 'текст', URL: 'ссылка', IMAGE: 'картинка', ALT: 'alt картинки', ICON: 'иконка',
     COLOR: 'цвет', BACKGROUND: 'фон', DISPLAY_TOGGLE: 'показывать', NUMBER: 'число, px', COLLECTION: 'набор товаров'
@@ -4215,7 +4216,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     try {
       L = E.loadLetter(src, { width: S.width });
     } catch (e) {
-      return fail('Не получилось прочитать письмо: ' + e.message);
+      return fail('Не удалось прочитать письмо. Проверьте, что это HTML письма целиком, от <html> до </html>. Подробности: ' + e.message);
     }
     if (!L.blocks.length) return fail('В письме не нашлось блоков. Проверьте, что это HTML письма целиком.');
     const old = keep && S.letter && S.letter.list.length === L.list.length ? S.groups : null;
@@ -4240,9 +4241,19 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
   const parts = (n) => n + ' ' + (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 'части' : 'частей');
 
   function splitNote(x) {
-    if (x.reason === 'header') return (x.title ? '«' + x.title + '»' : 'Первый блок') + ': шапка была склеена с баннером или текстом — разделили на ' + parts(x.parts);
-    if (x.reason === 'em') return 'Блок, где строки размечены как отдельные блоки (em="block"), разделили на ' + parts(x.parts);
-    return 'Строки, которые не попадали ни в один блок, стали отдельными блоками: ' + x.parts;
+    const name = x.title ? 'Блок «' + x.title + '»' : 'Первый блок';
+    if (x.reason === 'header') return name + ' разделён на ' + parts(x.parts) + ': в письме шапка сверстана одной таблицей с баннером или текстом';
+    if (x.reason === 'em') return name + ' разделён на ' + parts(x.parts) + ' по разметке старого конструктора Mindbox: каждая его строка отмечена там как отдельный блок';
+    return 'Логотип, баннер и другие строки, которые в письме лежат вне блоков, вынесены в отдельные блоки: ' + plural(x.parts, 'блок', 'блока', 'блоков');
+  }
+
+  function fitNote(f) {
+    const std = f.to === 600 ? 'стандартная ширина мастер-шаблона для нового конструктора' : 'ширина из поля «Ширина в Mindbox»';
+    return 'Письмо шире (' + f.from + ' px), чем ' + std + ' (' + f.to + ' px). ' +
+      (f.scaled
+        ? 'Ширина блоков будет уменьшена до ' + f.to + ' px: сначала за счёт пустых полей слева и справа, затем пропорционально уменьшится ширина колонок и картинок, чтобы колонки остались в один ряд. Шрифты и отступы сверху и снизу не изменятся. '
+        : 'Ширина блоков будет уменьшена до ' + f.to + ' px за счёт пустых полей слева и справа. Содержимое, шрифты и отступы не изменятся. ') +
+      'Если результат не подходит, укажите другую ширину в поле «Ширина в Mindbox» или измените ширину в исходном HTML-файле.';
   }
 
   function renderInfo() {
@@ -4258,8 +4269,8 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
           store.set('width', S.width);
           openLetter(S.raw, S.file, true);
         } }), ' px'),
-      L.fit ? h('div', { class: 'fit-note' }, 'Письмо шире Mindbox: ' + L.fit.from + ' px. Блоки — ' + L.fit.to + ' px, как в мастер-шаблоне: лишние поля слева и справа убрали, содержимое как в письме.' + (L.fit.scaled ? ' Где содержимое само шире ' + L.fit.to + ' px, его ширины уменьшили пропорционально — иначе колонки встанут друг под друга. Шрифты и отступы сверху и снизу не меняли.' : '')) : null,
-      L.splits.length ? h('div', { class: 'auto-split' }, L.splits.map(splitNote).join('. ') + '. Вёрстка письма от этого не меняется.') : null);
+      L.fit ? h('div', { class: 'fit-note' }, fitNote(L.fit)) : null,
+      L.splits.length ? h('div', { class: 'auto-split' }, L.splits.map(splitNote).join('. ') + '. Вид письма от этого не меняется.') : null);
   }
 
   function fail(text) {
@@ -4324,7 +4335,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const chips = h('div', { class: 'chips' });
       for (const c of chipsFor(items)) chips.append(h('span', { class: 'chip' }, c));
       for (const it of items) {
-        if (it.sameAs != null) chips.append(h('span', { class: 'chip warn', title: 'Обычно такой блок не нужен: фон меняется в конструкторе' }, 'Как блок ' + (it.sameAs + 1) + ', только фон другой'));
+        if (it.sameAs != null) chips.append(h('span', { class: 'chip warn', title: 'Обычно достаточно одного из двух блоков: фон можно поменять в конструкторе, если включено «Цвета и фон»' }, 'Как блок ' + (it.sameAs + 1) + ', только фон другой'));
       }
       if (templated) chips.append(h('span', { class: 'chip warn' }, 'Уже размечен для Mindbox'));
       if (chips.childNodes.length) card.append(chips);
@@ -4333,7 +4344,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       acts.append(h('button', { type: 'button', class: 'link', onclick: () => openPreview(gi) }, 'Посмотреть крупно'));
       if (g.ids.length > 1) acts.append(h('button', { type: 'button', class: 'link', onclick: () => split(gi) }, 'Отменить склейку'));
       if (g.ids.length === 1 && !templated && first.parts > 1) {
-        acts.append(h('button', { type: 'button', class: 'link', title: 'Разрезать блок по строкам на отдельные блоки. Вёрстка письма не меняется.', onclick: () => cut(gi) }, 'Разделить на ' + parts(first.parts)));
+        acts.append(h('button', { type: 'button', class: 'link', title: 'Разделить блок по строкам на отдельные блоки. Вид письма не изменится.', onclick: () => cut(gi) }, 'Разделить на ' + parts(first.parts)));
       }
       const next = S.groups[gi + 1];
       const last = g.ids[g.ids.length - 1];
@@ -4379,7 +4390,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     try {
       L = E.splitBlock(S.letter, i);
     } catch (e) {
-      return toast(e.message);
+      return toast(/^Блок \d+ нельзя/.test(e.message) ? e.message : 'Блок ' + (i + 1) + ' нельзя разделить: изменится вид письма.');
     }
     const added = L.list.length - S.letter.list.length;
     const on = S.groups[gi].on;
@@ -4439,7 +4450,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         name: res.name || S.letter.list[res.ids[0]].suggested,
         html: '',
         json: [],
-        checks: [{ level: 'error', code: 'crash', text: 'Не получилось разметить блок: ' + e.message + '. Сохраните письмо — по нему инструмент доработают.' }],
+        checks: [{ level: 'error', code: 'crash', text: 'Блок не удалось разметить. Сохраните исходный HTML-файл письма: по нему можно найти и исправить ошибку инструмента. Подробности: ' + e.message }],
         same: { equal: true },
         notes: [],
         report: {},
@@ -4508,7 +4519,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     if (e) return { level: 'err', text: e.text };
     const w = r.checks.find((c) => c.level === 'warn');
     if (w) return { level: 'warn', text: w.text };
-    if (r.same && !r.same.equal) return { level: 'warn', text: r.same.diff || 'Вёрстка отличается от письма.' };
+    if (r.same && !r.same.equal) return { level: 'warn', text: r.same.diff || 'Блок с настройками по умолчанию выглядит не так, как в письме. Отличие — на вкладке «Проверка».' };
     return null;
   }
 
@@ -4549,7 +4560,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const issues = r.checks.filter((c) => c.level !== 'ok').length + (r.same && !r.same.equal ? 1 : 0);
     const fi = firstIssue(r);
     const alert = fi && S.sub !== 'check' ? h('div', { class: 'res-alert ' + fi.level },
-      h('b', null, fi.level === 'err' ? 'Mindbox не примет. ' : 'Замечание. '), fi.text, ' ',
+      h('b', null, LEVEL[fi.level]), fi.text, ' ',
       h('button', { type: 'button', class: 'link', onclick: () => {
         S.sub = 'check';
         renderView();
@@ -4610,7 +4621,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       try {
         out = E.renderTemplate(html, json, state);
       } catch (e) {
-        fw.replaceChildren(h('div', { class: 'error-box' }, 'Не получилось показать блок: ' + e.message));
+        fw.replaceChildren(h('div', { class: 'error-box' }, 'Не удалось показать превью блока. Подробности: ' + e.message));
         return;
       }
       fitFrame(fw, pageDoc(out, styles, bodyStyle));
@@ -4702,12 +4713,11 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
 
   function checksPane(r) {
     const ul = h('ul', { class: 'checks' });
-    const LV = { error: 'Mindbox не примет. ', warn: 'Посмотрите. ' };
-    for (const c of r.checks) ul.append(h('li', { class: c.level }, LV[c.level] ? h('b', null, LV[c.level]) : null, c.text));
+    for (const c of r.checks) ul.append(h('li', { class: c.level }, LEVEL[c.level] ? h('b', null, LEVEL[c.level]) : null, c.text));
     if (r.same) {
-      if (r.same.equal) ul.append(h('li', { class: 'ok' }, 'Вёрстка такая же, как в письме.'));
-      else if (r.same.diff) ul.append(h('li', { class: 'error' }, r.same.diff));
-      else ul.append(h('li', { class: 'warn' }, h('b', null, 'Вёрстка отличается от письма.'), ' Было: ', h('code', null, String(r.same.was)), ' Стало: ', h('code', null, String(r.same.now))));
+      if (r.same.equal) ul.append(h('li', { class: 'ok' }, S.letter && S.letter.fit ? 'Блок выглядит так же, как в письме, с поправкой на ширину ' + S.letter.fit.to + ' px.' : 'Блок выглядит так же, как в письме.'));
+      else if (r.same.diff) ul.append(h('li', { class: 'warn' }, h('b', null, LEVEL.warn), r.same.diff));
+      else ul.append(h('li', { class: 'warn' }, h('b', null, LEVEL.warn), 'Блок с настройками по умолчанию выглядит не так, как в письме. Сравните превью с письмом. Отличие в коде — было: ', h('code', null, String(r.same.was)), ', стало: ', h('code', null, String(r.same.now))));
     }
     for (const n of r.notes || []) ul.append(h('li', { class: 'note' }, n));
     return ul;
