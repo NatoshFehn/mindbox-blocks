@@ -444,7 +444,41 @@ h3 { margin: 18px 0 6px; font-size: 15px; }
   .result { grid-template-columns: minmax(0, 1fr); }
 }
 
-.res-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.res-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  display: grid;
+  gap: 3px;
+  align-content: start;
+  position: sticky;
+  top: 12px;
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+@media (max-width: 860px) {
+  .res-list { position: static; max-height: 46vh; }
+}
+
+.rnum {
+  flex: none;
+  min-width: 30px;
+  padding: 2px 7px;
+  border-radius: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 20px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
 
 .res-list button {
   width: 100%;
@@ -459,12 +493,17 @@ h3 { margin: 18px 0 6px; font-size: 15px; }
   align-items: center;
 }
 
-.res-list button[aria-current="true"] { background: var(--accent-soft); border-color: var(--accent); }
-.res-list button { align-items: flex-start; }
-.res-list .dot { margin-top: 5px; }
+.res-list button:hover { background: var(--panel); }
+.res-list button[aria-current="true"] { background: var(--accent-soft); border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+.res-list button[aria-current="true"] .rnum { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.res-list button { align-items: flex-start; color: var(--ink); }
+.res-list .dot { margin-top: 7px; margin-left: auto; }
 .res-list .rtext { display: grid; min-width: 0; }
-.res-list .rname { overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
-.res-list .rtitle { color: var(--muted); font-size: 12.5px; overflow-wrap: anywhere; }
+.res-list .rtitle { font-size: 13.5px; font-weight: 600; overflow-wrap: anywhere; }
+.res-list .rname { color: var(--muted); overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+.res-grid { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; margin: 0 0 10px; font-size: 13.5px; }
+.res-title { display: flex; gap: 10px; align-items: flex-start; margin: 0 0 10px; font-size: 18px; line-height: 26px; overflow-wrap: anywhere; }
+.res-title .rnum { font-size: 16px; line-height: 24px; min-width: 36px; background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .res-list .rstatus { font-size: 12.5px; font-weight: 600; }
 .rstatus.warn { color: var(--warn); }
 .rstatus.err { color: var(--err); }
@@ -585,7 +624,11 @@ pre.code i { color: var(--muted); }
 .tune { display: grid; gap: 14px; }
 .tune > .hint { margin: 0; }
 .tune-opts { padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
-.tune-opts-head { display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; margin-bottom: 8px; font-size: 14px; }
+.tune-opts-head { display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; font-size: 14px; cursor: pointer; list-style: none; }
+.tune-opts-head::-webkit-details-marker { display: none; }
+.tune-opts-head::before { content: ""; align-self: center; width: 6px; height: 6px; margin-right: 2px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(-45deg); transition: transform .15s; }
+.tune-opts[open] > .tune-opts-head { margin-bottom: 8px; }
+.tune-opts[open] > .tune-opts-head::before { transform: rotate(45deg); }
 .opts.compact { display: flex; flex-wrap: wrap; gap: 6px; }
 .opts.compact .opt { align-items: center; gap: 6px; padding: 3px 10px 3px 8px; border: 1px solid var(--line); border-radius: 999px; font-size: 13.5px; }
 .opts.compact .opt input { margin: 0; width: 15px; height: 15px; }
@@ -618,6 +661,13 @@ pre.code i { color: var(--muted); }
 .el-row.flat .el-title { max-width: none; }
 .el-row.flat > .fchips { grid-column: auto; justify-content: flex-end; }
 .el-parts .el-row > .fchips { grid-column: 1 / -1; padding-left: 7px; }
+.el-parts .el-row.el-head { grid-template-columns: 22px minmax(0, 1fr) auto; }
+.el-parts .el-row.el-head > .fchips, .el-parts .el-row.el-head > .el-sum { grid-column: 2 / -1; padding-left: 7px; }
+.tune-names { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
+.tune-names > summary { color: var(--muted); font-size: 13.5px; cursor: pointer; }
+.tune-names[open] > summary { margin-bottom: 4px; }
+.el-cap { margin: 8px 0 2px 6px; color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.el-cap:first-child { margin-top: 2px; }
 .el-row:hover, .el-row:focus-within { background: var(--accent-soft); }
 .el-row.just { animation: just-row 1.8s ease-out; }
 @keyframes just-row { 0%, 40% { background: var(--accent-soft); box-shadow: inset 0 0 0 2px var(--accent); } 100% { box-shadow: inset 0 0 0 2px transparent; } }
@@ -640,6 +690,7 @@ select.vis.is-hidden, select.vis.is-fixed { color: var(--muted); background: var
 .el-row.flat > .fchips { padding-left: 0; }
 .fchip { display: inline-flex; align-items: center; gap: 5px; padding: 1px 9px; border: 1px solid var(--accent); border-radius: 999px; background: var(--accent-soft); color: var(--ink); font: inherit; font-size: 12.5px; line-height: 1.6; cursor: pointer; }
 .fchip[aria-pressed="false"] { border-style: dashed; border-color: var(--line); background: transparent; color: var(--muted); text-decoration: line-through; }
+.fchip[aria-pressed="mixed"] { border-style: dashed; background: transparent; }
 .fchip:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .fchip .sw { width: 10px; height: 10px; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25); }
 
@@ -652,6 +703,7 @@ select.vis.is-hidden, select.vis.is-fixed { color: var(--muted); background: var
   .spare-label { display: none; }
   .el-row > select.vis { grid-column: 2 / -1; justify-self: start; margin-left: 7px; }
   .el-parts .el-row > select.vis { grid-column: 1 / -1; }
+  .el-parts .el-row.el-head > select.vis { grid-column: 2 / -1; }
 }
 
 .g-setup { display: grid; gap: 12px; }
@@ -816,7 +868,7 @@ select.vis.is-hidden, select.vis.is-fixed { color: var(--muted); background: var
         <span>или <button type="button" class="link" id="g-pick">выберите файл</button>, или <button type="button" class="link" id="g-paste-open">вставьте код</button></span>
         <input type="file" id="g-file" accept=".html,.htm,text/html" hidden>
       </div>
-      <p id="g-intro" class="hint intro">Блок с одинаковыми карточками товаров станет динамической товарной сеткой: товары в карточки подставит Mindbox. Все товары в сетке выглядят как первая карточка блока.</p>
+      <p id="g-intro" class="hint intro">Блок с одинаковыми карточками товаров станет динамической товарной сеткой: товары в карточки подставит Mindbox. Все товары в сетке выглядят как первая карточка блока. Загрузите письмо целиком: блоки с карточками найдутся сами, искать их в коде не нужно. Или нажмите «Сделать товарной сеткой» у готового блока на вкладке «Сделать блоки».</p>
       <p id="g-from-make-row" class="hint" hidden><button type="button" class="btn" id="g-from-make"></button></p>
       <div id="g-paste-box" class="paste-box" hidden>
         <textarea id="g-paste" spellcheck="false" placeholder="Вставьте сюда код письма или блока с карточками товаров"></textarea>
@@ -950,7 +1002,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       badge: 'плашка', button: 'кнопка', link: 'ссылка', phone: 'телефон', email: 'почта',
       website: 'сайт', legal: 'юридический текст', copyright: 'копирайт', unsubscribe: 'отписка',
       promocode: 'промокод', image: 'картинка', logo: 'логотип', icon: 'иконка', banner: 'баннер',
-      bgimage: 'фоновая картинка'
+      bgimage: 'фоновая картинка', marker: 'символ'
     },
     blockNames: {
       categories: [
@@ -985,6 +1037,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
   const SKIP_TREE = new Set(['style', 'script', 'title', 'head', 'meta', 'xml']);
   const DECOR_RE = /^[\s •·●▪■◦‣\-–—|\/\\*✓✔→←>]*$/u;
   const HEX_RE = /#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{3})(?![0-9a-zA-Z])/g;
+  const MARKER_RE = /^[•·●▪■◦‣\-–—*✓✔→★✦◆►]{1,3}$/u;
 
   const ENT = {
     nbsp: ' ', amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", laquo: '«', raquo: '»', mdash: '—', ndash: '–',
@@ -1744,6 +1797,25 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const its = items.filter((it) => isAncestor(it.el, a.attachedTo ? a.attachedTo.root : a.root)).sort((p, q) => q.el.depth - p.el.depth);
       a.item = its[0] || null;
     }
+    for (const it of items) {
+      if (it.kind !== 'item' && it.kind !== 'card' && it.kind !== 'step') continue;
+      walk(it.el, (x) => {
+        if (x.type === 'comment' || x.type === 'stmt') return false;
+        if (x.type === 'el' && (x.tag === 'a' || buttons.some((b) => isAncestor(b.root, x)))) return false;
+        if (x.type === 'el' && items.some((o) => o !== it && o.el === x)) return false;
+        if (x.type !== 'text' || !MARKER_RE.test(decode(src.slice(x.start, x.end)).replace(/[\s\u00a0]+/g, ''))) return;
+        const p = x.parent;
+        const own = p.children.filter((k) => !isWs(src, k));
+        if (own.length !== 1 || own[0] !== x || p === it.el) return;
+        if (content.some((a) => a.kind === 'text' && (a.container.el === p || isAncestor(a.container.el, p)))) return;
+        const i = p.children.indexOf(x);
+        const a = { kind: 'text', container: { el: p, from: i, to: i, whole: true }, root: p, pos: x.start, role: 'marker', marker: true, item: it, atomCount: 1 };
+        atoms.push(a);
+        content.push(a);
+        live.push(a);
+        it.atoms.push(a);
+      });
+    }
 
     return { rootEl, atoms, live, content, items, buttons, notes, countIn };
   }
@@ -1917,7 +1989,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const itemLabel = (it) => (it.parentItem ? itemLabel(it.parentItem) + ' — ' + RULES.kinds[it.kind].ru.toLowerCase() : RULES.kinds[it.kind].ru) + ' ' + it.n;
     const itemKey = (it) => (it.parentItem ? itemKey(it.parentItem) + '_' : '') + RULES.kinds[it.kind].en + '_' + it.n;
     for (const a of A.content.slice().sort((x, y) => x.pos - y.pos)) {
-      if (a.kind === 'text') a.role = textRole(src, a, block);
+      if (a.kind === 'text' && !a.marker) a.role = textRole(src, a, block);
       if (a.kind === 'image') a.role = imageRole(src, a, block, imgIndex++ === 0);
     }
     for (const a of A.content.slice().sort((x, y) => x.pos - y.pos)) {
@@ -2055,13 +2127,14 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       return rangeParam(s0, e0, nameBase, g);
     };
 
+    const markerAt = new Set(A.content.filter((a) => a.marker).map((a) => a.pos));
     const rangeParam = (s0, e0, nameBase, g) => {
       let s = s0;
       let e = e0;
       while (s < e && /[ \t\r\n]/.test(src[s])) s++;
       while (e > s && /[ \t\r\n]/.test(src[e - 1])) e--;
       const raw = src.slice(s, e);
-      if (!meaningfulText(raw)) return null;
+      if (!meaningfulText(raw) && !markerAt.has(s0)) return null;
       if (/[$@]\{/.test(raw)) return null;
       const plain = decode(raw.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '')).replace(/[ \t\r\n]+/g, ' ').trim();
       const rich = /<[a-z]/i.test(raw);
@@ -4939,7 +5012,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     S.file = name || 'письмо';
     S.results = [];
     S.cur = 0;
-    S.groups = L.list.map((it) => ({ ids: [it.index], on: it.sameAs == null && !it.templated }));
+    S.groups = L.list.map((it) => ({ ids: [it.index], on: !it.templated }));
     $('#drop').hidden = true;
     $('#intro').hidden = true;
     $('#paste-box').hidden = true;
@@ -5044,7 +5117,6 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     if (chips.childNodes.length) card.append(chips);
     card.append(thumb(g));
     const acts = h('div', { class: 'bactions' });
-    acts.append(h('button', { type: 'button', class: 'link', onclick: () => openPreview(at()) }, 'Посмотреть крупно'));
     if (g.ids.length > 1) acts.append(h('button', { type: 'button', class: 'link', onclick: () => split(at()) }, 'Отменить склейку'));
     if (g.ids.length === 1 && !templated && first.parts > 1) {
       acts.append(h('button', { type: 'button', class: 'link', onclick: () => cut(at()) }, 'Разделить на ' + parts(first.parts)));
@@ -5243,28 +5315,40 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return 'ok';
   }
 
-  const resTitle = (res) => res.ids.map((i) => (i + 1) + '. ' + (S.letter.list[i].title || 'Блок ' + (i + 1))).join(' + ');
+  const resNums = (res) => res.ids.map((i) => i + 1).join('+');
+  const resNames = (res) => res.ids.map((i) => S.letter.list[i].title || 'Блок ' + (i + 1)).join(' + ');
 
   function renderResults() {
     const list = $('#res-list');
+    const top = list.scrollTop;
     list.replaceChildren();
     const cnt = { ok: 0, warn: 0, err: 0 };
+    let current = null;
     S.results.forEach((res, i) => {
       const st = statusOf(res.r);
       cnt[st]++;
-      list.append(h('li', null, h('button', {
+      const btn = h('button', {
         type: 'button',
         'aria-current': String(i === S.cur),
         onclick: () => {
           S.cur = i;
           renderResults();
         }
-      }, h('span', { class: 'dot ' + st, role: 'img', 'aria-label': STATUS[st], title: STATUS[st] }),
+      }, h('span', { class: 'rnum' }, resNums(res)),
       h('span', { class: 'rtext' },
+        h('span', { class: 'rtitle' }, resNames(res)),
         h('span', { class: 'rname' }, res.r.name),
-        h('span', { class: 'rtitle' }, resTitle(res)),
-        st !== 'ok' ? h('span', { class: 'rstatus ' + st }, STATUS[st]) : null))));
+        st !== 'ok' ? h('span', { class: 'rstatus ' + st }, STATUS[st]) : null),
+      h('span', { class: 'dot ' + st, role: 'img', 'aria-label': STATUS[st], title: STATUS[st] }));
+      if (i === S.cur) current = btn;
+      list.append(h('li', null, btn));
     });
+    list.scrollTop = top;
+    if (current && list.scrollHeight > list.clientHeight) {
+      const a = current.getBoundingClientRect().top - list.getBoundingClientRect().top + list.scrollTop;
+      if (a < list.scrollTop) list.scrollTop = a - 4;
+      else if (a + current.offsetHeight > list.scrollTop + list.clientHeight) list.scrollTop = a + current.offsetHeight - list.clientHeight + 4;
+    }
     $('#result-sum').textContent = [plural(S.results.length, 'блок', 'блока', 'блоков') + ': готово ' + cnt.ok, cnt.warn ? 'с замечанием ' + cnt.warn : null, cnt.err ? 'Mindbox не примет ' + cnt.err : null].filter(Boolean).join(', ');
     renderView();
   }
@@ -5300,6 +5384,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       renderResults();
     });
     const jsonText = JSON.stringify(r.json, null, 2) + '\n';
+    const title = h('h3', { class: 'res-title' }, h('span', { class: 'rnum' }, resNums(res)), h('span', null, resNames(res)));
     const head = h('div', { class: 'res-head' },
       h('label', null, h('span', null, 'Название в Mindbox'), nameIn),
       h('span', { class: 'status ' + st }, STATUS[st]),
@@ -5309,12 +5394,14 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const toggles = r.json.filter((p) => p.type === 'DISPLAY_TOGGLE').length;
     const spares = (r.spares || []).reduce((n, s) => n + s.nums.length, 0);
     const sum = h('div', { class: 'res-sum' }, [
-      resTitle(res),
       'в конструкторе ' + plural(r.json.length - toggles, 'поле', 'поля', 'полей') + ' и ' + plural(toggles, 'переключатель', 'переключателя', 'переключателей') + ' «показывать»',
       r.pinned && r.pinned.length ? 'не меняются в конструкторе: ' + r.pinned.length : null,
       spares ? 'запасных: ' + spares : null,
       r.merged ? 'склеены блоки ' + r.merged.map((i) => i + 1).join(', ') : null
     ].filter(Boolean).join(' · '));
+    const toGridRow = !r.failed && gridable(res) ? h('div', { class: 'res-grid' },
+      h('button', { type: 'button', class: 'btn', onclick: () => gridFromBlock(res) }, 'Сделать товарной сеткой'),
+      h('span', { class: 'muted' }, 'в блоке повторяются карточки — товары в них подставит Mindbox')) : null;
     const issues = r.checks.filter((c) => c.level !== 'ok').length + (r.same && !r.same.equal ? 1 : 0);
     const fi = firstIssue(r);
     const alert = fi && S.sub !== 'check' ? h('div', { class: 'res-alert ' + fi.level },
@@ -5341,7 +5428,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     else if (S.sub === 'html') pane = codePane(r.html, 'HTML', r.name + '.html');
     else if (S.sub === 'json') pane = jsonPane(r.json, r.name);
     else pane = checksPane(r);
-    view.replaceChildren(...[head, sum, alert, sub, pane].filter(Boolean));
+    view.replaceChildren(...[title, head, sum, toGridRow, alert, sub, pane].filter(Boolean));
   }
 
   const typeRu = (p) => (p.type === 'SIMPLE_TEXT' && /_url(_\d+)?$/.test(p.name) ? 'ссылка' : TYPE_RU[p.type]) || p.type;
@@ -5432,6 +5519,112 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return { items, design };
   }
 
+  function tuneLayout(tree, fields, html) {
+    const kinds = Object.values(R.kinds);
+    const content = new Set(fields.filter((p) => !DESIGN.has(p.type) && p.type !== 'DISPLAY_TOGGLE').map((p) => p.name));
+    const slotOf = new Map();
+    const ownerOf = new Map();
+    const rows = [];
+    const plainOf = (slot) => slot.fields.filter((p) => p.type !== 'DISPLAY_TOGGLE');
+    const numOf = (it) => {
+      const m = /^(.+) (\d+)$/.exec(it.label);
+      const k = m && kinds.find((x) => x.ru === m[1]);
+      return k ? { kind: k, n: Number(m[2]) } : null;
+    };
+    const sig = (it) => it.parts.map((x) => x.label + ':' + plainOf(x).map(typeRu).join(',')).join('|') + '#' + plainOf(it.own).map(typeRu).join(',');
+    const keep = (slot, owner) => {
+      slot.design = [];
+      for (const p of slot.fields) slotOf.set(p.name, slot);
+      ownerOf.set(slot, owner);
+    };
+    for (let i = 0; i < tree.items.length;) {
+      const it = tree.items[i];
+      const a = numOf(it);
+      let j = i + 1;
+      while (a && j < tree.items.length && numOf(tree.items[j]) && numOf(tree.items[j]).kind === a.kind && sig(tree.items[j]) === sig(it)) j++;
+      if (a && j - i >= 2) {
+        const members = tree.items.slice(i, j);
+        const set = { type: 'set', kind: a.kind, members, key: 'set:' + it.label, head: { fields: [], design: [] }, parts: [] };
+        ownerOf.set(set.head, set);
+        for (const label of it.parts.length ? it.parts.map((x) => x.label) : [null]) {
+          const slots = members.map((m) => (label ? m.parts.find((x) => x.label === label) : m.own));
+          const sp = { label: label || typeRu(plainOf(it.own)[0] || it.own.fields[0]), slots, design: [] };
+          for (const x of slots) for (const q of x.fields) slotOf.set(q.name, sp);
+          ownerOf.set(sp, set);
+          set.parts.push(sp);
+        }
+        for (const m of members) {
+          if (it.parts.length) for (const q of m.own.fields) slotOf.set(q.name, set.head);
+          m.own.design = [];
+          for (const x of m.parts) x.design = [];
+        }
+        rows.push(set);
+        i = j;
+      } else {
+        const row = { type: 'item', it, key: it.label, head: it.own };
+        keep(it.own, row);
+        for (const part of it.parts) keep(part, row);
+        rows.push(row);
+        i++;
+      }
+    }
+    let marks = [];
+    try {
+      marks = [...new DOMParser().parseFromString('<!doctype html><html><body>' + markTemplate(html) + '</body></html>', 'text/html').querySelectorAll('[data-mb]')];
+    } catch (e) {
+      marks = [];
+    }
+    const at = new Map();
+    marks.forEach((el, k) => {
+      for (const n of el.getAttribute('data-mb').split(' ')) if (!at.has(n)) at.set(n, k);
+    });
+    const near = (name) => {
+      const out = new Set();
+      for (const el of marks) {
+        const list = el.getAttribute('data-mb').split(' ');
+        if (!list.includes(name)) continue;
+        let found = list.filter((n) => content.has(n));
+        if (!found.length) for (const k of el.querySelectorAll('[data-mb]')) found = found.concat(k.getAttribute('data-mb').split(' ').filter((n) => content.has(n)));
+        for (const n of found) out.add(n);
+      }
+      return out;
+    };
+    const block = { design: [] };
+    const extras = [];
+    const commons = new Map();
+    const kindOf = (o) => (o && o.type === 'item' && numOf(o.it) ? numOf(o.it).kind : null);
+    for (const d of tree.design) {
+      if (d.fields.every((q) => q.type === 'BACKGROUND' || /^spacing_(top|bottom)$/.test(q.name)) || / — блок( \d+)?$/.test(d.label)) {
+        block.design.push(...d.fields);
+        continue;
+      }
+      const found = new Set();
+      for (const q of d.fields) for (const n of near(q.name)) found.add(n);
+      const slots = [...new Set([...found].map((n) => slotOf.get(n)).filter(Boolean))];
+      const owners = [...new Set(slots.map((x) => ownerOf.get(x)))];
+      if (slots.length === 1) slots[0].design.push(...d.fields);
+      else if (owners.length === 1) owners[0].head.design.push(...d.fields);
+      else if (owners.length && owners.every((o) => kindOf(o) && kindOf(o) === kindOf(owners[0]))) {
+        const k = kindOf(owners[0]);
+        if (!commons.has(k)) commons.set(k, { type: 'common', kind: k, label: 'Все ' + k.plural, key: 'common:' + k.en, fields: [], at: Infinity });
+        const c = commons.get(k);
+        c.fields.push(...d.fields);
+        c.at = Math.min(c.at, ...owners.map((o) => rows.indexOf(o)));
+      } else if (found.size) block.design.push(...d.fields);
+      else extras.push({ type: 'extra', label: d.label.replace(/^Цвет линии/, 'Линия'), key: 'extra:' + d.label, fields: d.fields });
+    }
+    for (const c of [...commons.values()].sort((a, b) => b.at - a.at)) rows.splice(c.at, 0, c);
+    const pos = (list) => Math.min(...list.map((n) => (at.has(n) ? at.get(n) : Infinity)));
+    const namesOf = (r) => (r.type === 'set' ? [].concat(...r.members.map((m) => [].concat(...[m.own].concat(m.parts).map((x) => x.fields.map((q) => q.name)))))
+      : r.type === 'item' ? [].concat(...[r.it.own].concat(r.it.parts).map((x) => x.fields.map((q) => q.name))) : r.fields.map((q) => q.name));
+    for (const x of extras) {
+      const p0 = pos(namesOf(x));
+      const k = rows.findIndex((r) => pos(namesOf(r)) > p0);
+      rows.splice(k < 0 ? rows.length : k, 0, x);
+    }
+    return { block, rows };
+  }
+
   function tunePreview(res, styles, bodyStyle) {
     const base = res.base || res.r;
     const tuned = new Map(res.r.json.map((p) => [p.name, p]));
@@ -5508,7 +5701,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     };
     const box = h('div', { class: 'tune' });
 
-    const head = h('div', { class: 'tune-opts-head' }, h('b', null, 'Что можно менять в этом блоке'),
+    const head = h('summary', { class: 'tune-opts-head' }, h('b', null, 'Что можно менять в этом блоке'),
       res.own
         ? h('span', { class: 'muted' }, 'свои настройки · ', h('button', {
           type: 'button',
@@ -5520,10 +5713,14 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
           }
         }, 'Вернуть общие'))
         : h('span', { class: 'muted' }, 'как в общих настройках'));
-    box.append(h('div', { class: 'tune-opts' }, head, optsPanel(res.opts, () => {
+    const optsBox = h('details', { class: 'tune-opts', open: res.own || res.optsOpen || null }, head, optsPanel(res.opts, () => {
       res.own = true;
       apply();
-    }, true)));
+    }, true));
+    optsBox.addEventListener('toggle', () => {
+      res.optsOpen = optsBox.open;
+    });
+    box.append(optsBox);
 
     if (res.r.failed) return box;
     if (res.r.templated) {
@@ -5537,8 +5734,9 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const list = h('div', { class: 'tune-list' });
     const rows = [];
     const light = (row, scroll) => pv.light(row ? row.names : null, scroll);
-    const bindRow = (row, names, kind) => {
+    const bindRow = (row, names, kind, hits) => {
       row.names = names;
+      row.hits = hits || names;
       row.kind = kind;
       rows.push(row);
       row.addEventListener('mouseenter', () => light(row));
@@ -5584,61 +5782,115 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const tree = tuneTree(fields);
     const allLabels = fields.map((p) => groupLabel(p.group));
 
-    const chips = (list0) => {
+    const colorWord = (p, mode) => {
+      const l = low(groupLabel(p.group));
+      if (p.type === 'BACKGROUND') return 'фон';
+      if (mode === 'wide') return l.replace(/^цвет /, '');
+      const what = /^цвет фона/.test(l) ? 'фон' : /^цвет линии/.test(l) ? 'линия' : 'цвет';
+      const w = /начало градиента/.test(l) ? what + ': начало'
+        : /конец градиента/.test(l) ? what + ': конец'
+          : /, ссылка( \d+)?$/.test(l) ? 'цвет ссылки'
+            : /, выделение( \d+)?$/.test(l) ? 'цвет выделения' : what;
+      if (!mode || !mode.plural) return w;
+      const rest = (l.split(' — ')[1] || '').replace(/, (ссылка|выделение|начало градиента|конец градиента)( \d+)?$/, '').replace(mode.plural, '').replace(/^, /, '');
+      return rest ? rest + ': ' + w : w;
+    };
+    const chips = (list0, wide) => {
       const plain = list0.filter((p) => p.type !== 'DISPLAY_TOGGLE');
       if (!plain.length) return null;
       const box0 = h('span', { class: 'fchips' });
+      const texts = plain.map((p) => {
+        const color = p.type === 'COLOR' ? String(p.defaultValue) : p.type === 'BACKGROUND' && p.defaultValue && p.defaultValue.type === 'color' ? p.defaultValue.color : '';
+        return /^#/.test(color) ? colorWord(p, wide)
+          : p.type === 'BACKGROUND' ? 'фон'
+            : p.type === 'NUMBER' && /^spacing_(top|bottom)$/.test(p.name) ? low(numLabel(p)) + ' ' + p.defaultValue + ' px'
+              : typeRu(p);
+      });
       const cnt = {};
-      for (const p of plain) cnt[typeRu(p)] = (cnt[typeRu(p)] || 0) + 1;
+      for (const k of texts) cnt[k] = (cnt[k] || 0) + 1;
       const seen = {};
-      for (const p of plain) {
-        const k = typeRu(p);
+      plain.forEach((p, i) => {
+        const k = texts[i];
         seen[k] = (seen[k] || 0) + 1;
         const on = !has(t.skip, p.name);
         const val = shortVal(p);
         const color = p.type === 'COLOR' ? String(p.defaultValue) : p.type === 'BACKGROUND' && p.defaultValue && p.defaultValue.type === 'color' ? p.defaultValue.color : '';
         const sw = /^#/.test(color) ? h('i', { class: 'sw', style: 'background:' + color }) : null;
-        const text = sw ? color
-          : p.type === 'BACKGROUND' ? val
-            : p.type === 'NUMBER' && /^spacing_(top|bottom)$/.test(p.name) ? low(numLabel(p)) + ' ' + p.defaultValue + ' px'
-              : cnt[k] > 1 ? k + ' ' + seen[k] : k;
+        const text = cnt[k] > 1 ? k + ' ' + seen[k] : k;
         const b = h('button', {
           type: 'button',
           class: 'fchip',
           'aria-pressed': String(on),
-          title: (on ? 'Меняется в конструкторе' : 'Как в письме') + (val && !sw ? ': ' + val : ''),
+          title: (on ? 'Меняется в конструкторе' : 'Как в письме') + (DESIGN.has(p.type) ? ' · ' + groupLabel(p.group) : '') + (val && !sw ? ': ' + val : sw ? ': ' + color : ''),
           onclick: () => {
             t.skip = put(t.skip, p.name, on);
             apply();
           }
         }, sw, text);
         box0.append(b);
-      }
+      });
       return box0;
     };
 
-    const showSel = (p) => {
-      if (!p) return null;
+    const setChips = (sp) => {
+      const lists = sp.slots.map((x) => x.fields.filter((p) => p.type !== 'DISPLAY_TOGGLE'));
+      const box0 = h('span', { class: 'fchips' });
+      const cnt = {};
+      for (const p of lists[0]) cnt[typeRu(p)] = (cnt[typeRu(p)] || 0) + 1;
+      const seen = {};
+      lists[0].forEach((p, j) => {
+        const same = lists.map((l) => l[j]).filter(Boolean);
+        const k = typeRu(p);
+        seen[k] = (seen[k] || 0) + 1;
+        const on = same.filter((q) => !has(t.skip, q.name)).length;
+        const state = on === same.length ? 'true' : on ? 'mixed' : 'false';
+        box0.append(h('button', {
+          type: 'button',
+          class: 'fchip',
+          'aria-pressed': state,
+          title: state === 'true' ? 'Меняется в конструкторе во всех' : state === 'false' ? 'Как в письме во всех' : 'Меняется не во всех',
+          onclick: () => {
+            for (const q of same) t.skip = put(t.skip, q.name, state === 'true');
+            apply();
+          }
+        }, cnt[k] > 1 ? k + ' ' + seen[k] : k));
+      });
+      const d = chips(sp.design);
+      if (d) box0.append(...d.childNodes);
+      return box0.childNodes.length ? box0 : null;
+    };
+
+    const visOf = (p) => {
       const natural = String(p.defaultValue) === 'true';
-      const skip = has(t.skip, p.name);
       const hidden = has(t.off, p.name) ? true : has(t.on, p.name) ? false : !natural;
-      const cur = skip ? 'fixed' : hidden ? 'hidden' : 'shown';
-      const opts = natural
+      return has(t.skip, p.name) ? 'fixed' : hidden ? 'hidden' : 'shown';
+    };
+    const setVis = (p, v) => {
+      const natural = String(p.defaultValue) === 'true';
+      if (v === 'fixed' && !natural) v = 'shown';
+      t.skip = put(t.skip, p.name, v === 'fixed');
+      t.off = put(t.off, p.name, v === 'hidden' && natural);
+      t.on = put(t.on, p.name, v === 'shown' && !natural);
+    };
+    const visSel = (list) => {
+      list = list.filter(Boolean);
+      if (!list.length) return null;
+      const states = [...new Set(list.map(visOf))];
+      const cur = states.length === 1 ? states[0] : 'mixed';
+      const opts = list.some((p) => String(p.defaultValue) === 'true')
         ? [['shown', 'Можно скрыть'], ['hidden', 'Скрыто по умолчанию'], ['fixed', 'Всегда видно']]
         : [['hidden', 'Скрыто по умолчанию'], ['shown', 'Можно скрыть']];
       const sel = h('select', {
         class: 'vis' + (cur === 'hidden' ? ' is-hidden' : cur === 'fixed' ? ' is-fixed' : ''),
         'aria-label': 'Показывать',
         onchange: () => {
-          const v = sel.value;
-          t.skip = put(t.skip, p.name, v === 'fixed');
-          t.off = put(t.off, p.name, v === 'hidden' && natural);
-          t.on = put(t.on, p.name, v === 'shown' && !natural);
+          for (const p of list) setVis(p, sel.value);
           apply();
         }
-      }, opts.map(([v, txt]) => h('option', { value: v, selected: v === cur || null }, txt)));
+      }, (cur === 'mixed' ? [['mixed', 'По-разному']] : []).concat(opts).map(([v, txt]) => h('option', { value: v, selected: v === cur || null, disabled: v === 'mixed' || null }, txt)));
       return sel;
     };
+    const showSel = (p) => visSel([p]);
 
     const toggleOf = (slot) => slot.fields.find((p) => p.type === 'DISPLAY_TOGGLE' && slot.labels.includes(groupLabel(p.group)) && !SUBS.test(groupLabel(p.group)));
     const names = (slot) => slot.fields.map((p) => p.name);
@@ -5670,55 +5922,111 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       return inp;
     };
 
-    if (tree.items.length) {
+    const lay = tuneLayout(tree, fields, (res.base || res.r).html);
+    const allOf = (slot) => slot.fields.concat(slot.design || []);
+    const designNames = (slot) => (slot.design || []).map((p) => p.name);
+    const deepNames = (it) => itemNames(it).concat(designNames(it.own), ...it.parts.map(designNames));
+    const many = lay.rows.filter((r) => r.type === 'set' || (r.type === 'item' && r.it.parts.length)).length > 3;
+    const isOpen = (key, def) => res.open.has(key) || (def && !res.open.has('-' + key));
+    const shut = [];
+    const chevBtn = (key, open, label) => h('button', {
+      type: 'button',
+      class: 'chev',
+      'aria-expanded': String(!!open),
+      'aria-label': (open ? 'Свернуть' : 'Развернуть') + ' «' + label + '»',
+      onclick: () => {
+        res.open.delete(open ? key : '-' + key);
+        res.open.add(open ? '-' + key : key);
+        renderView();
+      }
+    });
+
+    const itemEl = (it, key, def, member) => {
+      const open = it.parts.length && isOpen(key, def);
+      if (it.parts.length && !open) shut.push({ key, names: deepNames(it), member });
+      const el = h('div', { class: 'el' + (open ? ' open' : '') + (member ? ' member' : '') });
+      const own = toggleOf(it.own);
+      const headRow = bindRow(h('div', { class: 'el-row el-head' },
+        it.parts.length ? chevBtn(key, open, it.label) : h('span', { class: 'chev-gap' }),
+        it.own.labels.length || it.parts.length ? renameInput(it.label) : h('span', { class: 'el-title' }, it.label),
+        showSel(own),
+        chips(allOf(it.own)),
+        !open && it.parts.length ? h('span', { class: 'el-sum muted' }, it.parts.map((x) => x.label).join(', ')) : null), own ? [own.name] : itemNames(it), 'head', deepNames(it));
+      headRow.dataset.key = key;
+      el.append(headRow);
+      if (open) {
+        const ps = h('div', { class: 'el-parts' });
+        for (const part of it.parts) {
+          ps.append(bindRow(h('div', { class: 'el-row' },
+            h('span', { class: 'el-name' }, part.label),
+            showSel(toggleOf(part)),
+            chips(allOf(part))), names(part), 'part', names(part).concat(designNames(part))));
+        }
+        el.append(ps);
+      }
+      return el;
+    };
+
+    const setEl = (set) => {
+      const title = cap(set.kind.plural) + ' ' + range(set.members.map((m) => Number(/(\d+)$/.exec(m.label)[1])));
+      const open = isOpen(set.key, true);
+      const all = [].concat(...set.members.map(deepNames)).concat(designNames(set.head), ...set.parts.map(designNames));
+      if (!open) shut.push({ key: set.key, names: all });
+      const el = h('div', { class: 'el set' + (open ? ' open' : '') });
+      const headRow = bindRow(h('div', { class: 'el-row el-head' },
+        chevBtn(set.key, open, title),
+        h('span', { class: 'el-title' }, title),
+        visSel(set.members.map((m) => toggleOf(m.own))),
+        chips(set.head.design),
+        h('span', { class: 'el-sum muted' }, open ? 'одинаковые: можно настроить сразу все' : set.parts.map((x) => x.label).join(', '))), [].concat(...set.members.map((m) => (toggleOf(m.own) ? [toggleOf(m.own).name] : itemNames(m)))), 'set', all);
+      headRow.dataset.key = set.key;
+      el.append(headRow);
+      if (open) {
+        const ps = h('div', { class: 'el-parts' }, h('div', { class: 'el-cap' }, 'Во всех сразу'));
+        for (const sp of set.parts) {
+          const all0 = [].concat(...sp.slots.map(names));
+          ps.append(bindRow(h('div', { class: 'el-row' },
+            h('span', { class: 'el-name' }, sp.label),
+            visSel(sp.slots.map(toggleOf)),
+            setChips(sp)), all0, 'part', all0.concat(designNames(sp))));
+        }
+        ps.append(h('div', { class: 'el-cap' }, 'По отдельности'));
+        for (const m of set.members) ps.append(itemEl(m, m.label, false, true));
+        el.append(ps);
+      }
+      return el;
+    };
+
+    if (lay.block.design.length || lay.rows.length) {
       const sec = h('div', { class: 'tune-sec' }, h('h4', null, 'Элементы блока'),
         h('p', { class: 'hint' }, 'Поле в рамке маркетолог сможет менять в конструкторе. Нажмите на поле, чтобы оставить его как в письме. Названия можно изменить: так они будут подписаны в конструкторе.'));
-      const many = tree.items.filter((it) => it.parts.length).length > 3;
-      for (const it of tree.items) {
-        const key = it.label;
-        const open = it.parts.length && (res.open.has(key) || (!many && !res.open.has('-' + key)));
-        const el = h('div', { class: 'el' + (open ? ' open' : '') });
-        const own = toggleOf(it.own);
-        const chev = it.parts.length ? h('button', {
-          type: 'button',
-          class: 'chev',
-          'aria-expanded': String(!!open),
-          'aria-label': (open ? 'Свернуть' : 'Развернуть') + ' «' + it.label + '»',
-          onclick: () => {
-            res.open.delete(open ? key : '-' + key);
-            res.open.add(open ? '-' + key : key);
-            renderView();
-          }
-        }) : h('span', { class: 'chev-gap' });
-        const headRow = bindRow(h('div', { class: 'el-row el-head' },
-          chev,
-          it.own.labels.length || it.parts.length ? renameInput(it.label) : h('span', { class: 'el-title' }, it.label),
-          showSel(toggleOf(it.own)),
-          chips(it.own.fields),
-          !open && it.parts.length ? h('span', { class: 'el-sum muted' }, it.parts.map((x) => x.label).join(', ')) : null), own ? [own.name] : itemNames(it), 'head');
-        headRow.dataset.key = key;
-        el.append(headRow);
-        if (open) {
-          const ps = h('div', { class: 'el-parts' });
-          for (const part of it.parts) {
-            ps.append(bindRow(h('div', { class: 'el-row' },
-              h('span', { class: 'el-name' }, part.label),
-              showSel(toggleOf(part)),
-              chips(part.fields)), names(part), 'part'));
-          }
-          el.append(ps);
-        }
-        sec.append(el);
+      if (lay.block.design.length) {
+        const bn = lay.block.design.map((p) => p.name);
+        sec.append(h('div', { class: 'el' }, bindRow(h('div', { class: 'el-row el-head' },
+          h('span', { class: 'chev-gap' }),
+          h('span', { class: 'el-title' }, 'Блок целиком'),
+          null,
+          chips(lay.block.design, 'wide')), bn, 'block')));
       }
-      list.append(sec);
-    }
-
-    if (tree.design.length) {
-      const sec = h('div', { class: 'tune-sec' }, h('h4', null, 'Цвета и отступы'));
-      for (const d of tree.design) {
-        sec.append(bindRow(h('div', { class: 'el-row flat' },
-          renameInput(d.label),
-          chips(d.fields)), names(d), 'design'));
+      for (const r of lay.rows) {
+        if (r.type === 'set') sec.append(setEl(r));
+        else if (r.type === 'item') sec.append(itemEl(r.it, r.key, !many));
+        else {
+          const xn = r.fields.map((p) => p.name);
+          sec.append(h('div', { class: 'el' }, bindRow(h('div', { class: 'el-row el-head' },
+            h('span', { class: 'chev-gap' }),
+            h('span', { class: 'el-title' }, r.label),
+            null,
+            chips(r.fields, r.type === 'common' ? r.kind : null)), xn, r.type === 'common' ? 'set' : 'head')));
+        }
+      }
+      if (tree.design.length) {
+        const names0 = h('details', { class: 'tune-names', open: res.namesOpen || null }, h('summary', null, 'Подписи цветов и отступов в конструкторе'));
+        names0.addEventListener('toggle', () => {
+          res.namesOpen = names0.open;
+        });
+        for (const d of tree.design) names0.append(bindRow(h('div', { class: 'el-row flat' }, renameInput(d.label)), names(d), 'design'));
+        sec.append(names0);
       }
       list.append(sec);
     }
@@ -5743,14 +6051,16 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       light(row);
     };
     const findRow = (picked) => {
-      const hit = (r) => r.names.some((n) => picked.includes(n));
-      return rows.find((r) => r.kind === 'part' && hit(r)) || rows.find((r) => r.kind === 'head' && hit(r)) || rows.find((r) => r.kind === 'design' && hit(r));
+      const hit = (r) => r.hits.some((n) => picked.includes(n));
+      return ['part', 'head', 'set', 'block'].reduce((found, k) => found || rows.find((r) => r.kind === k && hit(r)), null);
     };
     pv.pick = (picked) => {
-      const it = tree.items.find((x) => x.parts.length && !res.open.has(x.label) && itemNames(x).some((n) => picked.includes(n)) && !rows.some((r) => r.kind === 'part' && r.names.some((n) => picked.includes(n))));
-      if (it && !list.querySelector('.el-row.el-head[data-key="' + CSS.escape(it.label) + '"] + .el-parts')) {
-        res.open.delete('-' + it.label);
-        res.open.add(it.label);
+      const hit = (list0) => list0.some((n) => picked.includes(n));
+      const inPart = rows.some((r) => r.kind === 'part' && hit(r.hits));
+      const c = shut.find((x) => hit(x.names) && !(x.member && inPart));
+      if (c) {
+        res.open.delete('-' + c.key);
+        res.open.add(c.key);
         res.pickAfter = picked;
         renderView();
         return;
@@ -5900,7 +6210,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
   const SAME = { text: 'Одинаковый у всех товаров', image: 'Одинаковая у всех товаров', link: 'Одинаковая у всех товаров' };
   const WHAT_RU = { text: 'текст', image: 'картинка', link: 'ссылка' };
   const layoutText = (l) => (l.form === 'stack' ? 'друг под другом' : 'по ' + l.perRow + ' в ряд');
-  const candText = (c) => (c.i + 1) + '. ' + (c.title || 'Блок ' + (c.i + 1)) + ' — ' + c.lists.map((l) => plural(l.count, 'карточка', 'карточки', 'карточек') + ' ' + layoutText(l)).join('; ');
+  const candText = (c) => (c.nums || c.i + 1) + '. ' + (c.title || 'Блок ' + (c.i + 1)) + ' — ' + c.lists.map((l) => plural(l.count, 'карточка', 'карточки', 'карточек') + ' ' + layoutText(l)).join('; ');
   const plainText = (v) => {
     const t = document.createElement('template');
     t.innerHTML = String(v == null ? '' : v);
@@ -5941,7 +6251,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     gridSync();
   }
 
-  function gridOpen(src, name) {
+  function gridOpen(src, name, want) {
     let L;
     try {
       L = E.loadLetter(src, { width: S.width });
@@ -5962,6 +6272,19 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const lists = E.gridLists(r.html);
       if (lists.length) cands.push({ i, r, lists, title: it.title });
     });
+    let wanted = -1;
+    if (want && want.length > 1) {
+      try {
+        const r = E.buildMerged(L, want, Object.assign({}, DEFAULTS));
+        const lists = r.failed || r.templated ? [] : E.gridLists(r.html);
+        if (lists.length) {
+          cands.push({ i: want[0], nums: want.map((i) => i + 1).join('+'), r, lists, title: want.map((i) => L.list[i].title || 'Блок ' + (i + 1)).join(' + ') });
+          wanted = cands.length - 1;
+        }
+      } catch (e) {
+        wanted = -1;
+      }
+    } else if (want) wanted = cands.findIndex((c) => c.i === want[0]);
     Object.assign(G, { L, raw: src, file: name || 'письмо', cands });
     $('#g-drop').hidden = true;
     $('#g-intro').hidden = true;
@@ -5984,7 +6307,29 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       return;
     }
     const best = cands.findIndex((c) => c.lists.some((l) => l.kind === 'card' && E.gridFields(c.r, l.id).some((f) => f.role === 'ProductImageUrl')));
-    gridPick(best < 0 ? 0 : best);
+    gridPick(wanted >= 0 ? wanted : best < 0 ? 0 : best);
+  }
+
+  function gridable(res) {
+    const key = res.ids.join('+');
+    if (res.gridKey !== key || res.gridOf !== S.letter) {
+      res.gridKey = key;
+      res.gridOf = S.letter;
+      try {
+        const o = Object.assign({}, DEFAULTS);
+        const r = res.ids.length > 1 ? E.buildMerged(S.letter, res.ids, o) : E.buildBlock(S.letter, res.ids[0], o);
+        res.gridOk = !r.failed && !r.templated && E.gridLists(r.html).length > 0;
+      } catch (e) {
+        res.gridOk = false;
+      }
+    }
+    return res.gridOk;
+  }
+
+  function gridFromBlock(res) {
+    gridOpen(S.raw, S.file, res.ids);
+    showTab('grid');
+    window.scrollTo(0, 0);
   }
 
   function gridPick(ci, listId) {
@@ -6215,7 +6560,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       for (const g of S.groups) {
         const its = g.ids.map((i) => S.letter.list[i]);
         if (isTemplated(g)) g.on = false;
-        else if (mode === 'all') g.on = its.every((x) => x.sameAs == null);
+        else if (mode === 'all') g.on = true;
         else if (mode === 'none') g.on = false;
         else g.on = its.some((x) => /^(header|footer)/.test(x.suggested));
       }
