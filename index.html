@@ -597,6 +597,27 @@ pre.code i { color: var(--muted); }
   .tune-fields td, .tune-fields th { padding: 5px 4px; }
 }
 
+.g-setup { display: grid; gap: 12px; }
+.g-what { margin: 0; font-weight: 600; }
+.g-pick { display: grid; gap: 4px; max-width: 640px; font-size: 14px; }
+.g-pick span { color: var(--muted); }
+.g-setup select { width: 100%; max-width: 640px; border: 1px solid var(--line); border-radius: 7px; padding: 5px 8px; background: var(--panel); color: inherit; }
+.g-fields { margin: 0; }
+.g-fields td:first-child { white-space: nowrap; font-weight: 600; }
+.g-fields td:last-child { width: 300px; }
+.g-fields .val { max-width: 280px; }
+.g-thumb { display: block; max-width: 72px; max-height: 48px; border-radius: 4px; background: var(--code-bg); }
+.g-size { display: inline-flex; gap: 10px; align-items: center; font-size: 14px; }
+.g-size input { width: 70px; border: 1px solid var(--line); border-radius: 7px; padding: 3px 6px; background: var(--panel); color: inherit; }
+@media (max-width: 560px) {
+  .g-fields thead { display: none; }
+  .g-fields tr { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .g-fields td { border: none; padding: 0; }
+  .g-fields td:first-child { white-space: normal; }
+  .g-fields td:last-child { grid-column: 1 / -1; width: auto; }
+  .g-fields .val { max-width: none; }
+}
+
 .help { max-width: 760px; }
 .help li { margin: 4px 0; }
 .legend { list-style: none; padding: 0; }
@@ -665,6 +686,7 @@ pre.code i { color: var(--muted); }
     <button type="button" id="theme" class="theme" role="switch" aria-checked="false" aria-label="Тёмная тема" title="Тёмная тема: включить или выключить"><span class="sw" aria-hidden="true"></span><span class="theme-label">Тёмная тема</span></button>
     <nav class="tabs" role="tablist">
       <button type="button" role="tab" data-tab="make" aria-selected="true">Сделать блоки</button>
+      <button type="button" role="tab" data-tab="grid" aria-selected="false">Товарная сетка</button>
       <button type="button" role="tab" data-tab="help" aria-selected="false">Как это работает</button>
     </nav>
   </div>
@@ -728,6 +750,36 @@ pre.code i { color: var(--muted); }
     </div>
   </section>
 
+  <section id="tab-grid" class="tab" hidden>
+    <div class="step" id="g-step-src">
+      <h2><span class="num">1</span>Блок с карточками товаров</h2>
+      <div id="g-drop" class="drop" tabindex="0">
+        <svg class="drop-art" viewBox="0 0 72 52" aria-hidden="true"><rect x="4" y="6" width="18" height="40" rx="4" class="art-1"/><rect x="27" y="6" width="18" height="40" rx="4" class="art-2"/><rect x="50" y="6" width="18" height="40" rx="4" class="art-3"/></svg>
+        <strong>Перетащите сюда HTML-файл письма или блока</strong>
+        <span>или <button type="button" class="link" id="g-pick">выберите файл</button>, или <button type="button" class="link" id="g-paste-open">вставьте код</button></span>
+        <input type="file" id="g-file" accept=".html,.htm,text/html" hidden>
+      </div>
+      <p id="g-intro" class="hint intro">Блок с одинаковыми карточками товаров станет динамической товарной сеткой: товары в карточки подставит Mindbox. Все товары в сетке выглядят как первая карточка блока.</p>
+      <p id="g-from-make-row" class="hint" hidden><button type="button" class="btn" id="g-from-make"></button></p>
+      <div id="g-paste-box" class="paste-box" hidden>
+        <textarea id="g-paste" spellcheck="false" placeholder="Вставьте сюда код письма или блока с карточками товаров"></textarea>
+        <div class="row"><button type="button" id="g-paste-go" class="btn primary">Найти карточки</button><button type="button" id="g-paste-cancel" class="btn">Отмена</button></div>
+      </div>
+      <div id="g-info" class="letter-info" hidden></div>
+    </div>
+
+    <div class="step" id="g-step-setup" hidden>
+      <h2><span class="num">2</span>Что подставит Mindbox</h2>
+      <div id="g-setup"></div>
+    </div>
+
+    <div class="step" id="g-step-result" hidden>
+      <h2><span class="num">3</span>Товарная сетка</h2>
+      <p class="hint">Кнопки «Копировать HTML» и «Копировать JSON» кладут код в буфер — вставьте его в Mindbox.</p>
+      <div id="g-view" class="res-view g-view"></div>
+    </div>
+  </section>
+
   <section id="tab-help" class="tab" hidden>
     <div class="step help">
       <h2>Как это работает</h2>
@@ -739,6 +791,14 @@ pre.code i { color: var(--muted); }
         <li>Выберите, что можно будет менять в конструкторе.</li>
         <li>Нажмите «Сделать блоки». У каждого блока — «Копировать HTML» и «Копировать JSON»: вставьте их в Mindbox. Или скачайте все блоки архивом. На вкладке «Настройка» у блока можно добавить запасные карточки, убрать лишние поля из конструктора, скрыть части по умолчанию и переименовать группы.</li>
       </ol>
+      <h3>Товарная сетка</h3>
+      <p>На вкладке «Товарная сетка» обычный блок с карточками товаров превращается в динамическую товарную сетку нового конструктора. Mindbox подставит в каждую карточку название, цену, картинку и ссылку товара. Какие товары показать, выбирается в конструкторе, в настройках блока.</p>
+      <ol>
+        <li>Загрузите письмо или отдельный блок, где две и больше одинаковых карточки товара.</li>
+        <li>Проверьте, что подставит Mindbox: название, цену, старую цену, картинку, ссылку. Поле, которое должно быть одинаковым у всех товаров, например надпись на кнопке, остаётся обычным полем конструктора. Укажите, сколько товаров в блоке по умолчанию.</li>
+        <li>Скопируйте HTML и JSON сетки и загрузите их в Mindbox.</li>
+      </ol>
+      <p>Карточки в сетке выглядят как первая карточка блока. Карточки в ряд остаются в ряд: сколько в ряду, столько и в сетке.</p>
       <h3>Чего инструмент не делает — специально</h3>
       <ul>
         <li>Не меняет вёрстку. Исключение — письмо шире 600 px: ширина блоков уменьшается до 600 px. Каждый готовый блок сравнивается с письмом, результат — на вкладке «Проверка».</li>
@@ -1316,6 +1376,10 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         }
       }
       break;
+    }
+    const top = topEls.filter(contentful);
+    if (body && top.length === 1 && /^(table|div|center)$/.test(top[0].tag)) {
+      return [{ node: top[0], marker: null, name: null, title: null, category: null, source: 'single' }];
     }
     return [];
   }
@@ -2709,7 +2773,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const inDocs = !!(RULES.docs && Array.isArray(RULES.docs.types) && RULES.docs.types.some((t) => t.type === p.type));
       if (!T && inDocs) warn('type', '«' + p.name + '»: тип ' + p.type + ' есть в документации Mindbox, но инструмент его пока не проверяет.');
       else if (!T) err('type', 'У «' + p.name + '» неизвестный тип ' + p.type + '.');
-      else if (T.reject) err('type', '«' + p.name + '»: ' + T.reject);
+      else if (T.reject && !(p.type === 'URL' && p.role === 'ProductUrl')) err('type', '«' + p.name + '»: ' + T.reject);
       else if (T.avoid) warn('type', '«' + p.name + '»: ' + T.avoid);
       if (p.defaultValue === undefined || p.defaultValue === null) {
         if (p.type !== 'URL') err('default', '«' + p.name + '»: не заполнено значение по умолчанию (defaultValue). ' + RULES.errors.missingParam);
@@ -2865,6 +2929,8 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     for (const p of json) P.set(String(p.name).toLowerCase(), p);
     const st = state || {};
     const valueOf = editorValue(P, st);
+    const coll = json.find((p) => p && p.type === 'COLLECTION');
+    if (coll) html = expandLoops(html, Math.max(0, Math.floor(Number(st[coll.name] != null ? st[coll.name] : coll.defaultValue && coll.defaultValue.size) || 0)));
     const tokens = scanTemplate(html);
     let out = '';
     const stack = [{ on: true }];
@@ -2980,6 +3046,15 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
   const ITEM_RE = /^show_(card|item|phone|social|icon|step)_(\d+)$/;
 
   function itemLists(html) {
+    return findLists(html).map((l) => {
+      const o = Object.assign({}, l);
+      delete o.parent;
+      delete o.slots;
+      return o;
+    });
+  }
+
+  function findLists(html) {
     const { spans } = toggleSpans(html);
     const named = spans.filter((s) => ITEM_RE.test(s.name) && s.unit);
     const nested = (s) => named.some((o) => o !== s && o.start <= s.start && o.end >= s.end && (o.start < s.start || o.end > s.end));
@@ -3018,7 +3093,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       inRow.forEach((x) => seen.add(x));
       if (inRow.length < 2 || editorIn(rowEl.start, rowEl.end, inRow)) continue;
       const prev = lists.find((l) => l.layout === 'row' && l.kind === it.kind && l.parent === rowEl.parent);
-      const slot = { start: rowEl.start, end: rowEl.end, items: inRow };
+      const slot = { start: rowEl.start, end: rowEl.end, items: inRow, el: rowEl };
       if (prev) {
         prev.slots.push(slot);
         prev.nums.push(...inRow.map((x) => x.n));
@@ -3038,8 +3113,6 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         l.glue = html.slice(g.start, g.end);
         l.closeAt = lastItem.closeStart;
       }
-      delete l.parent;
-      delete l.slots;
     }
     return lists;
   }
@@ -3167,6 +3240,278 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       return q;
     });
     return Object.assign({}, r, { html, json, checks: validate(html, json), same: r.original ? compareRendered(r.original, html, base) : r.same, pinned: names, hidden, shown, renamed: [...labels.keys()] });
+  }
+
+  const GRID_NAMES = {
+    ProductUrl: 'product_url', ProductImageUrl: 'product_image', ProductTitle: 'product_title', ProductPrice: 'product_price',
+    ProductOldPrice: 'product_old_price', ProductDescription: 'product_description', ProductBadge: 'product_badge'
+  };
+
+  function gridForm(l) {
+    if (l.kind !== 'card' && l.kind !== 'item') return null;
+    if (l.layout === 'stack') return 'stack';
+    const u = l.slots[0].items[0].unit;
+    if ((u.tag === 'td' || u.tag === 'th') && l.slots.every((s) => s.el && s.el.tag === 'tr')) return 'table';
+    if (u.tag !== 'td' && u.tag !== 'th') return 'inline';
+    return null;
+  }
+
+  const hasLoop = (html) => /@\{\s*for\b/i.test(html);
+
+  function gridLists(html) {
+    if (hasLoop(html)) return [];
+    return findLists(html).filter((l) => gridForm(l)).map((l) => ({ id: l.id, kind: l.kind, form: gridForm(l), perRow: l.perRow || 1, count: l.nums.length, nums: l.nums }));
+  }
+
+  function gridFields(r, listId) {
+    const l = findLists(r.html).find((x) => x.id === listId && gridForm(x));
+    if (!l) return [];
+    const re = new RegExp('^' + l.kind + '_' + l.nums[0] + '_(.+)$');
+    const plain = (v) => decode(String(v == null ? '' : v).replace(/<[^>]+>/g, ' ')).replace(/[\s ]+/g, ' ').trim();
+    const out = [];
+    for (const p of r.json) {
+      const m = re.exec(p.name);
+      if (!m) continue;
+      const what = p.type === 'IMAGE' ? 'image' : /(^|_)url(_\d+)?$/.test(m[1]) ? 'link' : p.type === 'TEXT' || p.type === 'SIMPLE_TEXT' ? 'text' : null;
+      if (what) out.push({ name: p.name, suffix: m[1], what, type: p.type, group: p.group, value: p.defaultValue, role: null });
+    }
+    const doc = parse(r.html);
+    fixEnds(doc);
+    const struck = new Set();
+    walk(doc, (x) => {
+      if (x.type !== 'text') return;
+      const m = /\$\{\s*editor\.([A-Za-z0-9_]+)\s*\}/.exec(r.html.slice(x.start, x.end));
+      if (!m) return;
+      for (let a = x.parent; a && a.type === 'el'; a = a.parent) {
+        if (/^(s|strike|del)$/.test(a.tag) || /line-through/i.test(attrVal(a, 'style') || '')) {
+          struck.add(m[1]);
+          break;
+        }
+        if (a.tag === 'td' || a.tag === 'th' || a.tag === 'table') break;
+      }
+    });
+    const CUR = /₽|руб\.?|р\.|\$|€|₸|тг|тенге|сом|usd|eur|rub|kzt/gi;
+    const money = (f) => {
+      const t = plain(f.value);
+      return t.length <= 30 && /\d/.test(t) && /₽|руб|р\.|\$|€|₸|тг|тенге|сом|usd|eur|rub|kzt/i.test(t) && !/[A-Za-zА-Яа-яЁё]/.test(t.replace(CUR, '').replace(/(^|\s)(от|до|цена)(?=\s|:|$)/gi, ' '));
+    };
+    const words = (f) => /[A-Za-zА-Яа-яЁё]{2,}\S*\s+\S/.test(plain(f.value));
+    for (const f of out) if (f.what === 'link') f.role = 'ProductUrl';
+    const img = out.find((f) => f.what === 'image' && f.suffix === 'image') || out.find((f) => f.what === 'image');
+    if (img) img.role = 'ProductImageUrl';
+    const texts = out.filter((f) => f.what === 'text' && !/button/.test(f.suffix));
+    const old = texts.find((f) => struck.has(f.name)) || texts.find((f) => f.suffix === 'old_price' && !texts.some((g) => g.suffix === 'old_price_2'));
+    if (old) old.role = 'ProductOldPrice';
+    const price = texts.find((f) => !f.role && f.suffix === 'price') || texts.find((f) => !f.role && money(f));
+    if (price) price.role = 'ProductPrice';
+    const badge = texts.find((f) => !f.role && f.suffix === 'badge');
+    if (badge) badge.role = 'ProductBadge';
+    const free = (f) => f.what === 'text' && !f.role && !/button/.test(f.suffix);
+    const title = out.find((f) => free(f) && f.suffix === 'title') || out.find((f) => free(f) && /[A-Za-zА-Яа-яЁё]\S*\s+\S/.test(plain(f.value)));
+    if (title) title.role = 'ProductTitle';
+    const desc = out.find((f) => free(f) && f.suffix === 'text' && words(f));
+    if (desc) desc.role = 'ProductDescription';
+    return out;
+  }
+
+  function toGrid(r, plan) {
+    const pl = plan || {};
+    if (!r || r.failed || r.templated) throw new Error('Блок не подходит для товарной сетки.');
+    if (hasLoop(r.html)) throw new Error('В блоке уже есть цикл письма @{for …}: товарную сетку из него сделать нельзя.');
+    const html = r.html;
+    const lists = findLists(html).filter((x) => gridForm(x));
+    const l = lists.find((x) => x.id === pl.list) || lists[0];
+    if (!l) throw new Error('В блоке нет карточек, которые повторяются.');
+    const form = gridForm(l);
+    const kind = l.kind;
+    const n = l.nums[0];
+    const ru = RULES.kinds[kind].ru;
+    const roles = {};
+    const used = new Set();
+    for (const f of gridFields(r, l.id)) {
+      const ro = pl.roles && Object.prototype.hasOwnProperty.call(pl.roles, f.name) ? pl.roles[f.name] : f.role;
+      const fits = ro && GRID_NAMES[ro] && (ro === 'ProductUrl' ? f.what === 'link' : ro === 'ProductImageUrl' ? f.what === 'image' : f.what === 'text');
+      if (!fits || (ro !== 'ProductUrl' && used.has(ro))) continue;
+      roles[f.name] = ro;
+      used.add(ro);
+    }
+    const ofList = (name) => {
+      const m = new RegExp('^(?:show_)?' + kind + '_(\\d+)(?:_|$)').exec(name);
+      return !!m && l.nums.includes(Number(m[1]));
+    };
+    const pre = kind + '_' + n + '_';
+    const cardParams = r.json.filter((p) => p.name.startsWith(pre) || p.name.startsWith('show_' + pre));
+    const taken = new Set(r.json.filter((p) => !ofList(p.name)).map((p) => p.name.toLowerCase()));
+    for (const ro of used) taken.add(GRID_NAMES[ro]);
+    const rename = new Map();
+    for (const p of cardParams) {
+      if (roles[p.name]) {
+        rename.set(p.name, GRID_NAMES[roles[p.name]]);
+        continue;
+      }
+      const base = p.name.startsWith('show_') ? 'show_product_' + p.name.slice(5 + pre.length) : 'product_' + p.name.slice(pre.length);
+      let nm = base;
+      for (let k = 2; taken.has(nm.toLowerCase()); k++) nm = base + '_' + k;
+      taken.add(nm.toLowerCase());
+      rename.set(p.name, nm);
+    }
+    const swap = (s) => s.replace(/editor\.([A-Za-z0-9_]+)/g, (a, nm) => (rename.has(nm) ? 'editor.' + rename.get(nm) : a));
+    const slots = l.slots;
+    const first = slots[0].items[0];
+    const els = first.inside.filter((x) => x.type === 'el');
+    const unitHtml = (it) => (form === 'stack' ? html.slice(it.inside[0].start, it.inside[it.inside.length - 1].end).trim() : html.slice(it.unit.start, it.unit.end));
+    const notes = [];
+    let cardRaw = unitHtml(first);
+    const glued = toggleSpans(cardRaw).spans.filter((s) => {
+      const m = ITEM_RE.exec(s.name);
+      return m && m[1] === kind && Number(m[2]) !== n && l.nums.includes(Number(m[2]));
+    }).sort((a, b) => b.start - a.start);
+    for (const s of glued) cardRaw = cardRaw.slice(0, s.start) + cardRaw.slice(cardRaw.indexOf('}', s.start) + 1, s.closeStart).trim() + cardRaw.slice(s.end);
+    if (glued.length) notes.push('Разделитель между карточками стоит после каждого товара, в том числе после последнего.');
+    const card = swap(cardRaw);
+    const norm = (it) => unitHtml(it).replace(new RegExp('(editor\\.(?:show_)?' + kind + '_)' + it.n + '(?=[_}\\s.])', 'g'), '$1' + n);
+    const odd = slots.flatMap((s) => s.items).filter((it) => it !== first && norm(it) !== unitHtml(first)).map((it) => it.n);
+    if (odd.length) notes.push((odd.length === 1 ? 'Карточка ' + odd[0] + ' в письме сверстана' : 'Карточки ' + odd.join(', ') + ' в письме сверстаны') + ' не так, как первая: например, другие отступы или выравнивание. В сетке все товары будут выглядеть как первая карточка.');
+    const lineStart = (pos) => html.lastIndexOf('\n', pos - 1) + 1;
+    const indentAt = (pos) => /^[ \t]*/.exec(html.slice(lineStart(pos)))[0];
+    let from;
+    let to;
+    let body;
+    if (form === 'table') {
+      const tr = slots[0].el;
+      from = tr.start;
+      to = slots[slots.length - 1].end;
+      const ind = indentAt(from);
+      const extra = tr.children.filter((c) => c.type === 'el' && !slots[0].items.some((it) => c.start >= it.start && c.end <= it.end));
+      if (extra.length) notes.push('Ячейки между карточками в сетку не попадают: расстояние между товарами задаётся отступами внутри первой карточки.');
+      body = ['@{for row in Tablerows(editor.collection, ' + l.perRow + ')}', html.slice(tr.start, tr.openEnd), '@{for cell in row.Cells}', '@{if cell.Value != null}', card, '@{end if}', '@{end for}', '</tr>', '@{end for}'].join('\n' + ind);
+    } else if (form === 'inline') {
+      const items = slots[0].items;
+      from = items[0].start;
+      to = items[items.length - 1].end;
+      const ghost = /\x3C!--\[if[^\]]*\]>[\s\S]*?<!\[endif\]-->\s*$/;
+      for (let m; (m = ghost.exec(html.slice(0, from).replace(/\s+$/, ''))); ) from = html.slice(0, from).replace(/\s+$/, '').length - m[0].length;
+      const ghostAfter = /^\s*\x3C!--\[if[^\]]*\]>[\s\S]*?<!\[endif\]-->/;
+      for (let m; (m = ghostAfter.exec(html.slice(to))); ) to += m[0].length;
+      const style = attrVal(first.unit, 'style') || '';
+      const w = px((/max-width\s*:\s*([\d.]+px)/i.exec(style) || /(?:^|;)\s*width\s*:\s*([\d.]+px)/i.exec(style) || [])[1] || '') || Math.floor(600 / l.perRow);
+      const ind = indentAt(from);
+      body = ['@{for item in editor.collection}', '\x3C!--[if (gte mso 9)|(IE)]><table cellpadding="0" cellspacing="0" border="0"><tr><td width="' + w + '" valign="top"><![endif]-->', card, '\x3C!--[if (gte mso 9)|(IE)]></td></tr></table><![endif]-->', '@{end for}'].join('\n' + ind);
+      if (slots.length > 1) notes.push('Карточки в письме стоят в несколько рядов. В сетке товары идут подряд и сами переносятся на следующий ряд.');
+    } else {
+      from = slots[0].start;
+      to = slots[slots.length - 1].end;
+      const ind = indentAt(from);
+      const gap = slots.length > 1 ? html.slice(slots[0].end, slots[1].start) : '';
+      const spacer = /</.test(gap) && !/[$@]\{/.test(gap) ? gap.replace(/\x3C!--(?!\[if|<!\[endif)[\s\S]*?-->/g, '').trim() : '';
+      if (spacer) notes.push('Промежуток между карточками стоит после каждого товара, поэтому после последнего товара тоже будет пустое место той же высоты.');
+      body = ['@{for item in editor.collection}', card].concat(spacer ? [spacer] : [], ['@{end for}']).join('\n' + ind);
+    }
+    const outHtml0 = form === 'inline' && slots.length > 1
+      ? html.slice(0, from) + body + html.slice(to, slots[0].end) + html.slice(slots[slots.length - 1].end)
+      : html.slice(0, from) + body + html.slice(to);
+    const name = pl.name || r.name + '_dynamic';
+    const outHtml = outHtml0.replace(/\x3C!--\s*EDITOR_BLOCK_TEMPLATE\s*:\s*[\w-]+\s*-->/, '\x3C!-- EDITOR_BLOCK_TEMPLATE: ' + name + ' -->');
+    const size = Math.max(1, Math.min(50, Math.floor(Number(pl.size) || l.nums.length)));
+    const newParams = [];
+    const seen = new Set();
+    for (const p of cardParams) {
+      const nm = rename.get(p.name);
+      if (!nm || p.name === 'show_' + kind + '_' + n || seen.has(nm)) continue;
+      if (!new RegExp('editor\\.' + nm + '(?![A-Za-z0-9_])').test(outHtml)) continue;
+      seen.add(nm);
+      const ro = roles[p.name] || null;
+      const q = Object.assign({}, p, { name: nm, role: ro });
+      if (ro === 'ProductUrl') q.type = 'URL';
+      if (ro === 'ProductPrice' || ro === 'ProductOldPrice') q.type = 'TEXT';
+      if (q.group) q.group = q.group.replace(new RegExp('^(#\\d+\\s+)?' + ru + ' ' + n + '(?= |$)'), (a, num) => (num || '') + 'Товар');
+      newParams.push(q);
+    }
+    const at = r.json.findIndex((p) => ofList(p.name));
+    const rest = r.json.filter((p) => !ofList(p.name));
+    const kept = rest.filter((p) => new RegExp('editor\\.' + p.name + '(?![A-Za-z0-9_])', 'i').test(outHtml));
+    const head = kept.filter((p) => rest.indexOf(p) < at);
+    const tail = kept.filter((p) => rest.indexOf(p) >= at);
+    const json = [{ name: 'collection', type: 'COLLECTION', defaultValue: { size } }].concat(renumberGroups(head.concat(newParams, tail)));
+    notes.push('Какие товары показать, выбирается в конструкторе Mindbox в настройках блока. По умолчанию в блоке ' + size + ' ' + (size % 10 === 1 && size % 100 !== 11 ? 'товар' : size % 10 >= 2 && size % 10 <= 4 && (size % 100 < 10 || size % 100 >= 20) ? 'товара' : 'товаров') + '.');
+    return Object.assign({}, r, {
+      name,
+      html: outHtml,
+      json,
+      checks: validate(outHtml, json),
+      same: null,
+      notes,
+      spares: null,
+      pinned: null,
+      grid: { list: l.id, form, perRow: l.perRow || 1, count: l.nums.length, size, roles }
+    });
+  }
+
+  function expandLoops(html, size) {
+    const tokens = scanTemplate(html);
+    const norm = (tk) => (tk.t === 'stmt' ? tk.body.replace(/\s+/g, ' ').trim().toLowerCase() : '');
+    const matchEnd = (from, open, close) => {
+      let d = 0;
+      for (let j = from; j < tokens.length; j++) {
+        const b = norm(tokens[j]);
+        if (open.test(b)) d++;
+        else if (close.test(b) && --d === 0) return j;
+      }
+      return tokens.length;
+    };
+    const raw = (a, b) => tokens.slice(a, b).map((t) => t.s).join('');
+    const cells = (inner, count) => {
+      const sub = scanTemplate(inner);
+      const at = sub.findIndex((t) => /^for cell in /.test(norm(t)));
+      if (at < 0) return inner;
+      let d = 0;
+      let end = sub.length;
+      for (let j = at; j < sub.length; j++) {
+        const b = norm(sub[j]);
+        if (/^for\b/.test(b)) d++;
+        else if (/^end for$/.test(b) && --d === 0) {
+          end = j;
+          break;
+        }
+      }
+      const ifAt = sub.findIndex((t, j) => j > at && /^if cell\.value != null$/.test(norm(t)));
+      let cell = sub.slice(at + 1, end).map((t) => t.s).join('');
+      if (ifAt > at && ifAt < end) {
+        let e = end;
+        let dd = 0;
+        for (let j = ifAt; j < end; j++) {
+          const b = norm(sub[j]);
+          if (/^if\b/.test(b)) dd++;
+          else if (/^end if$/.test(b) && --dd === 0) {
+            e = j;
+            break;
+          } else if (/^else$/.test(b) && dd === 1) {
+            e = j;
+            break;
+          }
+        }
+        cell = sub.slice(ifAt + 1, e).map((t) => t.s).join('');
+      }
+      return sub.slice(0, at).map((t) => t.s).join('') + cell.repeat(count) + sub.slice(end + 1).map((t) => t.s).join('');
+    };
+    let out = '';
+    for (let i = 0; i < tokens.length; i++) {
+      const b = norm(tokens[i]);
+      const m = /^for (item|row) in (?:tablerows\(\s*)?editor\.collection(?:\s*,\s*(\d+)\s*\))?$/.exec(b);
+      if (!m) {
+        out += tokens[i].s;
+        continue;
+      }
+      const j = matchEnd(i, /^for\b/, /^end for$/);
+      const inner = raw(i + 1, j);
+      if (m[1] === 'item') out += inner.repeat(size);
+      else {
+        const cols = Math.max(1, Number(m[2]) || 1);
+        for (let k = 0; k < size; k += cols) out += cells(inner, Math.min(cols, size - k));
+      }
+      i = j;
+    }
+    return out;
   }
 
   function canon(html) {
@@ -4078,7 +4423,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return next;
   }
 
-  const api = { parse, fixEnds, loadLetter, splitBlock, buildBlock, buildMerged, canMerge, mergeSource, validate, renderTemplate, pinTemplate, itemLists, addSpares, tuneBlock, compareRendered, canon, decode, dedent, scanTemplate, RULES };
+  const api = { parse, fixEnds, loadLetter, splitBlock, buildBlock, buildMerged, canMerge, mergeSource, validate, renderTemplate, pinTemplate, itemLists, addSpares, tuneBlock, gridLists, gridFields, toGrid, compareRendered, canon, decode, dedent, scanTemplate, RULES };
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.MBEngine = api;
 })(typeof self !== 'undefined' ? self : this);
@@ -4293,6 +4638,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
   function showTab(name) {
     for (const b of $$('.tabs button')) b.setAttribute('aria-selected', String(b.dataset.tab === name));
     for (const s of $$('.tab')) s.hidden = s.id !== 'tab-' + name;
+    if (name === 'grid') gridSync();
   }
 
   function noDynamicUrls(html) {
@@ -4539,7 +4885,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
 
   function renderInfo() {
     const L = S.letter;
-    $('#letter-info').replaceChildren(
+    $('#letter-info').replaceChildren(...[
       h('span', null, 'Письмо: ', h('b', null, S.file)),
       h('span', { class: 'muted' }, 'Нашлось блоков: ' + L.blocks.length),
       h('button', { type: 'button', class: 'link', onclick: reset }, 'Взять другое письмо'),
@@ -4551,7 +4897,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
           openLetter(S.raw, S.file, true);
         } }), ' px'),
       L.fit ? h('div', { class: 'fit-note' }, fitNote(L.fit)) : null,
-      L.splits.length ? h('div', { class: 'auto-split' }, L.splits.map(splitNote).join('. ') + '. Вид письма от этого не меняется.') : null);
+      L.splits.length ? h('div', { class: 'auto-split' }, L.splits.map(splitNote).join('. ') + '. Вид письма от этого не меняется.') : null].filter(Boolean));
   }
 
   function fail(text) {
@@ -4568,10 +4914,6 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     $('#intro').hidden = false;
     $('#letter-info').hidden = true;
     for (const id of ['#pick-area', '#step-result']) $(id).hidden = true;
-  }
-
-  function readFile(f) {
-    f.text().then((t) => openLetter(t, f.name));
   }
 
   function chipsFor(items) {
@@ -5132,6 +5474,8 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
 
   function shortVal(p) {
     const v = p.defaultValue;
+    if (p.role && ROLE_RU[p.role]) return 'из товара: ' + low(ROLE_RU[p.role]);
+    if (p.type === 'COLLECTION') return v && v.size ? 'товаров: ' + v.size : '';
     if (p.type === 'DISPLAY_TOGGLE') return String(v) === 'true' ? 'показано' : 'скрыто';
     if (p.type === 'BACKGROUND') return v && v.type === 'color' ? v.color : v && v.type === 'image' ? 'картинка' : 'прозрачный';
     if (v == null) return '';
@@ -5168,6 +5512,230 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     }
     for (const n of r.notes || []) ul.append(h('li', { class: 'note' }, n));
     return ul;
+  }
+
+  const G = { L: null, file: '', raw: '', cands: [], ci: 0, list: null, fields: [], roles: {}, size: 1, name: null, sub: 'look', state: {}, r: null, err: '' };
+  const ROLE_OPTS = {
+    text: [['ProductTitle', 'Название товара'], ['ProductPrice', 'Цена'], ['ProductOldPrice', 'Старая цена'], ['ProductDescription', 'Описание товара'], ['ProductBadge', 'Дополнительные данные о товаре']],
+    image: [['ProductImageUrl', 'Картинка товара']],
+    link: [['ProductUrl', 'Ссылка на товар']]
+  };
+  const ROLE_RU = Object.fromEntries([].concat(...Object.values(ROLE_OPTS)));
+  const SAME = { text: 'Одинаковый у всех товаров', image: 'Одинаковая у всех товаров', link: 'Одинаковая у всех товаров' };
+  const WHAT_RU = { text: 'текст', image: 'картинка', link: 'ссылка' };
+  const layoutText = (l) => (l.form === 'stack' ? 'друг под другом' : 'по ' + l.perRow + ' в ряд');
+  const candText = (c) => (c.i + 1) + '. ' + (c.title || 'Блок ' + (c.i + 1)) + ' — ' + c.lists.map((l) => plural(l.count, 'карточка', 'карточки', 'карточек') + ' ' + layoutText(l)).join('; ');
+  const plainText = (v) => {
+    const t = document.createElement('template');
+    t.innerHTML = String(v == null ? '' : v);
+    return t.content.textContent.replace(/\s+/g, ' ').trim();
+  };
+
+  function fieldLabel(f) {
+    const w = WHAT_RU[f.what];
+    const parts = [...new Set(groupLabel(f.group).split(' — ').slice(1).filter((x) => x !== w).map((x) => (/цена/.test(x) ? 'цена' : x)))];
+    return cap(w) + (parts.length ? ' · ' + parts.join(', ') : '');
+  }
+
+  function fieldValue(f) {
+    if (f.what === 'image') return h('img', { class: 'g-thumb', src: String(f.value || ''), alt: '' });
+    const t = f.what === 'link' ? String(f.value || '') : plainText(f.value);
+    return t.length > 70 ? t.slice(0, 70) + '…' : t;
+  }
+
+  function gridFail(text) {
+    const info = $('#g-info');
+    info.hidden = false;
+    info.replaceChildren(h('div', { class: 'error-box' }, text));
+    $('#g-step-setup').hidden = true;
+    $('#g-step-result').hidden = true;
+  }
+
+  function gridSync() {
+    const row = $('#g-from-make-row');
+    row.hidden = !(S.letter && !G.L);
+    if (!row.hidden) $('#g-from-make').textContent = 'Взять письмо «' + S.file + '» с вкладки «Сделать блоки»';
+  }
+
+  function gridReset() {
+    Object.assign(G, { L: null, file: '', raw: '', cands: [], r: null, err: '' });
+    $('#g-drop').hidden = false;
+    $('#g-intro').hidden = false;
+    for (const id of ['#g-info', '#g-step-setup', '#g-step-result']) $(id).hidden = true;
+    gridSync();
+  }
+
+  function gridOpen(src, name) {
+    let L;
+    try {
+      L = E.loadLetter(src, { width: S.width });
+    } catch (e) {
+      return gridFail('Не удалось прочитать код. Проверьте, что это HTML письма или блока целиком. Подробности: ' + e.message);
+    }
+    if (!L.blocks.length) return gridFail('В коде не нашлось блоков. Проверьте, что это HTML письма или блока целиком.');
+    const cands = [];
+    L.list.forEach((it, i) => {
+      if (it.templated) return;
+      let r;
+      try {
+        r = E.buildBlock(L, i, Object.assign({}, DEFAULTS));
+      } catch (e) {
+        return;
+      }
+      if (r.failed || r.templated) return;
+      const lists = E.gridLists(r.html);
+      if (lists.length) cands.push({ i, r, lists, title: it.title });
+    });
+    Object.assign(G, { L, raw: src, file: name || 'письмо', cands });
+    $('#g-drop').hidden = true;
+    $('#g-intro').hidden = true;
+    $('#g-paste-box').hidden = true;
+    gridSync();
+    const info = $('#g-info');
+    info.hidden = false;
+    const none = L.list.every((it) => it.templated)
+      ? 'Это уже блок конструктора Mindbox: в нём есть поля ${editor…}. Загрузите исходный HTML письма или блока, без полей конструктора.'
+      : 'Не нашлось карточек, которые повторяются. Товарная сетка делается из блока, где две и больше одинаковых карточки товара.';
+    info.replaceChildren(...[
+      h('span', null, 'Код: ', h('b', null, G.file)),
+      cands.length ? h('span', { class: 'muted' }, 'Блоков с карточками: ' + cands.length) : null,
+      h('button', { type: 'button', class: 'link', onclick: gridReset }, 'Взять другое письмо'),
+      L.fit ? h('div', { class: 'fit-note' }, fitNote(L.fit)) : null,
+      cands.length ? null : h('div', { class: 'error-box' }, none)].filter(Boolean));
+    if (!cands.length) {
+      $('#g-step-setup').hidden = true;
+      $('#g-step-result').hidden = true;
+      return;
+    }
+    const best = cands.findIndex((c) => c.lists.some((l) => l.kind === 'card' && E.gridFields(c.r, l.id).some((f) => f.role === 'ProductImageUrl')));
+    gridPick(best < 0 ? 0 : best);
+  }
+
+  function gridPick(ci, listId) {
+    const c = G.cands[ci];
+    const l = c.lists.find((x) => x.id === listId) || c.lists[0];
+    Object.assign(G, { ci, list: l.id, fields: E.gridFields(c.r, l.id), roles: {}, size: l.count, name: null, state: {}, sub: 'look' });
+    for (const f of G.fields) G.roles[f.name] = f.role || '';
+    gridBuild();
+    gridSetup();
+    gridView();
+  }
+
+  function gridBuild() {
+    try {
+      G.r = E.toGrid(G.cands[G.ci].r, { list: G.list, roles: G.roles, size: G.size, name: G.name });
+      G.err = '';
+    } catch (e) {
+      G.r = null;
+      G.err = e.message;
+    }
+  }
+
+  function gridSetup() {
+    const c = G.cands[G.ci];
+    const l = c.lists.find((x) => x.id === G.list);
+    const box = h('div', { class: 'g-setup' });
+    if (G.cands.length > 1) {
+      const sel = h('select', { onchange: () => gridPick(Number(sel.value)) }, G.cands.map((x, k) => h('option', { value: String(k), selected: k === G.ci }, candText(x))));
+      box.append(h('label', { class: 'g-pick' }, h('span', null, 'Блок'), sel));
+    } else {
+      box.append(h('p', { class: 'g-what' }, candText(c)));
+    }
+    if (c.lists.length > 1) {
+      const sel = h('select', { onchange: () => gridPick(G.ci, sel.value) }, c.lists.map((x, k) => h('option', { value: x.id, selected: x.id === G.list }, 'Карточки ' + (k + 1) + ': ' + plural(x.count, 'карточка', 'карточки', 'карточек') + ' ' + layoutText(x))));
+      box.append(h('label', { class: 'g-pick' }, h('span', null, 'Какие карточки'), sel));
+    }
+    const sels = new Map();
+    const tb = h('tbody');
+    for (const f of G.fields) {
+      const sel = h('select', {
+        'aria-label': fieldLabel(f) + ': что подставит Mindbox',
+        onchange: () => {
+          const v = sel.value;
+          if (v && v !== 'ProductUrl') for (const g of G.fields) if (g !== f && G.roles[g.name] === v) G.roles[g.name] = '';
+          G.roles[f.name] = v;
+          for (const [name, s2] of sels) s2.value = G.roles[name];
+          gridBuild();
+          gridView();
+        }
+      }, h('option', { value: '' }, SAME[f.what]), ROLE_OPTS[f.what].map(([v, t]) => h('option', { value: v }, t)));
+      sel.value = G.roles[f.name];
+      sels.set(f.name, sel);
+      tb.append(h('tr', null, h('td', null, fieldLabel(f)), h('td', { class: 'val' }, fieldValue(f)), h('td', null, sel)));
+    }
+    box.append(h('table', { class: 'ptable g-fields' }, h('thead', null, h('tr', null, h('th', null, 'В карточке'), h('th', null, 'Сейчас'), h('th', null, 'Что подставит Mindbox'))), tb));
+    const size = h('input', {
+      type: 'number', min: '1', max: '50', value: String(G.size),
+      onchange: () => {
+        G.size = Math.max(1, Math.min(50, Math.round(Number(size.value)) || l.count));
+        size.value = String(G.size);
+        gridBuild();
+        gridView();
+      }
+    });
+    box.append(h('label', { class: 'g-size' }, 'Товаров в блоке по умолчанию', size));
+    box.append(h('p', { class: 'hint' }, 'В поля с товаром Mindbox подставит данные каждого товара. Остальное, например надпись на кнопке, цвета и отступы, одинаково у всех товаров и меняется в конструкторе. Какие товары показать, выбирается в конструкторе Mindbox, в настройках блока.'));
+    $('#g-setup').replaceChildren(box);
+    $('#g-step-setup').hidden = false;
+  }
+
+  function gridView() {
+    const view = $('#g-view');
+    $('#g-step-result').hidden = false;
+    if (!G.r) {
+      view.replaceChildren(h('div', { class: 'error-box' }, 'Товарную сетку из этого блока сделать не удалось. Подробности: ' + G.err));
+      return;
+    }
+    const r = G.r;
+    const st = statusOf(r);
+    const nameIn = h('input', { value: r.name, spellcheck: 'false', title: 'Латиница, цифры и _. Русские буквы переведутся сами' });
+    nameIn.addEventListener('change', () => {
+      const v = translit(nameIn.value);
+      if (!v) {
+        nameIn.value = r.name;
+        return;
+      }
+      G.name = v;
+      gridBuild();
+      gridView();
+    });
+    const jsonText = JSON.stringify(r.json, null, 2) + '\n';
+    const head = h('div', { class: 'res-head' },
+      h('label', null, h('span', null, 'Название в Mindbox'), nameIn),
+      h('span', { class: 'status ' + st }, STATUS[st]),
+      h('span', { class: 'copy-btns' },
+        h('button', { type: 'button', class: 'btn primary', onclick: () => copy(r.html, 'HTML') }, 'Копировать HTML'),
+        h('button', { type: 'button', class: 'btn primary', onclick: () => copy(jsonText, 'JSON') }, 'Копировать JSON')));
+    const fromItem = r.json.filter((p) => p.role).length;
+    const toggles = r.json.filter((p) => p.type === 'DISPLAY_TOGGLE').length;
+    const own = r.json.length - 1 - fromItem - toggles;
+    const sum = h('div', { class: 'res-sum' }, [
+      'товаров по умолчанию: ' + r.grid.size,
+      layoutText(r.grid),
+      'из товара: ' + fromItem,
+      'в конструкторе ' + plural(own, 'поле', 'поля', 'полей') + ' и ' + plural(toggles, 'переключатель', 'переключателя', 'переключателей') + ' «показывать»'
+    ].join(' · '));
+    const issues = r.checks.filter((c) => c.level !== 'ok').length;
+    const fi = firstIssue(r);
+    const alert = fi && G.sub !== 'check' ? h('div', { class: 'res-alert ' + fi.level },
+      h('b', null, LEVEL[fi.level]), fi.text, ' ',
+      h('button', { type: 'button', class: 'link', onclick: () => {
+        G.sub = 'check';
+        gridView();
+      } }, issues > 1 ? 'Все замечания (' + issues + ')' : 'Открыть «Проверку»')) : null;
+    const sub = h('div', { class: 'subtabs', role: 'tablist' });
+    for (const [k, t] of [['look', 'Как выглядит'], ['html', 'HTML'], ['json', 'JSON'], ['check', 'Проверка' + (issues ? ' (' + issues + ')' : '')]]) {
+      sub.append(h('button', { type: 'button', role: 'tab', 'aria-selected': String(G.sub === k), onclick: () => {
+        G.sub = k;
+        gridView();
+      } }, t));
+    }
+    let pane;
+    if (G.sub === 'look') pane = h('div', null, h('p', { class: 'hint' }, 'В превью все товары повторяют первую карточку. Настоящие товары подставит Mindbox.'), lookPane(r.html, r.json, G.L.styles, G.L.bodyStyle, G.state));
+    else if (G.sub === 'html') pane = codePane(r.html, 'HTML', r.name + '.html');
+    else if (G.sub === 'json') pane = jsonPane(r.json, r.name);
+    else pane = checksPane(r);
+    view.replaceChildren(...[head, sum, alert, sub, pane].filter(Boolean));
   }
 
   function docsStatus() {
@@ -5210,54 +5778,61 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
   function init() {
     initTheme();
     $$('.tabs button').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
-    const drop = $('#drop');
-    drop.addEventListener('click', () => $('#file').click());
-    drop.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
+    const wireSource = (p, open) => {
+      const drop = $('#' + p + 'drop');
+      const file = $('#' + p + 'file');
+      drop.addEventListener('click', () => file.click());
+      drop.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          file.click();
+        }
+      });
+      $('#' + p + 'pick').addEventListener('click', (e) => {
+        e.stopPropagation();
+        file.click();
+      });
+      $('#' + p + 'paste-open').addEventListener('click', (e) => {
+        e.stopPropagation();
+        $('#' + p + 'paste-box').hidden = false;
+        $('#' + p + 'paste').focus();
+      });
+      $('#' + p + 'paste-go').addEventListener('click', () => {
+        const t = $('#' + p + 'paste').value;
+        if (t.trim()) open(t, 'вставленный код');
+      });
+      $('#' + p + 'paste-cancel').addEventListener('click', () => {
+        $('#' + p + 'paste-box').hidden = true;
+      });
+      for (const t of ['dragenter', 'dragover']) drop.addEventListener(t, (e) => {
         e.preventDefault();
-        $('#file').click();
-      }
-    });
-    $('#pick').addEventListener('click', (e) => {
-      e.stopPropagation();
-      $('#file').click();
-    });
-    $('#paste-open').addEventListener('click', (e) => {
-      e.stopPropagation();
-      $('#paste-box').hidden = false;
-      $('#paste').focus();
-    });
-    $('#paste-go').addEventListener('click', () => {
-      const t = $('#paste').value;
-      if (t.trim()) openLetter(t, 'вставленный код');
-    });
-    $('#paste-cancel').addEventListener('click', () => {
-      $('#paste-box').hidden = true;
-    });
-    for (const t of ['dragenter', 'dragover']) drop.addEventListener(t, (e) => {
-      e.preventDefault();
-      drop.classList.add('over');
-    });
-    for (const t of ['dragleave', 'drop']) drop.addEventListener(t, (e) => {
-      e.preventDefault();
-      drop.classList.remove('over');
-    });
-    drop.addEventListener('drop', (e) => {
-      const f = e.dataTransfer.files[0];
-      if (f) readFile(f);
-    });
-    $('#file').addEventListener('change', (e) => {
-      const f = e.target.files[0];
-      if (f) readFile(f);
-      e.target.value = '';
-    });
+        drop.classList.add('over');
+      });
+      for (const t of ['dragleave', 'drop']) drop.addEventListener(t, (e) => {
+        e.preventDefault();
+        drop.classList.remove('over');
+      });
+      drop.addEventListener('drop', (e) => {
+        const f = e.dataTransfer.files[0];
+        if (f) f.text().then((t) => open(t, f.name));
+      });
+      file.addEventListener('change', (e) => {
+        const f = e.target.files[0];
+        if (f) f.text().then((t) => open(t, f.name));
+        e.target.value = '';
+      });
+    };
+    wireSource('', openLetter);
+    wireSource('g-', gridOpen);
+    $('#g-from-make').addEventListener('click', () => gridOpen(S.raw, S.file));
     window.addEventListener('dragover', (e) => e.preventDefault());
     window.addEventListener('drop', (e) => e.preventDefault());
     document.addEventListener('paste', (e) => {
-      if (S.letter || $('#tab-make').hidden) return;
       if (e.target && /^(TEXTAREA|INPUT)$/.test(e.target.tagName)) return;
       const t = e.clipboardData && e.clipboardData.getData('text/plain');
-      if (t && /<(table|html|body)\b/i.test(t)) openLetter(t, 'вставленный код');
+      if (!t || !/<(table|html|body)\b/i.test(t)) return;
+      if (!$('#tab-make').hidden && !S.letter) openLetter(t, 'вставленный код');
+      else if (!$('#tab-grid').hidden && !G.L) gridOpen(t, 'вставленный код');
     });
     $$('[data-sel]').forEach((b) => b.addEventListener('click', () => {
       const mode = b.dataset.sel;
