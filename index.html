@@ -897,7 +897,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     nameRe: /^[A-Za-z0-9_]+$/,
     types: {
       DISPLAY_TOGGLE: { fields: [], composite: false },
-      URL: { fields: ['url'], composite: false, reject: 'тип URL Mindbox сейчас не принимает даже в href и отвечает «Тип URL является составным…». Поменяйте в JSON "type": "URL" на "type": "SIMPLE_TEXT", HTML менять не нужно.' },
+      URL: { fields: ['url', 'mark'], composite: true },
       INNER_SPACING: { fields: ['formattedValue', 'class'], composite: true },
       ALIGN: { fields: ['align', 'formattedValue', 'class'], composite: true },
       BACKGROUND: { fields: ['color', 'formattedBackgroundStyles', 'type', 'image'], composite: true },
@@ -2836,7 +2836,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const inDocs = !!(RULES.docs && Array.isArray(RULES.docs.types) && RULES.docs.types.some((t) => t.type === p.type));
       if (!T && inDocs) warn('type', '«' + p.name + '»: тип ' + p.type + ' есть в документации Mindbox, но инструмент его пока не проверяет.');
       else if (!T) err('type', 'У «' + p.name + '» неизвестный тип ' + p.type + '.');
-      else if (T.reject && !(p.type === 'URL' && p.role === 'ProductUrl')) err('type', '«' + p.name + '»: ' + T.reject);
+      else if (T.reject) err('type', '«' + p.name + '»: ' + T.reject);
       else if (T.avoid) warn('type', '«' + p.name + '»: ' + T.avoid);
       if (p.defaultValue === undefined || p.defaultValue === null) {
         if (p.type !== 'URL') err('default', '«' + p.name + '»: не заполнено значение по умолчанию (defaultValue). ' + RULES.errors.missingParam);
@@ -2872,9 +2872,11 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       }
       const T = RULES.types[p.type];
       if (!T) continue;
+      let bare = false;
       for (const u of uses) {
-        if (u.tk.t === 'expr' && T.composite && !u.fields.length && p.type !== 'COLLECTION') {
-          err('composite', '«' + p.name + '» (' + p.type + ') вставлен без поля. Mindbox: «' + RULES.errors.composite + '».');
+        if (u.tk.t === 'expr' && T.composite && !u.fields.length && p.type !== 'COLLECTION' && !bare) {
+          bare = true;
+          err('composite', '«' + p.name + '» (' + p.type + ') вставлен без поля' + (p.type === 'URL' ? ': нужен ${editor.' + p.name + '.url} или "type": "SIMPLE_TEXT" в JSON' : '') + '. Mindbox: «' + (p.type === 'URL' ? RULES.errors.compositeUrl : RULES.errors.composite) + '».');
         }
         const where = RULES.places[p.type];
         if (where && u.tk.t === 'expr' && !u.fields.length && !where.re.test(html.slice(Math.max(0, u.tk.pos - 40), u.tk.pos))) {
@@ -3494,15 +3496,16 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const at = r.json.findIndex((p) => ofList(p.name));
     const rest = r.json.filter((p) => !ofList(p.name));
     const kept = rest.filter((p) => new RegExp('editor\\.' + p.name + '(?![A-Za-z0-9_])', 'i').test(outHtml));
+    const gridHtml = newParams.filter((q) => q.type === 'URL').reduce((s, q) => s.replace(new RegExp('\\$\\{\\s*editor\\.' + q.name + '\\s*\\}', 'g'), '${editor.' + q.name + '.url}'), outHtml);
     const head = kept.filter((p) => rest.indexOf(p) < at);
     const tail = kept.filter((p) => rest.indexOf(p) >= at);
     const json = [{ name: 'collection', type: 'COLLECTION', defaultValue: { size } }].concat(renumberGroups(head.concat(newParams, tail)));
     notes.push('Какие товары показать, выбирается в конструкторе Mindbox в настройках блока. По умолчанию в блоке ' + size + ' ' + (size % 10 === 1 && size % 100 !== 11 ? 'товар' : size % 10 >= 2 && size % 10 <= 4 && (size % 100 < 10 || size % 100 >= 20) ? 'товара' : 'товаров') + '.');
     return Object.assign({}, r, {
       name,
-      html: outHtml,
+      html: gridHtml,
       json,
-      checks: validate(outHtml, json),
+      checks: validate(gridHtml, json),
       same: null,
       notes,
       spares: null,
