@@ -4711,7 +4711,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     };
     const parts = [];
     if (d && d.changedAt) {
-      parts.push('Правила сверены с документацией Mindbox в редакции от ' + fmt(d.changedAt) + '. Её проверяют каждый день. ');
+      parts.push('Документацию Mindbox проверяем каждый день. Последнее изменение в ней — ' + fmt(d.changedAt) + '. ');
       if (d.unknownTypes && d.unknownTypes.length) parts.push('В документации появились новые типы: ' + d.unknownTypes.join(', ') + ' — инструмент их пока не использует. ');
     } else {
       parts.push('Сверки с документацией Mindbox ещё не было. ');
