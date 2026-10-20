@@ -330,6 +330,7 @@ input.tg:disabled { opacity: .5; cursor: default; }
 .result-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 16px; }
 .howto { flex: 1 1 520px; display: flex; align-items: center; gap: 6px; min-width: 0; padding: 7px 10px 7px 14px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 12px; background: var(--panel); font-size: 13.5px; color: var(--muted); }
 .howto b { color: var(--ink); }
+.screen > .howto { flex: none; }
 .prefix { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--muted); }
 .prefix input { width: 170px; padding: 6px 10px; border: 1px solid var(--field); border-radius: 9px; background: var(--panel); font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; }
 .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 16px; align-content: start; }
@@ -845,26 +846,25 @@ select.vis.is-hidden, select.vis.is-fixed { color: var(--muted); background: var
     <div class="hw">
       <nav class="toc" aria-label="На этой странице"><span class="muted">На этой странице</span><a href="#help-steps">Четыре шага</a><a href="#help-grid">Динамическая товарная сетка</a><a href="#help-not">Чего инструмент не делает намеренно</a><a href="#help-marks">Что значат отметки</a><a href="#help-docs">Документация Mindbox</a></nav>
       <article class="help">
-        <div class="lead"><div><h2>Как это работает</h2><p>Инструмент делит HTML письма на блоки для нового конструктора Mindbox и для каждого блока составляет JSON — список того, что можно менять в конструкторе: тексты, картинки, ссылки, цвета, переключатели «показывать».</p></div></div>
+        <div class="lead"><div><h2>Как это работает</h2><p>Инструмент делит HTML письма на блоки для нового конструктора Mindbox и для каждого блока составляет JSON — список того, что маркетолог сможет менять и скрывать в конструкторе: тексты, картинки, ссылки, цвета, отступы, части блока.</p></div></div>
         <section class="card sec" id="help-steps"><h3>Четыре шага</h3><div class="steps">
-          <div class="st"><span class="sn">1</span><div><b>Письмо</b><p>Перетащите файл письма или вставьте его код.</p></div></div>
-          <div class="st"><span class="sn">2</span><div><b>Какие блоки нужны</b><p>Отметьте нужные блоки. Нажмите на картинку блока — он откроется крупно, и можно посмотреть, как он выглядит на компьютере и на телефоне. Соседние блоки можно склеить в один, а большой — разделить по строкам.</p></div></div>
-          <div class="st"><span class="sn">3</span><div><b>Что можно менять</b><p>Выберите, что можно будет менять в конструкторе.</p></div></div>
-          <div class="st"><span class="sn">4</span><div><b>Готовые блоки</b><p>Нажмите «Сделать блоки». У каждого блока есть кнопки «Копировать HTML» и «Копировать JSON»: скопированное вставьте в Mindbox. Или скачайте все блоки архивом. На вкладке «Настройка» у блока — превью и все его элементы: что маркетолог сможет менять, что скрыто по умолчанию, запасные карточки, названия в конструкторе. Нажмите на элемент в превью — откроется его строка.</p></div></div>
+          <div class="st"><span class="sn">1</span><div><b>Письмо</b><p>Перетащите файл письма, выберите его или вставьте код.</p></div></div>
+          <div class="st"><span class="sn">2</span><div><b>Какие блоки нужны</b><p>Отметьте нужные блоки. Нажмите на картинку блока — он откроется крупно, с видом на компьютере и на телефоне. Соседние блоки можно склеить в один, а большой — разделить по строкам.</p></div></div>
+          <div class="st"><span class="sn">3</span><div><b>Что можно менять</b><p>Выберите, что маркетолог сможет менять и скрывать в конструкторе.</p></div></div>
+          <div class="st"><span class="sn">4</span><div><b>Готовые блоки</b><p>Нажмите «Сделать блоки». У каждого блока есть кнопки «Копировать HTML» и «Копировать JSON» — вставьте скопированное в Mindbox. Все блоки сразу — кнопкой «Скачать все блоки архивом». На вкладке «Настройка» у блока — что маркетолог сможет менять, что скрыто по умолчанию, запасные карточки и названия в конструкторе. Нажмите на элемент в превью — откроется его строка.</p></div></div>
         </div></section>
         <section class="card sec" id="help-grid"><h3>Динамическая товарная сетка</h3>
           <p>Блок, в котором товары подставляет Mindbox. Какие товары и сколько их показывать, маркетолог выбирает в конструкторе, в настройках блока. Сетка строится из одной карточки письма: она служит образцом для каждого товара.</p>
-          <ol class="nl"><li>Загрузите письмо или блок, где есть хотя бы две одинаковые карточки товара. Или у готового блока нажмите «Сделать сеткой».</li><li>В «Настройке сетки» выберите, как карточки встанут на телефоне, сколько строк дать названию товара и сколько товаров в блоке по умолчанию. Инструмент сам находит, что подставит Mindbox: картинку, название, цену, старую цену, ссылку. Если инструмент ошибся, поправьте это в разделе «Инструмент ошибся?».</li><li>На вкладке «Настройка карточки» решите, что в карточке маркетолог сможет менять и что скрыть.</li><li>Скопируйте HTML и JSON сетки и загрузите их в Mindbox.</li></ol>
+          <ol class="nl"><li>Загрузите письмо или блок, где есть хотя бы две одинаковые карточки товара. Или у готового блока нажмите «Сделать сеткой».</li><li>В «Настройке сетки» выберите, как карточки встанут на телефоне, до скольких строк показывать название товара и сколько товаров в блоке по умолчанию. Что подставит Mindbox — картинку, название, цену, старую цену, ссылку, — инструмент находит сам. Ошибся — поправьте в разделе «Инструмент ошибся?».</li><li>На вкладке «Настройка карточки» решите, что в карточке маркетолог сможет менять и что скрыть.</li><li>Скопируйте HTML и JSON сетки и загрузите их в Mindbox.</li></ol>
           <div class="tips">
             <p><b>Товара нет в поиске конструктора?</b> Поиск идёт по каталогу Mindbox и от блока не зависит. Проверьте фильтр по наличию: по умолчанию товары с отметкой «Наличие неизвестно» скрыты — отметьте этот пункт.</p>
-            <p>По умолчанию на телефоне карточки из ряда встают в столбик, как советует справка Mindbox. У названия товара фиксированная высота: длинное название обрежется, и карточки в ряду будут одной высоты.</p>
-            <p>Ширину блока и отступы слева и справа в конструкторе менять нельзя: блок другой ширины не совпадёт по краям с соседними блоками письма.</p>
+            <p>По умолчанию на телефоне карточки из ряда встают в столбик, а у названия товара фиксированная высота: длинное название обрежется, и карточки в ряду будут одной высоты. Так сделан <a href="https://help.mindbox.ru/docs/email-editor-upload-blocks#product-example" target="_blank" rel="noopener">пример сетки в справке Mindbox ↗</a>.</p>
           </div>
         </section>
-        <section class="card sec" id="help-not"><h3>Чего инструмент не делает намеренно</h3><ul class="nots"><li>Не меняет вёрстку. Исключение — письмо шире 600 px: ширина блоков уменьшается до 600 px. Каждый готовый блок сравнивается с письмом, результат — на вкладке «Проверка».</li><li>Не даёт менять в конструкторе ширину блока и отступы слева и справа: блок другой ширины не совпадёт по краям с соседними.</li><li>Не придумывает фон: прозрачный блок остаётся прозрачным.</li><li>Не отмечает блок, который повторяет соседний и отличается только фоном.</li></ul></section>
+        <section class="card sec" id="help-not"><h3>Чего инструмент не делает намеренно</h3><ul class="nots"><li>Не меняет вид блока: готовый блок выглядит так же, как в письме, — это сверяет вкладка «Проверка». Исключение — письмо шире 600 px: инструмент сузит поля слева и справа, а если этого мало — пропорционально уменьшит колонки и картинки. Об этом предупредит уведомление.</li><li>Не выносит в конструктор ширину блока и отступы слева и справа: блок другой ширины не совпадёт по краям с соседними. Отступы сверху и снизу менять можно — пункт «Отступы сверху и снизу» на шаге «Что можно менять».</li><li>Не придумывает фон: прозрачный блок остаётся прозрачным.</li></ul></section>
         <section class="card sec" id="help-marks"><h3>Что значат отметки</h3><ul class="marks legend">
           <li><span class="status ok">Готово</span><span>можно загружать в Mindbox.</span></li>
-          <li><span class="status warn">Есть замечание</span><span>загрузить можно, но сначала прочитайте замечание: оно видно у блока и на вкладке «Проверка».</span></li>
+          <li><span class="status warn">Есть замечание</span><span>загрузить можно, но сначала прочитайте замечание: его видно у блока и на вкладке «Проверка».</span></li>
           <li><span class="status err">Не примет</span><span>Mindbox выдаст ошибку. Что не так — у блока и на вкладке «Проверка».</span></li></ul></section>
         <section class="card sec" id="help-docs"><h3>Документация Mindbox</h3><p id="docs-help"></p></section>
       </article>
@@ -2459,6 +2459,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const ownSpan = (n) => ({ s: n.start, e: n.end, nodes: [n], before: null, inner: true, inline: true });
     const spanTag = (span) => (span.inline ? 'span' : span.nodes.every(isInlineNode) ? 'span' : 'div');
     const heightOf = (span, name) => {
+      if (opt.heights && opt.heights[name] > 0) return Math.round(opt.heights[name]);
       let h = 0;
       for (const n of span.nodes.concat(span.before ? span.before.nodes : [])) {
         const x = estimateHeight(src, n, live);
@@ -2468,7 +2469,6 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         }
         h += x;
       }
-      if (h == null && opt.heights && opt.heights[name] > 0) h = Math.round(opt.heights[name]);
       return h;
     };
     if (opt.toggles && live.length >= 2) {
@@ -2495,9 +2495,11 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         let placeholder = null;
         if (opt.equalHeight && a.item && a.item.sideBySide && !span.inline) {
           const h = heightOf(span, name);
-          if (h != null && h > 0) placeholder = span.inner ? (spanTag(span) === 'div' ? placeholderFor({ tag: 'div' }, h) : null) : placeholderFor(u, h);
+          const w = opt.widths && opt.widths[name] > 0 ? Math.round(opt.widths[name]) : null;
+          if (h != null && h > 0) placeholder = span.inner ? (spanTag(span) === 'div' ? placeholderFor({ tag: 'div' }, h, w) : null) : placeholderFor(u, h, w);
+          const can = span.inner ? spanTag(span) === 'div' : placeholderFor(u, 1) != null;
+          if (can && !(opt.heights && opt.heights[name] > 0)) measure.push(name);
           if (!placeholder) {
-            measure.push(name);
             notes.push('Если скрыть «' + g.label + '», карточка станет ниже соседних: высоту этой части не удаётся определить.');
           }
         }
@@ -2737,13 +2739,14 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return h == null ? null : Math.round(h);
   }
 
-  function placeholderFor(unit, h) {
+  function placeholderFor(unit, h, w) {
     if (unit.tag === 'tr') {
       const cols = els(unit).length;
-      return '<tr><td' + (cols > 1 ? ' colspan="' + cols + '"' : '') + ' height="' + h + '" style="height:' + h + 'px; line-height:' + h + 'px; font-size:1px;">&nbsp;</td></tr>';
+      const fill = w > 0 ? placeholderFor({ tag: 'div' }, h, w) : '&nbsp;';
+      return '<tr><td' + (cols > 1 ? ' colspan="' + cols + '"' : '') + ' height="' + h + '" style="height:' + h + 'px; line-height:' + h + 'px; font-size:1px;">' + fill + '</td></tr>';
     }
     if (unit.tag === 'td' || unit.tag === 'th') return null;
-    return '<div style="height:' + h + 'px; line-height:' + h + 'px; font-size:1px;">&nbsp;</div>';
+    return '<div style="' + (w > 0 ? 'width:' + w + 'px; max-width:100%; ' : '') + 'height:' + h + 'px; line-height:' + h + 'px; font-size:1px;">&nbsp;</div>';
   }
 
   function applyEdits(src, from, to, edits) {
@@ -5076,6 +5079,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     if (name === 'grid') gridSync();
     renderChrome();
     window.scrollTo(0, 0);
+    if (name === 'help') tocPaint();
   }
 
   function go(n) {
@@ -5776,6 +5780,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     if (res.name) o.name = res.name;
     if (S.prefix) o.prefix = S.prefix;
     if (res.heights) o.heights = res.heights;
+    if (res.widths) o.widths = res.widths;
     if (!res.tune) res.tune = newTune();
     res.lists = [];
     res.fields = [];
@@ -5876,8 +5881,9 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     MQ.n++;
     document.body.dataset.measuring = String(MQ.n);
     MQ.p = MQ.p.then(() => measureHeights(r0, letter)).then((hs) => {
-      if (S.letter !== letter || !S.results.includes(res) || !Object.keys(hs).length) return;
-      res.heights = Object.assign({}, res.heights, hs);
+      if (S.letter !== letter || !S.results.includes(res) || !Object.keys(hs.heights).length) return;
+      res.heights = Object.assign({}, res.heights, hs.heights);
+      res.widths = Object.assign({}, res.widths, hs.widths);
       buildOne(res);
       dedupeNames();
       if (res.r0) res.measured = res.r0.html;
@@ -5896,7 +5902,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       try {
         html = E.heightMarks(r0.html, r0.json, r0.measure);
       } catch (e) {
-        resolve({});
+        resolve({ heights: {}, widths: {} });
         return;
       }
       const f = h('iframe', { sandbox: 'allow-same-origin', 'aria-hidden': 'true', tabindex: '-1', title: 'Замер высоты' });
@@ -5905,11 +5911,11 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const finish = () => {
         if (done) return;
         done = true;
-        let out = {};
+        let out = { heights: {}, widths: {} };
         try {
           out = readHeights(f.contentDocument, r0.measure);
         } catch (e) {
-          out = {};
+          out = { heights: {}, widths: {} };
         }
         f.remove();
         resolve(out);
@@ -5940,10 +5946,64 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     });
   }
 
+  function boxOf(from, to) {
+    let top = Infinity;
+    let bottom = -Infinity;
+    let left = Infinity;
+    let right = -Infinity;
+    const nodes = [];
+    const after = (x) => {
+      while (x && !x.nextSibling) x = x.parentNode;
+      return x && x.nextSibling;
+    };
+    for (let x = after(from); x !== to; ) {
+      if (!x) return null;
+      if (x.contains(to)) {
+        x = x.firstChild;
+        continue;
+      }
+      if (x.nodeType === 3 && x.data.trim()) return null;
+      if (x.nodeType === 1) nodes.push(x);
+      if (x.nodeType === 1 && x.getClientRects().length) {
+        const b = x.getBoundingClientRect();
+        const cs = x.ownerDocument.defaultView.getComputedStyle(x);
+        top = Math.min(top, b.top - (parseFloat(cs.marginTop) || 0));
+        bottom = Math.max(bottom, b.bottom + (parseFloat(cs.marginBottom) || 0));
+        left = Math.min(left, b.left);
+        right = Math.max(right, b.right);
+      }
+      x = after(x);
+    }
+    return bottom > top ? { h: bottom - top, w: right - left, nodes } : null;
+  }
+
+  function widthMatters(box) {
+    const first = box.nodes[0];
+    const d = first.ownerDocument;
+    const chain = [];
+    for (let a = first.parentElement; a && a !== d.body; a = a.parentElement) chain.push(a);
+    const was = chain.map((a) => a.getBoundingClientRect().width);
+    const row = first.tagName === 'TR';
+    const ph = d.createElement(row ? 'tr' : 'div');
+    const cell = row ? ph.appendChild(d.createElement('td')) : ph;
+    if (row) cell.colSpan = first.cells.length || 1;
+    cell.style.height = box.h + 'px';
+    const display = box.nodes.map((x) => x.style.display);
+    first.parentNode.insertBefore(ph, first);
+    for (const x of box.nodes) x.style.display = 'none';
+    const moved = chain.some((a, i) => Math.abs(a.getBoundingClientRect().width - was[i]) > 0.5);
+    ph.remove();
+    box.nodes.forEach((x, i) => {
+      x.style.display = display[i];
+    });
+    return moved;
+  }
+
   function readHeights(d, names) {
     const want = new Set(names);
     const starts = new Map();
     const sums = {};
+    const widths = {};
     const bad = new Set();
     const w = d.createTreeWalker(d.body, NodeFilter.SHOW_COMMENT);
     for (let n = w.nextNode(); n; n = w.nextNode()) {
@@ -5962,10 +6022,17 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       for (const img of d.images) {
         if (rg.intersectsNode(img) && !img.getAttribute('height') && !(img.complete && img.naturalWidth > 0)) bad.add(m[2]);
       }
-      sums[m[2]] = (sums[m[2]] || 0) + rg.getBoundingClientRect().height;
+      const box = boxOf(s, n);
+      sums[m[2]] = (sums[m[2]] || 0) + (box ? box.h : rg.getBoundingClientRect().height);
+      if (box && widthMatters(box)) widths[m[2]] = box.w;
+      else delete widths[m[2]];
     }
-    const out = {};
-    for (const [k, v] of Object.entries(sums)) if (!bad.has(k) && v > 0) out[k] = Math.round(v);
+    const out = { heights: {}, widths: {} };
+    for (const [k, v] of Object.entries(sums)) {
+      if (bad.has(k) || !(v > 0)) continue;
+      out.heights[k] = Math.round(v);
+      if (widths[k] > 0) out.widths[k] = Math.round(widths[k]);
+    }
     return out;
   }
 
@@ -7668,18 +7735,51 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     paint();
   }
 
+  let tocPaint = () => {};
+
   function initToc() {
     const links = $$('.toc a');
-    if (!('IntersectionObserver' in window) || !links.length) return;
-    const secs = links.map((a) => $(a.getAttribute('href'))).filter(Boolean);
-    const seen = new Map();
-    const ob = new IntersectionObserver((ents) => {
-      for (const e of ents) seen.set(e.target.id, e.isIntersecting);
-      const first = secs.find((s) => seen.get(s.id));
-      if (!first) return;
-      for (const a of links) a.classList.toggle('on', a.getAttribute('href') === '#' + first.id);
-    }, { rootMargin: '-80px 0px -45% 0px' });
-    for (const s of secs) ob.observe(s);
+    const secs = links.map((a) => $(a.getAttribute('href')));
+    if (!links.length || secs.some((s) => !s)) return;
+    const LINE = 100;
+    const plan = () => {
+      const y = window.scrollY;
+      const max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      const tops = secs.map((s) => s.getBoundingClientRect().top + y);
+      const acts = tops.map((t) => t - LINE);
+      const j = acts.findIndex((a) => a > max);
+      if (j >= 0) {
+        const from = j > 0 ? Math.min(acts[j - 1], max) : 0;
+        for (let k = j; k < acts.length; k++) acts[k] = from + ((max - from) * (k - j + 1)) / (acts.length - j);
+      }
+      return { y, tops, acts };
+    };
+    const paint = () => {
+      if ($('#tab-help').hidden) return;
+      const { y, acts } = plan();
+      let on = 0;
+      acts.forEach((a, k) => {
+        if (y >= a - 2) on = k;
+      });
+      links.forEach((a, k) => a.classList.toggle('on', k === on));
+    };
+    links.forEach((a, k) => a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const { tops, acts } = plan();
+      const next = k + 1 < acts.length ? acts[k + 1] - 3 : Infinity;
+      window.scrollTo(0, Math.max(acts[k], Math.min(tops[k] - 16, next)));
+      paint();
+    }));
+    let raf = 0;
+    const later = () => {
+      if (!raf) raf = requestAnimationFrame(() => {
+        raf = 0;
+        paint();
+      });
+    };
+    window.addEventListener('scroll', later, { passive: true });
+    window.addEventListener('resize', later);
+    tocPaint = paint;
     links[0].classList.add('on');
   }
 
