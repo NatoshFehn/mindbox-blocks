@@ -501,7 +501,13 @@ h3 { margin: 18px 0 6px; font-size: 15px; }
 .res-list .rtext { display: grid; min-width: 0; }
 .res-list .rtitle { font-size: 13.5px; font-weight: 600; overflow-wrap: anywhere; }
 .res-list .rname { color: var(--muted); overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
-.res-grid { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; margin: 0 0 10px; font-size: 13.5px; }
+.res-top { display: grid; gap: 12px 16px; margin: 0 0 10px; }
+.res-top.with-aside { grid-template-columns: minmax(0, 1fr) minmax(200px, 250px); align-items: start; }
+.res-main > .res-sum { margin-bottom: 0; }
+.res-grid { display: grid; gap: 6px; justify-items: start; padding: 11px 13px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; background: var(--panel); font-size: 13px; line-height: 1.45; color: var(--muted); }
+.res-grid b { color: var(--ink); font-size: 13.5px; }
+.res-grid .btn { margin-top: 2px; }
+@media (max-width: 1100px) { .res-top.with-aside { grid-template-columns: minmax(0, 1fr); } }
 .res-title { display: flex; gap: 10px; align-items: flex-start; margin: 0 0 10px; font-size: 18px; line-height: 26px; overflow-wrap: anywhere; }
 .res-title .rnum { font-size: 16px; line-height: 24px; min-width: 36px; background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .res-list .rstatus { font-size: 12.5px; font-weight: 600; }
@@ -628,15 +634,8 @@ pre.code i { color: var(--muted); }
 .tune-intro { padding: 10px 14px; border-radius: 10px; background: var(--code-bg); font-size: 14px; line-height: 1.55; }
 .tune-intro p { margin: 0 0 6px; }
 .tune-intro ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
-.tune-to-grid { margin: 0; padding: 9px 14px; border: 1px dashed var(--accent); border-radius: 10px; font-size: 14px; }
 .vis-demo { display: inline-block; padding: 0 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); font-size: 13px; }
 .tune > .hint { margin: 0; }
-.tune-opts { padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
-.tune-opts-head { display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; font-size: 14px; cursor: pointer; list-style: none; }
-.tune-opts-head::-webkit-details-marker { display: none; }
-.tune-opts-head::before { content: ""; align-self: center; width: 6px; height: 6px; margin-right: 2px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(-45deg); transition: transform .15s; }
-.tune-opts[open] > .tune-opts-head { margin-bottom: 8px; }
-.tune-opts[open] > .tune-opts-head::before { transform: rotate(45deg); }
 .opts.compact { display: flex; flex-wrap: wrap; gap: 6px; }
 .opts.compact .opt { align-items: center; gap: 6px; padding: 3px 10px 3px 8px; border: 1px solid var(--line); border-radius: 999px; font-size: 13.5px; }
 .opts.compact .opt input { margin: 0; width: 15px; height: 15px; }
@@ -645,9 +644,28 @@ pre.code i { color: var(--muted); }
 
 .tune-grid { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
 .tune-side { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; padding: 10px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px; }
-.tune-list { display: grid; gap: 18px; align-content: start; min-width: 0; }
+.tune-list { display: grid; gap: 16px; align-content: start; min-width: 0; }
+.tune-sec, .acc-group { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.tune-sec h4 { margin: 0 0 2px; }
+.acc { min-width: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.acc.open { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.acc-head { display: flex; align-items: center; gap: 10px; width: 100%; min-width: 0; overflow: hidden; padding: 9px 12px 9px 10px; border: none; border-radius: 10px; background: none; color: inherit; font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
+.acc-head:hover { background: var(--accent-soft); }
+.acc-head:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.acc.open > .acc-head { border-radius: 10px 10px 0 0; border-bottom: 1px solid var(--line); background: var(--accent-soft); }
+.acc-chev { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--code-bg); color: var(--ink); }
+.acc-chev::before { content: ""; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateX(-1px) rotate(-45deg); transition: transform .15s; }
+.acc.open .acc-chev { background: var(--accent); color: var(--accent-ink); }
+.acc.open .acc-chev::before { transform: translateY(-2px) rotate(45deg); }
+.acc-title { flex: none; max-width: 60%; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acc-sum { flex: 1; min-width: 0; color: var(--muted); font-size: 13px; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acc-body { display: grid; gap: 4px; padding: 8px 8px 10px; }
+.acc-body > .hint { margin: 0 4px 4px; font-size: 13.5px; }
+.acc-body > .link { justify-self: start; margin: 4px 6px 0; font-size: 14px; }
+.acc-body > .opts.compact { padding: 0 4px; }
+.acc-body input.el-title { border-color: var(--line); background: var(--panel); }
 .tune-list > .link { justify-self: start; font-size: 14px; }
-.tune-sec h4 { margin: 0; font-size: 15px; }
+.tune-sec h4 { font-size: 15px; }
 .tune-sec .hint { margin: 2px 0 8px; font-size: 13.5px; }
 .tune-cap { margin: 0 0 8px; color: var(--muted); font-size: 13px; }
 
@@ -664,16 +682,14 @@ pre.code i { color: var(--muted); }
 .el + .el { border-top: 1px solid var(--line); }
 .el-row { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 4px 8px; padding: 5px 6px; border-radius: 8px; font-size: 14px; }
 .el-row > .fchips, .el-row > .el-sum { grid-column: 2 / -1; }
-.el-row.flat, .el-parts .el-row { grid-template-columns: minmax(0, 1fr) auto; }
-.el-row.flat { padding-left: 36px; }
+.el-row.flat, .el-parts .el-row, .el.set > .el-row, .el-row.top { grid-template-columns: minmax(0, 1fr) auto; }
+.el-row.top > .fchips, .el-row.top > .el-sum, .el.set > .el-row > .fchips { grid-column: 1 / -1; padding-left: 7px; }
+.el-row.flat { padding-left: 6px; }
 .el-row.flat .el-title { max-width: none; }
 .el-row.flat > .fchips { grid-column: auto; justify-content: flex-end; }
 .el-parts .el-row > .fchips { grid-column: 1 / -1; padding-left: 7px; }
 .el-parts .el-row.el-head { grid-template-columns: 22px minmax(0, 1fr) auto; }
 .el-parts .el-row.el-head > .fchips, .el-parts .el-row.el-head > .el-sum { grid-column: 2 / -1; padding-left: 7px; }
-.tune-names { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
-.tune-names > summary { color: var(--muted); font-size: 13.5px; cursor: pointer; }
-.tune-names[open] > summary { margin-bottom: 4px; }
 .el-cap { margin: 8px 0 2px 6px; color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
 .el-cap:first-child { margin-top: 2px; }
 .el-row:hover, .el-row:focus-within { background: var(--accent-soft); }
@@ -696,10 +712,12 @@ select.vis.is-hidden, select.vis.is-fixed { color: var(--muted); background: var
 
 .fchips { display: flex; flex-wrap: wrap; gap: 4px; padding-left: 7px; }
 .el-row.flat > .fchips { padding-left: 0; }
-.fchip { display: inline-flex; align-items: center; gap: 5px; padding: 1px 9px; border: 1px solid var(--accent); border-radius: 999px; background: var(--accent-soft); color: var(--ink); font: inherit; font-size: 12.5px; line-height: 1.6; cursor: pointer; }
+.fchip { display: inline-flex; align-items: center; gap: 5px; padding: 1px 9px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--ink); font: inherit; font-size: 12.5px; line-height: 1.6; cursor: pointer; }
+.fchip:hover:not(.cat):not(.demo) { border-color: var(--accent); }
 .fchip[aria-pressed="false"] { border-style: dashed; border-color: var(--line); background: transparent; color: var(--muted); }
 .fchip[aria-pressed="mixed"] { border-style: dashed; background: transparent; }
 .fchip[aria-pressed]::before { content: ""; flex: none; width: 10px; height: 10px; background: currentColor; -webkit-mask: var(--ico) center / contain no-repeat; mask: var(--ico) center / contain no-repeat; }
+.fchip[aria-pressed="true"]::before { background: var(--ok); }
 .fchip[aria-pressed="true"] { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6.5l2.5 2.5L10 3.5' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
 .fchip[aria-pressed="false"] { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Crect x='2' y='5.5' width='8' height='5.5' rx='1.2'/%3E%3Cpath d='M4 5.5V4a2 2 0 0 1 4 0v1.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3C/svg%3E"); }
 .fchip[aria-pressed="mixed"] { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6h7' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); }
@@ -860,7 +878,7 @@ select.vis.is-hidden, select.vis.is-fixed { color: var(--muted); background: var
 
       <div class="step" id="step-opts">
         <h2><span class="num">3</span>Что можно будет менять в конструкторе</h2>
-        <p class="hint">Это правило сразу для всех блоков. Каждый блок потом можно настроить отдельно: у готового блока откройте вкладку «Настройка» — там видно, какие поля менять, что скрыть и сколько запасных карточек добавить.</p>
+        <p class="hint">Выбор действует сразу для всех блоков. Потом каждый блок можно настроить отдельно: у готового блока откройте вкладку «Настройка» — там отмечают, какие поля можно менять, что скрыть и сколько запасных карточек добавить.</p>
         <div id="opts"></div>
       </div>
 
@@ -876,7 +894,7 @@ select.vis.is-hidden, select.vis.is-fixed { color: var(--muted); background: var
         <span id="result-sum"></span>
         <button type="button" id="zip" class="btn">Скачать все блоки архивом</button>
       </div>
-      <p class="hint">Как загрузить в Mindbox: в любой рассылке или шаблоне откройте меню «Блоки» и нажмите &lt; &gt;. Вставьте HTML на вкладку HTML, JSON — на вкладку JSON. Блок появится во вкладке «Сохранённые».</p>
+      <p class="hint">Как загрузить в Mindbox: в любой рассылке или шаблоне откройте меню «Блоки» и нажмите &lt; &gt;. Вставьте HTML на вкладку HTML, JSON — на вкладку JSON. Блок появится на вкладке «Сохранённые».</p>
       <div class="result">
         <ul id="res-list" class="res-list"></ul>
         <div id="res-view" class="res-view"></div>
@@ -893,7 +911,7 @@ select.vis.is-hidden, select.vis.is-fixed { color: var(--muted); background: var
         <span>или <button type="button" class="link" id="g-pick">выберите файл</button>, или <button type="button" class="link" id="g-paste-open">вставьте код</button></span>
         <input type="file" id="g-file" accept=".html,.htm,text/html" hidden>
       </div>
-      <p id="g-intro" class="hint intro">Из блока с одинаковыми карточками товаров получится динамическая товарная сетка. Инструмент берёт одну карточку — первую — и делает из неё образец: по нему Mindbox нарисует каждый товар. Загрузите письмо целиком: блоки с карточками найдутся сами. Или нажмите «Сделать динамической товарной сеткой» у готового блока на вкладке «Сделать блоки».</p>
+      <p id="g-intro" class="hint intro">Из блока с одинаковыми карточками товаров получится динамическая товарная сетка. Инструмент берёт первую карточку и делает из неё образец: по нему Mindbox нарисует каждый товар. Загрузите письмо целиком — блоки с карточками найдутся сами. Или нажмите «Сделать динамической товарной сеткой» у готового блока на вкладке «Сделать блоки».</p>
       <p id="g-from-make-row" class="hint" hidden><button type="button" class="btn" id="g-from-make"></button></p>
       <div id="g-paste-box" class="paste-box" hidden>
         <textarea id="g-paste" spellcheck="false" placeholder="Вставьте сюда код письма или блока с карточками товаров"></textarea>
@@ -909,7 +927,7 @@ select.vis.is-hidden, select.vis.is-fixed { color: var(--muted); background: var
 
     <div class="step" id="g-step-result" hidden>
       <h2><span class="num">3</span>Динамическая товарная сетка</h2>
-      <p class="hint">Как загрузить в Mindbox: в любой рассылке или шаблоне откройте меню «Блоки» и нажмите &lt; &gt;. Вставьте HTML на вкладку HTML, JSON — на вкладку JSON. Блок появится во вкладке «Сохранённые».</p>
+      <p class="hint">Как загрузить в Mindbox: в любой рассылке или шаблоне откройте меню «Блоки» и нажмите &lt; &gt;. Вставьте HTML на вкладку HTML, JSON — на вкладку JSON. Блок появится на вкладке «Сохранённые».</p>
       <div id="g-view" class="res-view g-view"></div>
     </div>
   </section>
@@ -917,25 +935,26 @@ select.vis.is-hidden, select.vis.is-fixed { color: var(--muted); background: var
   <section id="tab-help" class="tab" hidden>
     <div class="step help">
       <h2>Как это работает</h2>
-      <p>Инструмент делит HTML письма на блоки для нового конструктора Mindbox и к каждому пишет JSON — список того, что можно будет менять в конструкторе: тексты, картинки, ссылки, цвета, переключатели «показывать».</p>
+      <p>Инструмент делит HTML письма на блоки для нового конструктора Mindbox и для каждого блока составляет JSON — список того, что можно менять в конструкторе: тексты, картинки, ссылки, цвета, переключатели «показывать».</p>
       <h3>Четыре шага</h3>
       <ol>
         <li>Перетащите файл письма или вставьте его код.</li>
-        <li>Отметьте нужные блоки. Нажмите на картинку блока — он откроется крупно, на компьютере и на телефоне. Соседние блоки можно склеить в один, а большой — разделить по строкам.</li>
+        <li>Отметьте нужные блоки. Нажмите на картинку блока — он откроется крупно, и можно посмотреть, как он выглядит на компьютере и на телефоне. Соседние блоки можно склеить в один, а большой — разделить по строкам.</li>
         <li>Выберите, что можно будет менять в конструкторе.</li>
-        <li>Нажмите «Сделать блоки». У каждого блока — «Копировать HTML» и «Копировать JSON»: вставьте их в Mindbox. Или скачайте все блоки архивом. На вкладке «Настройка» у блока — превью и все его элементы: что маркетолог сможет менять, что скрыто по умолчанию, запасные карточки, названия в конструкторе. Нажмите на элемент в превью — откроется его строка.</li>
+        <li>Нажмите «Сделать блоки». У каждого блока есть кнопки «Копировать HTML» и «Копировать JSON»: скопированное вставьте в Mindbox. Или скачайте все блоки архивом. На вкладке «Настройка» у блока — превью и все его элементы: что маркетолог сможет менять, что скрыто по умолчанию, запасные карточки, названия в конструкторе. Нажмите на элемент в превью — откроется его строка.</li>
       </ol>
       <h3>Динамическая товарная сетка</h3>
-      <p>Блок, в котором товары подставляет Mindbox. Какие товары и сколько, маркетолог выбирает в конструкторе, в настройках блока. Сетка строится из одной карточки письма — она образец для каждого товара.</p>
+      <p>Блок, в котором товары подставляет Mindbox. Какие товары и сколько их показывать, маркетолог выбирает в конструкторе, в настройках блока. Сетка строится из одной карточки письма: она служит образцом для каждого товара.</p>
       <ol>
-        <li>Загрузите письмо или блок, где две и больше одинаковых карточки товара. Или нажмите «Сделать динамической товарной сеткой» у готового блока.</li>
-        <li>В «Настройке сетки» выберите, как карточки встанут на телефоне, сколько строк дать названию товара и сколько товаров в блоке по умолчанию. Инструмент сам находит, что подставит Mindbox: картинку, название, цену, старую цену, ссылку. Ошибся — поправьте в «Инструмент ошибся?».</li>
+        <li>Загрузите письмо или блок, где есть хотя бы две одинаковые карточки товара. Или у готового блока нажмите «Сделать сеткой» — эта кнопка справа от названия блока.</li>
+        <li>В «Настройке сетки» выберите, как карточки встанут на телефоне, сколько строк дать названию товара и сколько товаров в блоке по умолчанию. Инструмент сам находит, что подставит Mindbox: картинку, название, цену, старую цену, ссылку. Если инструмент ошибся, поправьте это в разделе «Инструмент ошибся?».</li>
         <li>На вкладке «Настройка карточки» решите, что в карточке маркетолог сможет менять и что скрыть.</li>
         <li>Скопируйте HTML и JSON сетки и загрузите их в Mindbox.</li>
       </ol>
-      <p>Карточки в ряд по умолчанию на телефоне встают в столбик, как советует справка Mindbox. У названия товара фиксированная высота: длинное обрежется, и карточки в ряду будут одной высоты.</p>
+      <p>Товара нет в поиске конструктора? Поиск идёт по каталогу Mindbox и от блока не зависит. Проверьте фильтр по наличию: по умолчанию товары с отметкой «Наличие неизвестно» скрыты — отметьте этот пункт.</p>
+      <p>По умолчанию на телефоне карточки из ряда встают в столбик, как советует справка Mindbox. У названия товара фиксированная высота: длинное название обрежется, и карточки в ряду будут одной высоты.</p>
       <p>Ширину блока и отступы слева и справа в конструкторе менять нельзя: блок другой ширины не совпадёт по краям с соседними блоками письма.</p>
-      <h3>Чего инструмент не делает — специально</h3>
+      <h3>Чего инструмент не делает намеренно</h3>
       <ul>
         <li>Не меняет вёрстку. Исключение — письмо шире 600 px: ширина блоков уменьшается до 600 px. Каждый готовый блок сравнивается с письмом, результат — на вкладке «Проверка».</li>
         <li>Не даёт менять в конструкторе ширину блока и отступы слева и справа: блок другой ширины не совпадёт по краям с соседними.</li>
@@ -981,7 +1000,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       ALIGN: { fields: ['align', 'formattedValue', 'class'], composite: true },
       BACKGROUND: { fields: ['color', 'formattedBackgroundStyles', 'type', 'image'], composite: true },
       BORDER: { fields: ['formattedValue'], composite: true },
-      BORDER_RADIUS: { fields: [], composite: true, avoid: 'Скругления не делаем настраиваемыми: Mindbox отвечает «Тип BORDER_RADIUS является составным».' },
+      BORDER_RADIUS: { fields: [], composite: true, avoid: 'скругления нельзя делать настраиваемыми: Mindbox отвечает «Тип BORDER_RADIUS является составным».' },
       COLOR: { fields: [], composite: false },
       TEXT: { fields: [], composite: false },
       TEXT_STYLES: { fields: ['formattedValue', 'class'], composite: true },
@@ -998,7 +1017,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       NUMBER: { fields: [], composite: false, practice: 'Нет в документации, но Mindbox его принимает: им сделаны отступы в принятых блоках.' }
     },
     places: {
-      URL: { re: /\shref\s*=\s*["']\s*$/i, text: 'ссылка — только целиком в атрибуте href, одна в ссылке' },
+      URL: { re: /\shref\s*=\s*["']\s*$/i, text: 'ссылка — только в атрибуте href, целиком и одна на ссылку' },
       IMAGE: { re: /\ssrc\s*=\s*["']\s*$/i, text: 'картинка — только в атрибуте src тега <img>; фоновую картинку Mindbox меняет только через тип BACKGROUND' },
       ICON: { re: /\ssrc\s*=\s*["']\s*$/i, text: 'иконка — только в атрибуте src тега <img>' },
       ALT: { re: /\salt\s*=\s*["']\s*$/i, text: 'alt — только в атрибуте alt тега <img>' }
@@ -2931,7 +2950,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const key = String(p.name).toLowerCase();
       if (P.has(key)) err('dup', 'Параметр «' + p.name + '» описан в JSON дважды.');
       P.set(key, p);
-      if (!RULES.nameRe.test(p.name)) err('name', 'Имя «' + p.name + '»: можно только латиницу, цифры и _.');
+      if (!RULES.nameRe.test(p.name)) err('name', 'Имя «' + p.name + '»: можно использовать только латиницу, цифры и «_».');
       const T = RULES.types[p.type];
       const inDocs = !!(RULES.docs && Array.isArray(RULES.docs.types) && RULES.docs.types.some((t) => t.type === p.type));
       if (!T && inDocs) warn('type', '«' + p.name + '»: тип ' + p.type + ' есть в документации Mindbox, но инструмент его пока не проверяет.');
@@ -2942,7 +2961,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         if (p.type !== 'URL') err('default', '«' + p.name + '»: не заполнено значение по умолчанию (defaultValue). ' + RULES.errors.missingParam);
       }
       if (p.type === 'COLOR' && !/^#[0-9A-Fa-f]{6}$/.test(String(p.defaultValue))) warn('color', '«' + p.name + '»: цвет лучше указать в формате #000000, сейчас ' + p.defaultValue + '.');
-      if (p.type === 'DISPLAY_TOGGLE' && !['true', 'false'].includes(String(p.defaultValue))) err('toggle', '«' + p.name + '»: у переключателя значение должно быть "true" или "false".');
+      if (p.type === 'DISPLAY_TOGGLE' && !['true', 'false'].includes(String(p.defaultValue))) err('toggle', '«' + p.name + '»: у переключателя значение должно быть «true» или «false».');
       if (p.type === 'NUMBER' && !/^-?\d+(\.\d+)?$/.test(String(p.defaultValue))) err('number', '«' + p.name + '»: у числа значение должно быть числом.');
       if (p.type === 'BACKGROUND') {
         const v = p.defaultValue || {};
@@ -2986,7 +3005,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
           warn('field', '«' + p.name + '»: поле .' + u.fields.join('.') + ' для типа ' + p.type + ' не описано в документации.');
         }
         if (u.fields.length && !T.fields.length && p.type !== 'COLLECTION') {
-          err('field', '«' + p.name + '» (' + p.type + ') не имеет полей, а в HTML .' + u.fields.join('.') + '.');
+          err('field', '«' + p.name + '» (' + p.type + ') не имеет полей, а в HTML есть обращение к .' + u.fields.join('.') + '.');
         }
       }
     }
@@ -3424,9 +3443,67 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
 
   const hasLoop = (html) => /@\{\s*for\b/i.test(html);
 
+  function gridSig(html, l) {
+    const it = l.slots[0].items[0];
+    const re = new RegExp('editor\\.(?:show_)?' + l.kind + '_' + it.n + '(?:_([A-Za-z0-9_]+))?', 'g');
+    const s = new Set();
+    for (let m; (m = re.exec(html.slice(it.start, it.end))); ) s.add(m[1] || '');
+    return s;
+  }
+
+  function gridTwins(html, lists, l) {
+    if (gridForm(l) === 'stack') return [];
+    const sig = gridSig(html, l);
+    const like = (o) => [...o].filter((k) => sig.has(k)).length * 2 >= new Set([...o, ...sig]).size;
+    const same = (x) => x.kind === l.kind && gridForm(x) === gridForm(l) && like(gridSig(html, x));
+    const quiet = (a, b) => a <= b && !html.slice(a, b).replace(/\x3C!--[\s\S]*?-->/g, '').replace(/<[^>]*>/g, '').replace(/@\{[^}]*\}/g, '').replace(/&nbsp;|&#160;/g, '').trim();
+    const end = (x) => x.slots[x.slots.length - 1].end;
+    const sorted = lists.slice().sort((p, q) => p.slots[0].start - q.slots[0].start);
+    const at = sorted.indexOf(l);
+    const out = [];
+    for (let i = at + 1, prev = l; i < sorted.length && same(sorted[i]) && quiet(end(prev), sorted[i].slots[0].start); prev = sorted[i++]) out.push(sorted[i]);
+    for (let i = at - 1, next = l; i >= 0 && same(sorted[i]) && quiet(end(sorted[i]), next.slots[0].start); next = sorted[i--]) out.push(sorted[i]);
+    return out.sort((p, q) => p.slots[0].start - q.slots[0].start);
+  }
+
+  function twinCut(html, x, lo, hi) {
+    const a0 = x.slots[0].start;
+    const b0 = x.slots[x.slots.length - 1].end;
+    const idle = (s) => !s.replace(/\x3C!--[\s\S]*?-->/g, '').replace(/@\{[^}]*\}/g, '').trim();
+    let node = x.slots[0].items[0].unit;
+    while (node.parent && (node.start > a0 || node.end < b0)) node = node.parent;
+    while (node.parent && node.parent.type === 'el' && node.parent.closeStart != null && !(node.parent.start <= lo && node.parent.end >= hi) &&
+      idle(html.slice(node.parent.openEnd, node.start) + html.slice(node.end, node.parent.closeStart))) node = node.parent;
+    if (node.type !== 'el' || (node.start < hi && node.end > lo)) return null;
+    let a = node.start;
+    let b = node.end;
+    const before = /\x3C!--\[if[^\]]*\]>(?:(?!\x3C!--)[\s\S])*?<!\[endif\]-->\s*$/;
+    const after = /^\s*\x3C!--\[if[^\]]*\]>(?:(?!\x3C!--)[\s\S])*?<!\[endif\]-->/;
+    for (let p, q; (p = before.exec(html.slice(0, a))) && (q = after.exec(html.slice(b))); ) {
+      if (p.index < hi && b + q[0].length > lo) break;
+      a = p.index;
+      b += q[0].length;
+    }
+    const ls = html.lastIndexOf('\n', a - 1) + 1;
+    if (!html.slice(ls, a).trim()) a = ls;
+    const nl = /^[ \t]*\r?\n/.exec(html.slice(b));
+    if (nl) b += nl[0].length;
+    return [a, b];
+  }
+
   function gridLists(html) {
     if (hasLoop(html)) return [];
-    return findLists(html).filter((l) => gridForm(l)).map((l) => ({ id: l.id, kind: l.kind, form: gridForm(l), perRow: l.perRow || 1, count: l.nums.length, nums: l.nums }));
+    const lists = findLists(html).filter((l) => gridForm(l));
+    const gone = new Set();
+    const out = [];
+    for (const l of lists) {
+      if (gone.has(l)) continue;
+      const tw = gridTwins(html, lists, l);
+      tw.forEach((x) => gone.add(x));
+      const nums = [l].concat(tw).sort((p, q) => p.slots[0].start - q.slots[0].start).flatMap((x) => x.nums);
+      out.push({ id: l.id, kind: l.kind, form: gridForm(l), perRow: l.perRow || 1, count: nums.length, nums });
+    }
+    return out;
   }
 
   function gridFields(r, listId) {
@@ -3568,16 +3645,18 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
 
   function toGrid(r, plan) {
     const pl = plan || {};
-    if (!r || r.failed || r.templated) throw new Error('Блок не подходит для товарной сетки.');
-    if (hasLoop(r.html)) throw new Error('В блоке уже есть цикл письма @{for …}: товарную сетку из него сделать нельзя.');
+    if (!r || r.failed || r.templated) throw new Error('Блок не подходит для динамической товарной сетки.');
+    if (hasLoop(r.html)) throw new Error('В блоке уже есть цикл письма @{for …}: динамическую товарную сетку из него сделать нельзя.');
     const html = r.html;
     const lists = findLists(html).filter((x) => gridForm(x));
     const l = lists.find((x) => x.id === pl.list) || lists[0];
-    if (!l) throw new Error('В блоке нет карточек, которые повторяются.');
+    if (!l) throw new Error('В блоке нет повторяющихся карточек.');
     const form = gridForm(l);
     const kind = l.kind;
     const n = l.nums[0];
     const ru = RULES.kinds[kind].ru;
+    const twins = gridTwins(html, lists, l);
+    const nums = [l].concat(twins).sort((p, q) => p.slots[0].start - q.slots[0].start).flatMap((x) => x.nums);
     const roles = {};
     const used = new Set();
     const fields = gridFields(r, l.id);
@@ -3676,12 +3755,17 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       if (spacer) notes.push('Промежуток между карточками стоит после каждого товара, поэтому после последнего товара тоже будет пустое место той же высоты.');
       body = ['@{for item in editor.collection}', card].concat(spacer ? [spacer] : [], ['@{end for}']).join('\n' + ind);
     }
-    const outHtml0 = form === 'inline' && slots.length > 1
-      ? html.slice(0, from) + body + html.slice(to, slots[0].end) + html.slice(slots[slots.length - 1].end)
-      : html.slice(0, from) + body + html.slice(to);
+    const edits = [[from, to, body]];
+    if (form === 'inline' && slots.length > 1) edits.push([slots[0].end, slots[slots.length - 1].end, '']);
+    for (const x of twins) {
+      const c = twinCut(html, x, slots[0].start, slots[slots.length - 1].end);
+      if (c) edits.push([c[0], c[1], '']);
+    }
+    if (twins.length && !(form === 'inline' && slots.length > 1)) notes.push('Карточки в письме стоят в несколько рядов. В сетке товары идут подряд и сами переносятся на следующий ряд.');
+    const outHtml0 = edits.sort((p, q) => q[0] - p[0]).reduce((s, [a, b, t]) => s.slice(0, a) + t + s.slice(b), html);
     const name = pl.name || r.name + '_dynamic';
     const outHtml = outHtml0.replace(/\x3C!--\s*EDITOR_BLOCK_TEMPLATE\s*:\s*[\w-]+\s*-->/, '\x3C!-- EDITOR_BLOCK_TEMPLATE: ' + name + ' -->');
-    const size = Math.max(1, Math.min(50, Math.floor(Number(pl.size) || l.nums.length)));
+    const size = Math.max(1, Math.min(50, Math.floor(Number(pl.size) || nums.length)));
     const newParams = [];
     const seen = new Set();
     for (const p of cardParams) {
@@ -3703,7 +3787,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const head = kept.filter((p) => rest.indexOf(p) < at);
     const tail = kept.filter((p) => rest.indexOf(p) >= at);
     const json = [{ name: 'collection', type: 'COLLECTION', defaultValue: { size } }].concat(renumberGroups(head.concat(newParams, tail)));
-    const samples = l.nums.map((k) => {
+    const samples = nums.map((k) => {
       const o = {};
       for (const f of fields) {
         if (!roles[f.name]) continue;
@@ -3714,7 +3798,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       }
       return o;
     });
-    notes.push('Какие товары показать, выбирается в конструкторе Mindbox в настройках блока. По умолчанию в блоке ' + size + ' ' + (size % 10 === 1 && size % 100 !== 11 ? 'товар' : size % 10 >= 2 && size % 10 <= 4 && (size % 100 < 10 || size % 100 >= 20) ? 'товара' : 'товаров') + '.');
+    notes.push('Какие товары показывать, выбирают в конструкторе Mindbox, в настройках блока. По умолчанию в блоке ' + size + ' ' + (size % 10 === 1 && size % 100 !== 11 ? 'товар' : size % 10 >= 2 && size % 10 <= 4 && (size % 100 < 10 || size % 100 >= 20) ? 'товара' : 'товаров') + '.');
     return Object.assign({}, r, {
       name,
       html: gridHtml,
@@ -3724,7 +3808,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       notes,
       spares: null,
       pinned: null,
-      grid: { list: l.id, form, perRow: l.perRow || 1, count: l.nums.length, size, roles, mobile, lines, samples }
+      grid: { list: l.id, form, perRow: l.perRow || 1, count: nums.length, size, roles, mobile, lines, samples }
     });
   }
 
@@ -5177,19 +5261,19 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     renderOpts();
   }
 
-  const parts = (n) => n + ' ' + (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 'части' : 'частей');
+  const parts = (n) => plural(n, 'часть', 'части', 'частей');
 
   function splitNote(x) {
     const name = x.title ? 'Блок «' + x.title + '»' : 'Первый блок';
     if (x.reason === 'header') return name + ' разделён на ' + parts(x.parts) + ': в письме шапка сверстана одной таблицей с баннером или текстом';
-    if (x.reason === 'em') return name + ' разделён на ' + parts(x.parts) + ' по разметке старого конструктора Mindbox: каждая его строка отмечена там как отдельный блок';
-    return 'Логотип, баннер и другие строки, которые в письме лежат вне блоков, вынесены в отдельные блоки: ' + plural(x.parts, 'блок', 'блока', 'блоков');
+    if (x.reason === 'em') return name + ' разделён на ' + parts(x.parts) + ' по разметке старого конструктора Mindbox: в нём каждая строка отмечена как отдельный блок';
+    return 'Логотип, баннер и другие строки, которые в письме лежат вне блоков, вынесены в отдельные блоки (' + plural(x.parts, 'блок', 'блока', 'блоков') + ')';
   }
 
   function fitNote(f) {
-    return 'Текущее письмо шире (' + f.from + ' px), чем стандартная ширина мастер-шаблона для нового конструктора (' + f.to + ' px). ' +
-      'Ширина письма будет изменена автоматически путём уменьшения пустых полей слева и справа' + (f.scaled ? ', а затем пропорционального уменьшения колонок и картинок' : '') + '. ' +
-      'Если результат вас не устроил, измените ширину самостоятельно в исходном HTML-файле.';
+    return 'Письмо шире (' + f.from + ' px) стандартной ширины мастер-шаблона для нового конструктора (' + f.to + ' px). ' +
+      'Ширину инструмент уменьшит сам: сузит пустые поля слева и справа' + (f.scaled ? ', а затем пропорционально уменьшит колонки и картинки' : '') + '. ' +
+      'Если результат не подходит, поменяйте ширину в исходном HTML-файле сами.';
   }
 
   function renderInfo() {
@@ -5429,7 +5513,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         name: res.name || S.letter.list[res.ids[0]].suggested,
         html: '',
         json: [],
-        checks: [{ level: 'error', code: 'crash', text: 'Блок не удалось разметить. Сохраните исходный HTML-файл письма: по нему можно найти и исправить ошибку инструмента. Подробности: ' + e.message }],
+        checks: [{ level: 'error', code: 'crash', text: 'Не удалось разметить блок. Сохраните исходный HTML-файл письма: по нему можно найти ошибку в инструменте. Подробности: ' + e.message }],
         same: { equal: true },
         notes: [],
         report: {},
@@ -5523,7 +5607,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     }
     const r = res.r;
     const st = statusOf(r);
-    const nameIn = h('input', { value: r.name, spellcheck: 'false', title: 'Латиница, цифры и _. Русские буквы переведутся сами' });
+    const nameIn = h('input', { value: r.name, spellcheck: 'false', title: 'Только латиница, цифры и «_». Русские буквы заменятся латинскими автоматически' });
     nameIn.addEventListener('change', () => {
       const v = translit(nameIn.value);
       if (!v) {
@@ -5550,9 +5634,10 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       r.merged ? 'склеены блоки ' + r.merged.map((i) => i + 1).join(', ') : null
     ].filter(Boolean).join(' · ');
     const sum = sumText ? h('div', { class: 'res-sum' }, sumText) : null;
-    const toGridRow = !r.failed && gridable(res) ? h('div', { class: 'res-grid' },
-      h('button', { type: 'button', class: 'btn', onclick: () => gridFromBlock(res) }, 'Сделать динамической товарной сеткой'),
-      h('span', { class: 'muted' }, 'одна карточка, товары подставит Mindbox')) : null;
+    const toGrid = !r.failed && gridable(res) ? h('aside', { class: 'res-grid' },
+      h('b', null, 'Динамическая товарная сетка'),
+      h('span', null, 'В блоке останется одна карточка. Товары в неё подставит Mindbox.'),
+      h('button', { type: 'button', class: 'btn', onclick: () => gridFromBlock(res) }, 'Сделать сеткой')) : null;
     const issues = r.checks.filter((c) => c.level !== 'ok').length + (r.same && !r.same.equal ? 1 : 0);
     const fi = firstIssue(r);
     const alert = fi && S.sub !== 'check' ? h('div', { class: 'res-alert ' + fi.level },
@@ -5579,7 +5664,8 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     else if (S.sub === 'html') pane = codePane(r.html, 'HTML', r.name + '.html');
     else if (S.sub === 'json') pane = jsonPane(r.json, r.name);
     else pane = checksPane(r);
-    view.replaceChildren(...[title, head, sum, toGridRow, alert, sub, pane].filter(Boolean));
+    const top = h('div', { class: 'res-top' + (toGrid ? ' with-aside' : '') }, h('div', { class: 'res-main' }, ...[title, head, sum].filter(Boolean)), toGrid);
+    view.replaceChildren(...[top, alert, sub, pane].filter(Boolean));
   }
 
   const typeRu = (p) => (p.type === 'SIMPLE_TEXT' && /_url(_\d+)?$/.test(p.name) ? 'ссылка' : TYPE_RU[p.type]) || p.type;
@@ -5822,8 +5908,11 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       for (const n of names || []) {
         for (const x of d.querySelectorAll('[data-mb~="' + n + '"]')) {
           x.classList.add('mb-hl');
-          if (!first) first = x;
         }
+      }
+      for (const x of d.querySelectorAll('.mb-hl .mb-hl')) x.classList.remove('mb-hl');
+      for (const x of d.querySelectorAll('.mb-hl')) {
+        if (!first || x.getBoundingClientRect().top < first.getBoundingClientRect().top) first = x;
       }
       if (first && scroll) {
         const sc = f.getBoundingClientRect().height / (f.offsetHeight || 1);
@@ -5838,15 +5927,15 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
   function tuneIntro(grid) {
     const chip = (on, text) => h('span', { class: 'fchip demo', 'aria-pressed': String(on) }, text);
     return h('div', { class: 'tune-intro' },
-      h('p', null, h('b', null, grid ? 'Настройка карточки товара. ' : 'Настройка этого блока. '),
-        grid
-          ? 'Сетка строится из одной карточки: по ней Mindbox нарисует все товары. Здесь решаете, что в этой карточке маркетолог сможет менять в конструкторе, а что останется как в письме.'
-          : 'Здесь решаете, что маркетолог сможет менять в этом блоке в конструкторе Mindbox, а что останется ровно как в письме. Другие блоки это не трогает.'),
+      h('p', null, grid
+        ? 'Сетка строится из одной карточки: по ней Mindbox нарисует все товары. Здесь вы решаете, что в этой карточке маркетолог сможет менять в конструкторе.'
+        : 'Здесь вы решаете, что маркетолог сможет менять в этом блоке в конструкторе Mindbox. Другие блоки эти настройки не затрагивают.'),
       h('ul', null,
-        h('li', null, chip(true, 'текст'), ' — можно менять в конструкторе. Нажмите — поле зашьётся как в письме и пропадёт из конструктора: ', chip(false, 'текст')),
-        grid ? h('li', null, h('span', { class: 'fchip demo cat' }, 'из каталога'), ' — это подставит Mindbox из данных товара.') : null,
-        h('li', null, h('span', { class: 'vis-demo' }, 'Виден, можно скрыть'), ' — можно ли спрятать элемент в конструкторе. «Виден всегда» — переключателя в конструкторе не будет.'),
-        h('li', null, 'Название элемента можно переписать — так он будет подписан в конструкторе. Нажмите на элемент в превью — найдётся его строка.')));
+        h('li', null, 'Справа — разделы по элементам. Раскройте раздел, и его элементы обведутся в превью красной рамкой. Можно и наоборот: нажмите на элемент в превью — откроется его раздел.'),
+        h('li', null, chip(true, 'текст'), ' — поле можно менять в конструкторе. Нажмите на него, и поле останется как в письме, а из конструктора пропадёт: ', chip(false, 'текст')),
+        grid ? h('li', null, h('span', { class: 'fchip demo cat' }, 'из каталога'), ' — это поле Mindbox заполнит из данных товара.') : null,
+        h('li', null, h('span', { class: 'vis-demo' }, 'Виден, можно скрыть'), ' — маркетолог сможет скрыть элемент в конструкторе. «Виден всегда» — скрыть нельзя.'),
+        h('li', null, 'Название элемента можно изменить — так он будет подписан в конструкторе.')));
   }
 
   function tunePane(res, ctx) {
@@ -5868,45 +5957,69 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const box = h('div', { class: 'tune' });
     box.append(tuneIntro(cx.grid));
 
-    if (!cx.grid) {
-      const head = h('summary', { class: 'tune-opts-head' }, h('b', null, 'Сразу для всего блока'),
-        res.own
-          ? h('span', { class: 'muted' }, 'свои правила · ', h('button', {
-            type: 'button',
-            class: 'link',
-            onclick: () => {
-              res.own = false;
-              res.opts = Object.assign({}, S.opts);
-              apply();
-            }
-          }, 'Вернуть как в шаге 3'))
-          : h('span', { class: 'muted' }, 'как выбрано в шаге 3'));
-      const optsBox = h('details', { class: 'tune-opts', open: res.own || res.optsOpen || null }, head, optsPanel(res.opts, () => {
+    let pv = null;
+    let activeNames = [];
+    const show = (names, scroll) => {
+      if (pv) pv.light(names, scroll);
+    };
+    const secs = [];
+    const acc = (key, title, sum, body, names, hits) => {
+      const open = res.active === key;
+      if (open) activeNames = names || [];
+      const head = h('button', {
+        type: 'button',
+        class: 'acc-head',
+        'aria-expanded': String(open),
+        onclick: () => {
+          res.active = open ? null : key;
+          res.seek = !open;
+          cx.rerender();
+        }
+      }, h('span', { class: 'acc-chev' }), h('span', { class: 'acc-title' }, title), sum ? h('span', { class: 'acc-sum' }, sum) : null);
+      if (names && names.length) {
+        head.addEventListener('mouseenter', () => show(names));
+        head.addEventListener('mouseleave', () => show(activeNames));
+      }
+      const sec = h('section', { class: 'acc' + (open ? ' open' : '') }, head);
+      sec.dataset.key = key;
+      if (open) sec.append(h('div', { class: 'acc-body' }, ...[].concat(body()).filter(Boolean)));
+      secs.push({ key, open, hits: hits || names || [] });
+      return sec;
+    };
+
+    const optsSec = cx.grid ? null : acc('opts', 'Сразу для всего блока', res.own ? 'свои правила' : 'как выбрано в шаге 3', () => [
+      h('p', { class: 'hint' }, 'Те же правила, что в шаге 3, но только для этого блока.'),
+      optsPanel(res.opts, () => {
         res.own = true;
         apply();
-      }, true));
-      optsBox.addEventListener('toggle', () => {
-        res.optsOpen = optsBox.open;
-      });
-      box.append(optsBox);
-    }
+      }, true),
+      res.own ? h('button', {
+        type: 'button',
+        class: 'link',
+        onclick: () => {
+          res.own = false;
+          res.opts = Object.assign({}, S.opts);
+          apply();
+        }
+      }, 'Вернуть как в шаге 3') : null
+    ]);
 
-    if (res.r.failed) return box;
-    if (!cx.grid && gridable(res)) {
-      box.append(h('p', { class: 'tune-to-grid' }, 'Здесь каждая карточка настраивается отдельно. Если товары в карточки должен подставлять Mindbox, нужна динамическая товарная сетка: в ней одна карточка-образец, и настройка — только для неё. ',
-        h('button', { type: 'button', class: 'link', onclick: () => gridFromBlock(res) }, 'Сделать динамической товарной сеткой')));
+    if (res.r.failed) {
+      if (optsSec) box.append(optsSec);
+      return box;
     }
     if (res.r.templated) {
+      if (optsSec) box.append(optsSec);
       box.append(h('p', { class: 'hint' }, 'Блок уже размечен для конструктора в исходном HTML-файле, поэтому поля и карточки здесь не настраиваются.'));
       return box;
     }
 
     const fields = res.fields;
-    const pv = tunePreview(res, cx.styles, cx.bodyStyle, cx.preview);
-    const side = h('div', { class: 'tune-side' }, h('p', { class: 'tune-cap' }, 'Нажмите на элемент, чтобы найти его настройку.'), pv.el);
+    pv = tunePreview(res, cx.styles, cx.bodyStyle, cx.preview);
+    const side = h('div', { class: 'tune-side' }, h('p', { class: 'tune-cap' }, 'Нажмите на элемент — откроется его раздел.'), pv.el);
     const list = h('div', { class: 'tune-list' });
     const rows = [];
-    const light = (row, scroll) => pv.light(row ? row.names : null, scroll);
+    const light = (row, scroll) => show(row ? row.names : activeNames, scroll);
     const bindRow = (row, names, kind, hits) => {
       row.names = names;
       row.hits = hits || names;
@@ -5918,32 +6031,39 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       return row;
     };
 
+    const top = h('div', { class: 'acc-group' });
+    if (optsSec) top.append(optsSec);
     if (res.lists.length) {
-      const sp = h('div', { class: 'tune-spares' });
-      for (const l of res.lists) {
-        const kind = R.kinds[l.kind] || { plural: l.kind };
-        const row = l.layout === 'row';
-        const n = t.spares[l.id] || 0;
-        const set = (v) => {
-          v = Math.max(0, Math.min(10, v));
-          if (v) t.spares[l.id] = v;
-          else delete t.spares[l.id];
-          apply();
-        };
-        sp.append(h('div', { class: 'spare' },
-          h('span', { class: 'spare-what' }, cap(kind.plural) + ' ' + range(l.nums), h('small', null, row ? 'по ' + l.perRow + ' в ряд' : 'друг под другом')),
-          h('span', { class: 'spare-label' }, row ? 'Запасных рядов' : 'Запасных'),
-          h('span', { class: 'stepper' },
-            h('button', { type: 'button', class: 'btn', 'aria-label': 'Меньше', disabled: n === 0 || null, onclick: () => set(n - 1) }, '−'),
-            h('output', null, String(n)),
-            h('button', { type: 'button', class: 'btn', 'aria-label': 'Больше', disabled: n >= 10 || null, onclick: () => set(n + 1) }, '+'))));
-      }
-      list.append(h('div', { class: 'tune-sec' }, h('h4', null, 'Запасные карточки'),
-        h('p', { class: 'hint' }, 'Запасные добавляются скрытыми: маркетолог включит их в конструкторе, когда понадобятся.'), sp));
+      const added = res.lists.filter((l) => t.spares[l.id]).map((l) => (R.kinds[l.kind] || { plural: l.kind }).plural + ': ' + t.spares[l.id]);
+      const allCards = res.lists.every((l) => l.kind === 'card');
+      top.append(acc('spares', allCards ? 'Запасные карточки' : 'Запасные элементы', added.length ? added.join(', ') : 'не добавлены', () => {
+        const sp = h('div', { class: 'tune-spares' });
+        for (const l of res.lists) {
+          const kind = R.kinds[l.kind] || { plural: l.kind };
+          const row = l.layout === 'row';
+          const n = t.spares[l.id] || 0;
+          const set = (v) => {
+            v = Math.max(0, Math.min(10, v));
+            if (v) t.spares[l.id] = v;
+            else delete t.spares[l.id];
+            apply();
+          };
+          sp.append(h('div', { class: 'spare' },
+            h('span', { class: 'spare-what' }, cap(kind.plural) + ' ' + range(l.nums), h('small', null, row ? 'по ' + l.perRow + ' в ряд' : 'друг под другом')),
+            h('span', { class: 'spare-label' }, row ? 'Запасных рядов' : 'Запасных'),
+            h('span', { class: 'stepper' },
+              h('button', { type: 'button', class: 'btn', 'aria-label': 'Меньше', disabled: n === 0 || null, onclick: () => set(n - 1) }, '−'),
+              h('output', null, String(n)),
+              h('button', { type: 'button', class: 'btn', 'aria-label': 'Больше', disabled: n >= 10 || null, onclick: () => set(n + 1) }, '+'))));
+        }
+        return [h('p', { class: 'hint' }, 'Запасные добавляются скрытыми: маркетолог включит их в конструкторе, когда понадобятся.'), sp];
+      }));
     }
+    if (top.childNodes.length) list.append(top);
 
     if (!fields.length) {
       box.append(h('div', { class: 'tune-grid' }, side, list));
+      show(activeNames);
       return box;
     }
 
@@ -5958,7 +6078,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const colorWord = (p, mode) => {
       const l = low(groupLabel(p.group));
       if (p.type === 'BACKGROUND') return 'фон';
-      if (mode === 'wide') return l.replace(/^цвет /, '');
+      if (mode === 'wide') return l.replace(/ — блок( \d+)?$/, '');
       const what = /^цвет фона/.test(l) ? 'фон' : /^цвет линии/.test(l) ? 'линия' : 'цвет';
       const w = /начало градиента/.test(l) ? what + ': начало'
         : /конец градиента/.test(l) ? what + ': конец'
@@ -5986,7 +6106,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         const k = texts[i];
         seen[k] = (seen[k] || 0) + 1;
         if (p.role) {
-          box0.append(h('span', { class: 'fchip cat', title: 'Подставит Mindbox из данных товара' }, low(ROLE_RU[p.role] || typeRu(p)).replace(/ (товара|на товар)$/, '') + ' из каталога'));
+          box0.append(h('span', { class: 'fchip cat', title: 'Mindbox заполнит из данных товара' }, low(ROLE_RU[p.role] || typeRu(p)).replace(/ (товара|на товар)$/, '') + ' из каталога'));
           return;
         }
         const on = !has(t.skip, p.name);
@@ -5998,7 +6118,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
           type: 'button',
           class: 'fchip',
           'aria-pressed': String(on),
-          title: (on ? 'Меняется в конструкторе. Нажмите — оставить как в письме' : 'Как в письме. Нажмите — разрешить менять в конструкторе') + (DESIGN.has(p.type) ? ' · ' + groupLabel(p.group) : '') + (val && !sw ? ': ' + val : sw ? ': ' + color : ''),
+          title: (on ? 'Меняется в конструкторе. Нажмите, чтобы оставить как в письме' : 'Как в письме. Нажмите, чтобы разрешить менять в конструкторе') + (DESIGN.has(p.type) ? ' · ' + groupLabel(p.group) : '') + (val && !sw ? ': ' + val : sw ? ': ' + color : ''),
           onclick: () => {
             t.skip = put(t.skip, p.name, on);
             apply();
@@ -6007,6 +6127,10 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         box0.append(b);
       });
       return box0;
+    };
+    const words = (list0, wide) => {
+      const c = chips(list0, wide);
+      return c ? [...new Set([...c.childNodes].map((x) => x.textContent))].join(', ') : '';
     };
 
     const setChips = (sp) => {
@@ -6025,7 +6149,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
           type: 'button',
           class: 'fchip',
           'aria-pressed': state,
-          title: state === 'true' ? 'Меняется в конструкторе во всех. Нажмите — оставить как в письме' : state === 'false' ? 'Как в письме во всех. Нажмите — разрешить менять' : 'Меняется не во всех',
+          title: state === 'true' ? 'Меняется в конструкторе во всех. Нажмите, чтобы во всех оставить как в письме' : state === 'false' ? 'Во всех как в письме. Нажмите, чтобы разрешить менять' : 'Меняется не во всех',
           onclick: () => {
             for (const q of same) t.skip = put(t.skip, q.name, state === 'true');
             apply();
@@ -6049,19 +6173,19 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       t.off = put(t.off, p.name, v === 'hidden' && natural);
       t.on = put(t.on, p.name, v === 'shown' && !natural);
     };
-    const visSel = (list) => {
-      list = list.filter(Boolean);
-      if (!list.length) return null;
-      const states = [...new Set(list.map(visOf))];
+    const visSel = (list0) => {
+      list0 = list0.filter(Boolean);
+      if (!list0.length) return null;
+      const states = [...new Set(list0.map(visOf))];
       const cur = states.length === 1 ? states[0] : 'mixed';
-      const opts = list.some((p) => String(p.defaultValue) === 'true')
+      const opts = list0.some((p) => String(p.defaultValue) === 'true')
         ? [['shown', 'Виден, можно скрыть'], ['hidden', 'Скрыт, можно показать'], ['fixed', 'Виден всегда']]
         : [['hidden', 'Скрыт, можно показать'], ['shown', 'Виден, можно скрыть']];
       const sel = h('select', {
         class: 'vis' + (cur === 'hidden' ? ' is-hidden' : cur === 'fixed' ? ' is-fixed' : ''),
         'aria-label': 'Виден ли элемент в конструкторе',
         onchange: () => {
-          for (const p of list) setVis(p, sel.value);
+          for (const p of list0) setVis(p, sel.value);
           apply();
         }
       }, (cur === 'mixed' ? [['mixed', 'По-разному']] : []).concat(opts).map(([v, txt]) => h('option', { value: v, selected: v === cur || null, disabled: v === 'mixed' || null }, txt)));
@@ -6103,8 +6227,13 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const allOf = (slot) => slot.fields.concat(slot.design || []);
     const designNames = (slot) => (slot.design || []).map((p) => p.name);
     const deepNames = (it) => itemNames(it).concat(designNames(it.own), ...it.parts.map(designNames));
-    const many = lay.rows.filter((r) => r.type === 'set' || (r.type === 'item' && r.it.parts.length)).length > 3;
-    const isOpen = (key, def) => res.open.has(key) || (def && !res.open.has('-' + key));
+    const headNames = (it) => (toggleOf(it.own) ? [toggleOf(it.own).name] : itemNames(it));
+    const fixedOf = (list0) => list0.filter((n) => has(t.skip, n) && !/^show_/.test(n)).length;
+    const sumOf = (text, all) => {
+      const k = fixedOf(all);
+      return [text, k ? 'как в письме: ' + k : ''].filter(Boolean).join(' · ');
+    };
+    const isOpen = (key) => res.open.has(key);
     const shut = [];
     const chevBtn = (key, open, label) => h('button', {
       type: 'button',
@@ -6112,23 +6241,22 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       'aria-expanded': String(!!open),
       'aria-label': (open ? 'Свернуть' : 'Развернуть') + ' «' + label + '»',
       onclick: () => {
-        res.open.delete(open ? key : '-' + key);
-        res.open.add(open ? '-' + key : key);
+        if (open) res.open.delete(key);
+        else res.open.add(key);
         cx.rerender();
       }
     });
 
-    const itemEl = (it, key, def, member) => {
-      const open = it.parts.length && isOpen(key, def);
-      if (it.parts.length && !open) shut.push({ key, names: deepNames(it), member });
+    const itemEl = (it, key, member) => {
+      const open = it.parts.length && (!member || isOpen(key));
+      if (member && it.parts.length && !open) shut.push({ key, names: deepNames(it), member });
       const el = h('div', { class: 'el' + (open ? ' open' : '') + (member ? ' member' : '') });
-      const own = toggleOf(it.own);
-      const headRow = bindRow(h('div', { class: 'el-row el-head' },
-        it.parts.length ? chevBtn(key, open, it.label) : h('span', { class: 'chev-gap' }),
+      const headRow = bindRow(h('div', { class: 'el-row el-head' + (member ? '' : ' top') },
+        member ? (it.parts.length ? chevBtn(key, open, it.label) : h('span', { class: 'chev-gap' })) : null,
         it.own.labels.length || it.parts.length ? renameInput(it.label) : h('span', { class: 'el-title' }, it.label),
-        showSel(own),
+        showSel(toggleOf(it.own)),
         chips(allOf(it.own)),
-        !open && it.parts.length ? h('span', { class: 'el-sum muted' }, it.parts.map((x) => x.label).join(', ')) : null), own ? [own.name] : itemNames(it), 'head', deepNames(it));
+        !open && it.parts.length ? h('span', { class: 'el-sum muted' }, it.parts.map((x) => x.label).join(', ')) : null), headNames(it), 'head', deepNames(it));
       headRow.dataset.key = key;
       el.append(headRow);
       if (open) {
@@ -6145,32 +6273,23 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     };
 
     const setEl = (set) => {
-      const title = cap(set.kind.plural) + ' ' + range(set.members.map((m) => Number(/(\d+)$/.exec(m.label)[1])));
-      const open = isOpen(set.key, true);
       const all = [].concat(...set.members.map(deepNames)).concat(designNames(set.head), ...set.parts.map(designNames));
-      if (!open) shut.push({ key: set.key, names: all });
-      const el = h('div', { class: 'el set' + (open ? ' open' : '') });
-      const headRow = bindRow(h('div', { class: 'el-row el-head' },
-        chevBtn(set.key, open, title),
-        h('span', { class: 'el-title' }, title),
-        visSel(set.members.map((m) => toggleOf(m.own))),
-        chips(set.head.design),
-        h('span', { class: 'el-sum muted' }, open ? 'одинаковые: можно настроить сразу все' : set.parts.map((x) => x.label).join(', '))), [].concat(...set.members.map((m) => (toggleOf(m.own) ? [toggleOf(m.own).name] : itemNames(m)))), 'set', all);
-      headRow.dataset.key = set.key;
-      el.append(headRow);
-      if (open) {
-        const ps = h('div', { class: 'el-parts' }, h('div', { class: 'el-cap' }, 'Во всех сразу'));
-        for (const sp of set.parts) {
-          const all0 = [].concat(...sp.slots.map(names));
-          ps.append(bindRow(h('div', { class: 'el-row' },
-            h('span', { class: 'el-name' }, sp.label),
-            visSel(sp.slots.map(toggleOf)),
-            setChips(sp)), all0, 'part', all0.concat(designNames(sp))));
-        }
-        ps.append(h('div', { class: 'el-cap' }, 'По отдельности'));
-        for (const m of set.members) ps.append(itemEl(m, m.label, false, true));
-        el.append(ps);
+      const el = h('div', { class: 'el set open' }, h('div', { class: 'el-cap' }, 'Во всех сразу'));
+      const vs = visSel(set.members.map((m) => toggleOf(m.own)));
+      const ch = chips(set.head.design);
+      if (vs || ch) {
+        el.append(bindRow(h('div', { class: 'el-row' },
+          h('span', { class: 'el-name' }, low(set.kind.ru) + ' целиком'), vs, ch), [].concat(...set.members.map(headNames)), 'set', all));
       }
+      for (const sp of set.parts) {
+        const all0 = [].concat(...sp.slots.map(names));
+        el.append(bindRow(h('div', { class: 'el-row' },
+          h('span', { class: 'el-name' }, sp.label),
+          visSel(sp.slots.map(toggleOf)),
+          setChips(sp)), all0, 'part', all0.concat(designNames(sp))));
+      }
+      el.append(h('div', { class: 'el-cap' }, 'По отдельности'));
+      for (const m of set.members) el.append(itemEl(m, m.label, true));
       return el;
     };
 
@@ -6178,31 +6297,33 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const sec = h('div', { class: 'tune-sec' }, h('h4', null, cx.grid ? 'Элементы карточки и блока' : 'Элементы блока'));
       if (lay.block.design.length) {
         const bn = lay.block.design.map((p) => p.name);
-        sec.append(h('div', { class: 'el' }, bindRow(h('div', { class: 'el-row el-head' },
-          h('span', { class: 'chev-gap' }),
+        sec.append(acc('block', 'Блок целиком', sumOf(words(lay.block.design, 'wide'), bn), () => h('div', { class: 'el' }, bindRow(h('div', { class: 'el-row el-head top' },
           h('span', { class: 'el-title' }, 'Блок целиком'),
           null,
-          chips(lay.block.design, 'wide')), bn, 'block')));
+          chips(lay.block.design, 'wide')), bn, 'block')), bn));
       }
       for (const r of lay.rows) {
-        if (r.type === 'set') sec.append(setEl(r));
-        else if (r.type === 'item') sec.append(itemEl(r.it, r.key, !many));
-        else {
+        if (r.type === 'set') {
+          const title = cap(r.kind.plural) + ' ' + range(r.members.map((m) => Number(/(\d+)$/.exec(m.label)[1])));
+          const all = [].concat(...r.members.map(deepNames)).concat(designNames(r.head), ...r.parts.map(designNames));
+          sec.append(acc(r.key, title, sumOf('одинаковые: ' + r.parts.map((x) => x.label).join(', '), all), () => setEl(r), [].concat(...r.members.map(headNames)), all));
+        } else if (r.type === 'item') {
+          const it = r.it;
+          const label = shownLabel(it.label);
+          sec.append(acc(r.key, label, sumOf(it.parts.length ? it.parts.map((x) => x.label).join(', ') : words(allOf(it.own)), deepNames(it)), () => itemEl(it, r.key, false), headNames(it), deepNames(it)));
+        } else {
           const xn = r.fields.map((p) => p.name);
-          sec.append(h('div', { class: 'el' }, bindRow(h('div', { class: 'el-row el-head' },
-            h('span', { class: 'chev-gap' }),
+          const wide = r.type === 'common' ? r.kind : null;
+          sec.append(acc(r.key, r.label, sumOf(words(r.fields, wide), xn), () => h('div', { class: 'el' }, bindRow(h('div', { class: 'el-row el-head top' },
             h('span', { class: 'el-title' }, r.label),
             null,
-            chips(r.fields, r.type === 'common' ? r.kind : null)), xn, r.type === 'common' ? 'set' : 'head')));
+            chips(r.fields, wide)), xn, r.type === 'common' ? 'set' : 'head')), xn));
         }
       }
       if (tree.design.length) {
-        const names0 = h('details', { class: 'tune-names', open: res.namesOpen || null }, h('summary', null, 'Подписи цветов и отступов в конструкторе'));
-        names0.addEventListener('toggle', () => {
-          res.namesOpen = names0.open;
-        });
-        for (const d of tree.design) names0.append(bindRow(h('div', { class: 'el-row flat' }, renameInput(d.label)), names(d), 'design'));
-        sec.append(names0);
+        const dn = [].concat(...tree.design.map(names));
+        sec.append(acc('names', 'Подписи цветов и отступов', null, () => [h('p', { class: 'hint' }, 'Так эти цвета и отступы будут подписаны в конструкторе.')]
+          .concat(tree.design.map((d) => bindRow(h('div', { class: 'el-row flat' }, renameInput(d.label)), names(d), 'design'))), null, dn));
       }
       list.append(sec);
     }
@@ -6230,12 +6351,24 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const hit = (r) => r.hits.some((n) => picked.includes(n));
       return ['part', 'head', 'set', 'block'].reduce((found, k) => found || rows.find((r) => r.kind === k && hit(r)), null);
     };
+    const design = new Set(fields.filter((p) => DESIGN.has(p.type)).map((p) => p.name));
+    const secOf = (picked) => {
+      const strong = picked.filter((n) => !design.has(n));
+      const by = (list0) => list0.length && secs.find((x) => x.hits.some((n) => list0.includes(n)));
+      return by(strong) || by(picked);
+    };
     pv.pick = (picked) => {
+      const s = secOf(picked);
+      if (s && !s.open) {
+        res.active = s.key;
+        res.pickAfter = picked;
+        cx.rerender();
+        return;
+      }
       const hit = (list0) => list0.some((n) => picked.includes(n));
       const inPart = rows.some((r) => r.kind === 'part' && hit(r.hits));
       const c = shut.find((x) => hit(x.names) && !(x.member && inPart));
       if (c) {
-        res.open.delete('-' + c.key);
         res.open.add(c.key);
         res.pickAfter = picked;
         cx.rerender();
@@ -6244,16 +6377,15 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const row = findRow(picked);
       if (row) flashRow(row);
     };
+
+    box.append(h('div', { class: 'tune-grid' }, side, list));
+    show(activeNames, res.seek);
+    res.seek = false;
     if (res.pickAfter) {
       const picked = res.pickAfter;
       res.pickAfter = null;
-      setTimeout(() => {
-        const row = findRow(picked);
-        if (row) flashRow(row);
-      }, 50);
+      setTimeout(() => pv.pick(picked), 50);
     }
-
-    box.append(h('div', { class: 'tune-grid' }, side, list));
     return box;
   }
 
@@ -6335,7 +6467,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return h('div', null,
       h('div', { class: 'code-bar' },
         h('button', { type: 'button', class: 'btn', onclick: () => download(file, text, 'text/html;charset=utf-8') }, 'Скачать ' + file),
-        h('span', { class: 'muted' }, 'Жёлтым — то, что меняется в конструкторе.')),
+        h('span', { class: 'muted' }, 'Жёлтым выделено то, что меняется в конструкторе.')),
       h('pre', { class: 'code', html: highlight(text) }));
   }
 
@@ -6454,8 +6586,29 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const lists = E.gridLists(r.html);
       if (lists.length) cands.push({ i, r, lists, title: it.title });
     });
+    for (let k = 0; k < cands.length; k++) {
+      for (let c = cands[k]; k + 1 < cands.length; c = cands[k]) {
+        const ids = c.ids || [c.i];
+        const nx = cands[k + 1];
+        const last = ids[ids.length - 1];
+        if (nx.i !== last + 1 || !E.canMerge(L, last)) break;
+        let r;
+        let lists;
+        try {
+          r = E.buildMerged(L, ids.concat(nx.i), Object.assign({}, DEFAULTS));
+          lists = r.failed || r.templated ? [] : E.gridLists(r.html);
+        } catch (e) {
+          break;
+        }
+        if (!lists.length || lists.length >= c.lists.length + nx.lists.length) break;
+        const all = ids.concat(nx.i);
+        cands.splice(k, 2, { i: all[0], ids: all, nums: all.map((x) => x + 1).join('+'), r, lists, title: all.map((x) => L.list[x].title || 'Блок ' + (x + 1)).join(' + ') });
+      }
+    }
     let wanted = -1;
-    if (want && want.length > 1) {
+    const same = want && want.length > 1 ? cands.findIndex((c) => (c.ids || [c.i]).join('+') === want.join('+')) : -1;
+    if (same >= 0) wanted = same;
+    else if (want && want.length > 1) {
       try {
         const r = E.buildMerged(L, want, Object.assign({}, DEFAULTS));
         const lists = r.failed || r.templated ? [] : E.gridLists(r.html);
@@ -6466,7 +6619,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       } catch (e) {
         wanted = -1;
       }
-    } else if (want) wanted = cands.findIndex((c) => c.i === want[0]);
+    } else if (want) wanted = cands.findIndex((c) => (c.ids || [c.i]).includes(want[0]));
     Object.assign(G, { L, raw: src, file: name || 'письмо', cands });
     $('#g-drop').hidden = true;
     $('#g-intro').hidden = true;
@@ -6475,8 +6628,8 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const info = $('#g-info');
     info.hidden = false;
     const none = L.list.every((it) => it.templated)
-      ? 'Это уже блок конструктора Mindbox: в нём есть поля ${editor…}. Загрузите исходный HTML письма или блока, без полей конструктора.'
-      : 'Не нашлось карточек, которые повторяются. Динамическая товарная сетка делается из блока, где две и больше одинаковых карточки товара.';
+      ? 'Это уже блок конструктора Mindbox: в нём есть поля ${editor…}. Загрузите исходный HTML письма или блока, в котором нет полей конструктора.'
+      : 'Не нашлось повторяющихся карточек. Динамическая товарная сетка делается из блока, где есть хотя бы две одинаковые карточки товара.';
     info.replaceChildren(...[
       h('span', null, 'Код: ', h('b', null, G.file)),
       cands.length ? h('span', { class: 'muted' }, 'Блоков с карточками: ' + cands.length) : null,
@@ -6570,7 +6723,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       box.append(h('label', { class: 'g-pick' }, h('span', null, 'Какие карточки'), sel));
     }
     const rest = l.nums.slice(1);
-    box.append(h('p', { class: 'g-sample' }, 'Образец — карточка ' + l.nums[0] + '. По ней Mindbox нарисует каждый товар. ' + (rest.length ? (rest.length === 1 ? 'Карточка ' + rest[0] + ' в сетку не попадёт' : 'Карточки ' + range(rest) + ' в сетку не попадут') + ': вместо них карточка-образец повторится столько раз, сколько товаров.' : '')));
+    box.append(h('p', { class: 'g-sample' }, 'Образец — карточка ' + l.nums[0] + '. По ней Mindbox нарисует каждый товар. ' + (rest.length ? (rest.length === 1 ? 'Карточка ' + rest[0] + ' в сетку не попадёт: вместо неё' : 'Карточки ' + range(rest) + ' в сетку не попадут: вместо них') + ' карточка-образец повторится столько раз, сколько товаров.' : '')));
     const rebuild = () => {
       gridBuild();
       gridView();
@@ -6635,12 +6788,12 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const view = $('#g-view');
     $('#g-step-result').hidden = false;
     if (!G.r) {
-      view.replaceChildren(h('div', { class: 'error-box' }, 'Товарную сетку из этого блока сделать не удалось. Подробности: ' + G.err));
+      view.replaceChildren(h('div', { class: 'error-box' }, 'Не удалось сделать динамическую товарную сетку из этого блока. Подробности: ' + G.err));
       return;
     }
     const r = G.r;
     const st = statusOf(r);
-    const nameIn = h('input', { value: r.name, spellcheck: 'false', title: 'Латиница, цифры и _. Русские буквы переведутся сами' });
+    const nameIn = h('input', { value: r.name, spellcheck: 'false', title: 'Только латиница, цифры и «_». Русские буквы заменятся латинскими автоматически' });
     nameIn.addEventListener('change', () => {
       const v = translit(nameIn.value);
       if (!v) {
