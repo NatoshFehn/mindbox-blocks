@@ -2438,16 +2438,6 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const sameSpan = (s, e) => toggleUnits.some((t) => t.s === s && t.e === e);
     const fits = (span) => !overlaps(span.s, span.e) && !sameSpan(span.s, span.e) && (!span.before || (!overlaps(span.before.s, span.before.e) && !sameSpan(span.before.s, span.before.e)));
 
-    if (opt.itemToggles) {
-      for (const it of A.items.slice().sort((x, y) => x.el.start - y.el.start)) {
-        const u = it.el;
-        if (u === rootEl) continue;
-        const span = glueSpan(u);
-        if (!fits(span)) continue;
-        const g = group(itemKey(it), itemLabel(it), u.start);
-        wrapToggle(u, span, 'show_' + itemKey(it), g, null);
-      }
-    }
     const measure = [];
     const innerSpan = (el) => {
       const f = firstContent(src, el);
@@ -2471,6 +2461,28 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       }
       return h;
     };
+    const canHold = (u) => u.tag === 'td' || u.tag === 'th' || placeholderFor(u, 1) != null;
+    const holdPlace = (span, u, name, g) => {
+      span.before = null;
+      const h = heightOf(span, name);
+      const w = opt.widths && opt.widths[name] > 0 ? Math.round(opt.widths[name]) : null;
+      const placeholder = h != null && h > 0 ? placeholderFor(u, h, w) : null;
+      if (canHold(u) && !(opt.heights && opt.heights[name] > 0)) measure.push(name);
+      if (!placeholder) notes.push('Если скрыть «' + g.label + '», карточка станет ниже соседних: высоту этой части не удаётся определить.');
+      return placeholder;
+    };
+    if (opt.itemToggles) {
+      for (const it of A.items.slice().sort((x, y) => x.el.start - y.el.start)) {
+        const u = it.el;
+        if (u === rootEl) continue;
+        const span = glueSpan(u);
+        if (!fits(span)) continue;
+        const g = group(itemKey(it), itemLabel(it), u.start);
+        const name = 'show_' + itemKey(it);
+        const placeholder = opt.equalHeight && it.parentItem && it.parentItem.sideBySide ? holdPlace(span, u, name, g) : null;
+        wrapToggle(u, span, name, g, placeholder);
+      }
+    }
     if (opt.toggles && live.length >= 2) {
       const hideable = live.filter((a) => a.kind !== 'bgimage').concat(A.content.filter((a) => a.attachedTo && a.kind === 'image'));
       for (const a of hideable.sort((x, y) => x.pos - y.pos)) {
@@ -2494,13 +2506,13 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         const name = uniq('show_' + a.prefix + (a.attachedTo ? '_' + a.role : ''));
         let placeholder = null;
         if (opt.equalHeight && a.item && a.item.sideBySide && !span.inline) {
-          const h = heightOf(span, name);
-          const w = opt.widths && opt.widths[name] > 0 ? Math.round(opt.widths[name]) : null;
-          if (h != null && h > 0) placeholder = span.inner ? (spanTag(span) === 'div' ? placeholderFor({ tag: 'div' }, h, w) : null) : placeholderFor(u, h, w);
-          const can = span.inner ? spanTag(span) === 'div' : placeholderFor(u, 1) != null;
-          if (can && !(opt.heights && opt.heights[name] > 0)) measure.push(name);
-          if (!placeholder) {
-            notes.push('Если скрыть «' + g.label + '», карточка станет ниже соседних: высоту этой части не удаётся определить.');
+          if (!span.inner) placeholder = holdPlace(span, u, name, g);
+          else {
+            const h = heightOf(span, name);
+            const w = opt.widths && opt.widths[name] > 0 ? Math.round(opt.widths[name]) : null;
+            if (h != null && h > 0 && spanTag(span) === 'div') placeholder = placeholderFor({ tag: 'div' }, h, w);
+            if (spanTag(span) === 'div' && !(opt.heights && opt.heights[name] > 0)) measure.push(name);
+            if (!placeholder) notes.push('Если скрыть «' + g.label + '», карточка станет ниже соседних: высоту этой части не удаётся определить.');
           }
         }
         wrapToggle(span.inner ? { tag: spanTag(span), start: span.s } : u, span, name, g, placeholder);
@@ -2745,7 +2757,9 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const fill = w > 0 ? placeholderFor({ tag: 'div' }, h, w) : '&nbsp;';
       return '<tr><td' + (cols > 1 ? ' colspan="' + cols + '"' : '') + ' height="' + h + '" style="height:' + h + 'px; line-height:' + h + 'px; font-size:1px;">' + fill + '</td></tr>';
     }
-    if (unit.tag === 'td' || unit.tag === 'th') return null;
+    if (unit.tag === 'td' || unit.tag === 'th') {
+      return w > 0 ? '<' + unit.tag + ' width="' + w + '" height="' + h + '" style="width:' + w + 'px; height:' + h + 'px; line-height:' + h + 'px; font-size:1px;">&nbsp;</' + unit.tag + '>' : null;
+    }
     return '<div style="' + (w > 0 ? 'width:' + w + 'px; max-width:100%; ' : '') + 'height:' + h + 'px; line-height:' + h + 'px; font-size:1px;">&nbsp;</div>';
   }
 
@@ -5721,7 +5735,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const box = h('div', { class: compact ? 'opts compact' : 'opts' });
     const inputs = {};
     const sync = () => {
-      inputs.equalHeight.disabled = !o.toggles;
+      inputs.equalHeight.disabled = !o.toggles && !o.itemToggles;
     };
     for (const [grp, title] of OPT_GROUPS) {
       const grid = compact ? box : h('div', { class: 'optgrid' });
@@ -5979,6 +5993,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
 
   function widthMatters(box) {
     const first = box.nodes[0];
+    if (first.tagName === 'TD' || first.tagName === 'TH') return true;
     const d = first.ownerDocument;
     const chain = [];
     for (let a = first.parentElement; a && a !== d.body; a = a.parentElement) chain.push(a);
