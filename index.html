@@ -3616,6 +3616,10 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return card.slice(0, m.index) + styleAdd(styleDrop(m[0], 'height'), 'height:' + hgt[1] + 'px;') + card.slice(m.index + m[0].length);
   }
 
+  function imageAlt(card, name) {
+    return card.replace(new RegExp('<img\\b[^>]*\\$\\{\\s*editor\\.' + name + '\\s*\\}[^>]*>', 'i'), (tag) => tag.replace(/\salt\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/i, ' alt=""'));
+  }
+
   function gridWidth(src, node) {
     let pad = 0;
     for (let a = node.parent; a && a.type === 'el'; a = a.parent) {
@@ -3705,7 +3709,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const baseFs = inheritedFs(html, first.unit.parent);
     let card = swap(cardRaw);
     if (lines && form !== 'stack') for (const ro of ['ProductTitle', 'ProductDescription']) if (used.has(ro)) card = textBox(card, GRID_NAMES[ro], lines, baseFs);
-    if (used.has('ProductImageUrl')) card = imageBox(card, GRID_NAMES.ProductImageUrl);
+    if (used.has('ProductImageUrl')) card = imageAlt(imageBox(card, GRID_NAMES.ProductImageUrl), GRID_NAMES.ProductImageUrl);
     const norm = (it) => unitHtml(it).replace(new RegExp('(editor\\.(?:show_)?' + kind + '_)' + it.n + '(?=[_}\\s.])', 'g'), '$1' + n);
     const odd = slots.flatMap((s) => s.items).filter((it) => it !== first && norm(it) !== unitHtml(first)).map((it) => it.n);
     if (odd.length) notes.push((odd.length === 1 ? 'Карточка ' + odd[0] + ' в письме сверстана' : 'Карточки ' + odd.join(', ') + ' в письме сверстаны') + ' не так, как первая: например, другие отступы или выравнивание. В сетке все товары будут выглядеть как первая карточка.');
