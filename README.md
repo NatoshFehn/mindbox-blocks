@@ -1,6 +1,6 @@
 # Блоки для Mindbox
 
-Страница: https://toytronic22.github.io/mindbox-blocks/
+Страница: https://natoshfehn.github.io/mindbox-blocks/
 
 Делит HTML письма на блоки для нового конструктора Mindbox и к каждому блоку пишет JSON. Работает в браузере:
 письмо никуда не отправляется.
