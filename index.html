@@ -396,6 +396,7 @@ input.tg:disabled { opacity: .5; cursor: default; }
 .broken-note { margin: 12px 0 0; color: var(--muted); font-size: 14px; }
 
 .look { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 18px; align-items: start; }
+.look > .frame-wrap { position: sticky; top: 0; max-height: calc(100vh - 260px); }
 .frame-wrap { display: grid; place-items: start center; padding: 14px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 12px; overflow: auto; }
 .fit { margin: 0 auto; position: relative; overflow: hidden; }
 .fit iframe { display: block; border: 0; background: #fff; min-height: 60px; transform-origin: 0 0; }
@@ -639,6 +640,7 @@ select.vis.is-hidden, select.vis.is-fixed { color: var(--muted); background: var
   .wz .file { margin-left: 0; padding-left: 0; width: 100%; }
   .wl { flex-basis: 20px; margin: 0 8px; }
   .look { grid-template-columns: minmax(0, 1fr); }
+  .look > .frame-wrap { position: static; max-height: none; }
   .tune-grid { grid-template-columns: minmax(0, 1fr); }
   .tune-side { position: static; max-height: 46vh; }
   .hw { grid-template-columns: minmax(0, 1fr); }
@@ -7679,9 +7681,21 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const controls = h('div', { class: 'controls' });
     let f = null;
     let hot = null;
+    const reveal = (d) => {
+      const marks = [...d.querySelectorAll('.mb-hl')].map((x) => x.getBoundingClientRect());
+      if (!marks.length) return;
+      const sc = f.getBoundingClientRect().height / (f.offsetHeight || 1);
+      const at = f.getBoundingClientRect().top - fw.getBoundingClientRect().top + fw.scrollTop;
+      const top = at + Math.min(...marks.map((x) => x.top)) * sc;
+      const bottom = at + Math.max(...marks.map((x) => x.bottom)) * sc;
+      if (top < fw.scrollTop || bottom > fw.scrollTop + fw.clientHeight) fw.scrollTo({ top: Math.max(0, top - 40), behavior: 'smooth' });
+    };
     const light = (names) => {
       hot = names;
-      if (f) f.whenReady((d) => paintHl(d, hot));
+      if (f) f.whenReady((d) => {
+        paintHl(d, hot);
+        if (hot) reveal(d);
+      });
     };
     const draw = () => {
       let out;
@@ -7692,7 +7706,11 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         put(fw, h('div', { class: 'error-box' }, 'Не удалось показать превью блока. Подробности: ' + e.message));
         return;
       }
+      const keep = fw.scrollTop;
       f = fitFrame(fw, pageDoc(out, styles, bodyStyle).replace('</head>', hlCss() + '</head>'));
+      f.whenReady(() => {
+        fw.scrollTop = keep;
+      });
       if (hot) light(hot);
     };
     const seg = deviceSeg((k) => {
