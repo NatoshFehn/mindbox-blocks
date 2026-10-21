@@ -1328,6 +1328,30 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return n.children.every(isInlineNode);
   }
 
+  function nbspAt(src, i) {
+    const m = /^(?:&nbsp;|&#0*160;|&#x0*a0;|\u00a0)/i.exec(src.slice(i, i + 12));
+    return m ? m[0].length : 0;
+  }
+
+  function nbspBefore(src, i) {
+    const m = /(?:&nbsp;|&#0*160;|&#x0*a0;|\u00a0)$/i.exec(src.slice(Math.max(0, i - 12), i));
+    return m ? m[0].length : 0;
+  }
+
+  function iconLink(src, link) {
+    let ok = true;
+    let icons = 0;
+    walk(link, (x) => {
+      if (!ok || x === link || x.type !== 'el') return;
+      if (x.tag === 'img') {
+        const w = widthOf(src, x);
+        if (w == null || w > 40) ok = false;
+        icons++;
+      } else if (!INLINE.has(x.tag)) ok = false;
+    });
+    return ok && icons > 0 && !!textOf(src, link);
+  }
+
   function isWs(src, n) {
     return n.type === 'comment' || (n.type === 'text' && !/\S/.test(src.slice(n.start, n.end)));
   }
@@ -1549,7 +1573,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         if (x.type === 'el' && x.tag === 'img') hasImg = true;
       });
       const t = textOf(src, n);
-      if (!hasImg && t && t.length <= 45) {
+      if ((!hasImg || iconLink(src, n)) && t && t.length <= 45) {
         const st = (attrVal(n, 'style') || '').toLowerCase();
         if (bgEl || (/display\s*:\s*(inline-)?block/.test(st) && /padding|border/.test(st))) {
           buttons.push({ link: n, bgEl, root: n });
@@ -1565,7 +1589,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         if (x.type === 'el' && x.tag === 'a' && attr(x, 'href')) links.push(x);
         if (x.type === 'el' && x.tag === 'img') imgs++;
       });
-      if (links.length !== 1 || imgs) return;
+      if (links.length !== 1 || (imgs && !iconLink(src, links[0]))) return;
       const t = textOf(src, n);
       if (!t || t.length > 45 || textOf(src, links[0]) !== t) return;
       if (buttons.some((b) => b.link === links[0])) return;
@@ -1624,7 +1648,8 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         const w = widthOf(src, n);
         const h = px(attrVal(n, 'height'));
         if ((w != null && w <= 2) || (h != null && h <= 2)) return;
-        if (buttons.some((b) => isAncestor(b.root, n))) return;
+        const btn = buttons.find((b) => isAncestor(b.root, n));
+        if (btn && !isAncestor(btn.link, n)) return;
         let link = null;
         for (let x = n.parent; x && x !== rootEl; x = x.parent) {
           if (x.type === 'el' && x.tag === 'a' && attr(x, 'href')) {
@@ -1633,7 +1658,8 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
           }
           if (x.type === 'el' && !INLINE.has(x.tag)) break;
         }
-        atoms.push({ kind: 'image', img: n, link, root: link || n, pos: n.start, width: w, role: null });
+        if (link && iconLink(src, link)) atoms.push({ kind: 'image', img: n, link: null, root: n, pos: n.start, width: w, role: null, iconOf: link });
+        else if (!btn) atoms.push({ kind: 'image', img: n, link, root: link || n, pos: n.start, width: w, role: null });
       }
       const bgA = attr(n, 'background');
       const bgS = styleOf(src, n, 'background-image') || styleOf(src, n, 'background');
@@ -1657,9 +1683,20 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
 
     const content = atoms.filter((a) => !a.passive && !a.nestedIn);
     for (const a of content) {
+      if (!a.iconOf) continue;
+      const owner = content.find((b) => b.kind === 'button' && b.link === a.iconOf) || content.filter((b) => b.kind === 'text' && (isAncestor(a.iconOf, b.root) || isAncestor(b.root, a.iconOf))).sort((p, q) => p.pos - q.pos)[0];
+      if (owner) {
+        a.attachedTo = owner;
+        a.ownPart = true;
+      } else {
+        a.link = a.iconOf;
+        a.root = a.iconOf;
+      }
+    }
+    for (const a of content) {
       if (a.kind !== 'image') continue;
       const w = a.width;
-      if (a.link || w == null || w > 40) continue;
+      if (a.attachedTo || a.link || w == null || w > 40) continue;
       let tr = null;
       for (let x = a.img.parent; x && x !== rootEl; x = x.parent) {
         if (x.type === 'el' && x.tag === 'tr') {
@@ -1940,7 +1977,14 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       if (a.kind === 'text' && !a.marker) a.role = textRole(src, a, block);
       if (a.kind === 'image') a.role = imageRole(src, a, block, imgIndex++ === 0);
     }
-    for (const a of A.content.slice().sort((x, y) => x.pos - y.pos)) {
+    for (const a of A.content.slice().sort((x, y) => !!x.ownPart - !!y.ownPart || x.pos - y.pos)) {
+      if (a.ownPart) {
+        const o = a.attachedTo;
+        const og = atomGroup.get(o);
+        a.prefix = (o.kind === 'button' && !o.prefix.endsWith('button') ? (o.prefix ? o.prefix + '_' : '') + 'button' : o.prefix) + '_icon';
+        atomGroup.set(a, group(og.key + '_icon', og.label + ' — иконка', a.pos));
+        continue;
+      }
       const it = a.attachedTo ? a.attachedTo.item : a.item;
       const role = a.attachedTo ? a.attachedTo.role : a.role;
       const atomsInItem = it ? it.atoms.length : 0;
@@ -2079,8 +2123,9 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const rangeParam = (s0, e0, nameBase, g) => {
       let s = s0;
       let e = e0;
-      while (s < e && /[ \t\r\n]/.test(src[s])) s++;
-      while (e > s && /[ \t\r\n]/.test(src[e - 1])) e--;
+      let k;
+      while (s < e && (/[ \t\r\n]/.test(src[s]) || (k = nbspAt(src, s)))) s += /[ \t\r\n]/.test(src[s]) ? 1 : k;
+      while (e > s && (/[ \t\r\n]/.test(src[e - 1]) || (k = nbspBefore(src, e)))) e -= /[ \t\r\n]/.test(src[e - 1]) ? 1 : k;
       const raw = src.slice(s, e);
       if (!meaningfulText(raw) && !markerAt.has(s0)) return null;
       if (/[$@]\{/.test(raw)) return null;
@@ -2245,7 +2290,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         if (n.type !== 'el' || n.tag !== 'a') return;
         const h = attr(n, 'href');
         if (!h || h.vStart == null || linked.has(n) || /[$@]\{/.test(h.value) || covered(h.vStart, h.vEnd)) return;
-        const near = A.content.filter((a) => isAncestor(n, a.root) || isAncestor(a.root, n)).sort((p, q) => p.pos - q.pos)[0];
+        const near = A.content.filter((a) => !a.ownPart && (isAncestor(n, a.root) || isAncestor(a.root, n))).sort((p, q) => p.pos - q.pos)[0];
         const g = near ? atomGroup.get(near) : group('link_' + n.start, 'Ссылка', n.start);
         urlParam(n, (near ? near.prefix : 'link') + '_url', g, near ? near.role : 'link');
       });
@@ -2501,9 +2546,17 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         } else if ((INLINE.has(u.tag) && u.tag !== 'a') || (u.tag === 'a' && u.parent && A.countIn(u.parent) > 1)) span = ownSpan(u);
         else if ((u.tag === 'td' || u.tag === 'th') && u.parent && els(u.parent).filter((x) => A.countIn(x) > 0).length > 1) span = innerSpan(u);
         else span = glueSpan(u);
+        if (a.ownPart) {
+          let k;
+          let s = span.s;
+          let e = span.e;
+          while ((k = nbspAt(src, e))) e += k;
+          if (e === span.e) while ((k = nbspBefore(src, s))) s -= k;
+          if (!edits.some((x) => x.end > x.start && x.start < e && x.end > s && !(x.start >= s && x.end <= e))) Object.assign(span, { s, e });
+        }
         if (!span || !fits(span)) continue;
         const g = atomGroup.get(a);
-        const name = uniq('show_' + a.prefix + (a.attachedTo ? '_' + a.role : ''));
+        const name = uniq('show_' + a.prefix + (a.attachedTo && !a.ownPart ? '_' + a.role : ''));
         let placeholder = null;
         if (opt.equalHeight && a.item && a.item.sideBySide && !span.inline) {
           if (!span.inner) placeholder = holdPlace(span, u, name, g);
@@ -3882,7 +3935,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         return false;
       }
       if (n.type === 'text') {
-        const t = decode(html.slice(n.start, n.end)).replace(/[ \t\r\n]+/g, ' ').trim();
+        const t = decode(html.slice(n.start, n.end)).replace(/[ \t\r\n]+/g, ' ').replace(/^ | $/g, '');
         if (t) out.push('#' + t);
         return;
       }
