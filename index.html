@@ -3805,6 +3805,44 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return { html: out, json: placeParams(json, added, out, p.kind, p.R, at.length ? Math.min(...at) : p.rs), roles: p.all.map(([r]) => r + names.suffix) };
   }
 
+  function relabelParts(html, json, kind, n) {
+    const head = RULES.kinds[kind].ru + ' ' + n + ' — ';
+    const roles = Object.values(RULES.roleLabels).sort((a, b) => b.length - a.length);
+    const roleOf = (seg) => roles.find((r) => seg === r || (seg.startsWith(r + ' ') && /^( \d+)+$/.test(seg.slice(r.length))));
+    const posOf = (name) => {
+      const m = new RegExp('editor\\.' + name + '(?![A-Za-z0-9_])').exec(html);
+      return m ? m.index : Infinity;
+    };
+    const segOf = (q) => {
+      const g = groupText(q.group);
+      const seg = g.startsWith(head) ? g.slice(head.length).split(' — ')[0] : '';
+      return roleOf(seg) ? seg : null;
+    };
+    const pos = new Map();
+    for (const q of json) {
+      const seg = segOf(q);
+      if (seg === null) continue;
+      if (!pos.has(seg)) pos.set(seg, Infinity);
+      if (q.type !== 'DISPLAY_TOGGLE') pos.set(seg, Math.min(pos.get(seg), posOf(q.name)));
+    }
+    const rename = new Map();
+    for (const role of new Set([...pos.keys()].map(roleOf))) {
+      const order = [...pos].filter(([seg]) => roleOf(seg) === role).sort((x, y) => x[1] - y[1]);
+      order.forEach(([seg], i) => rename.set(seg, role + (order.length > 1 ? ' ' + (i + 1) : '')));
+    }
+    const slots = json.map((q, i) => i).filter((i) => segOf(json[i]) !== null);
+    const sorted = slots.map((i) => json[i]).sort((x, y) => pos.get(segOf(x)) - pos.get(segOf(y)));
+    const out = json.slice();
+    slots.forEach((i, k) => {
+      const q = sorted[k];
+      const g = groupText(q.group);
+      const segs = g.slice(head.length).split(' — ');
+      segs[0] = rename.get(segs[0]);
+      out[i] = Object.assign({}, q, { group: q.group.slice(0, q.group.length - g.length) + head + segs.join(' — ') });
+    });
+    return renumberGroups(out);
+  }
+
   function spareParts(r) {
     if (!r || r.failed || r.templated || !r.json || !r.json.length) return r;
     let html = r.html;
@@ -3828,8 +3866,16 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       }
     }
     if (!added.length) return r;
+    for (const k of new Set(added.map((x) => x.kind + ' ' + x.n))) {
+      const x = added.find((y) => y.kind + ' ' + y.n === k);
+      json = relabelParts(html, json, x.kind, x.n);
+    }
     const where = { card: 'карточке', item: 'пункте', phone: 'телефоне', social: 'соцсети', icon: 'иконке', step: 'шаге' };
-    const label = (x) => RULES.roleLabels[x.role.replace(/_\d+$/, '')] || x.role;
+    const head = (x) => RULES.kinds[x.kind].ru + ' ' + x.n + ' — ';
+    const label = (x) => {
+      const g = groupText((json.find((q) => q.name === 'show_' + x.kind + '_' + x.n + '_' + x.role) || {}).group);
+      return g.startsWith(head(x)) ? g.slice(head(x).length) : RULES.roleLabels[x.role.replace(/_\d+$/, '')] || x.role;
+    };
     const notes = added.map((x) => RULES.kinds[x.kind].ru + ' ' + x.n + ' — ' + label(x) + ': часть добавлена скрытой, как в ' + where[x.kind] + ' ' + x.from + '. Включается в конструкторе.');
     return Object.assign({}, r, { html, json, checks: validate(html, json), same: r.original ? compareRendered(r.original, html, json) : r.same, notes: (r.notes || []).concat(notes), spareParts: added });
   }
