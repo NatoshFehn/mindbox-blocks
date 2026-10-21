@@ -861,7 +861,7 @@ select.vis.is-hidden, select.vis.is-fixed { color: var(--muted); background: var
             <p>По умолчанию на телефоне карточки из ряда встают в столбик, а у названия товара фиксированная высота: длинное название обрежется, и карточки в ряду будут одной высоты. Так сделан <a href="https://help.mindbox.ru/docs/email-editor-upload-blocks#product-example" target="_blank" rel="noopener">пример сетки в справке Mindbox ↗</a>.</p>
           </div>
         </section>
-        <section class="card sec" id="help-not"><h3>Чего инструмент не делает намеренно</h3><ul class="nots"><li>Не меняет вид блока: готовый блок выглядит так же, как в письме, — это сверяет вкладка «Проверка». Исключение — письмо шире 600 px: инструмент сузит поля слева и справа, а если этого мало — пропорционально уменьшит колонки и картинки. Об этом предупредит уведомление.</li><li>Не выносит в конструктор ширину блока и отступы слева и справа: блок другой ширины не совпадёт по краям с соседними. Отступы сверху и снизу менять можно — пункт «Отступы сверху и снизу» на шаге «Что можно менять».</li><li>Не придумывает фон: прозрачный блок остаётся прозрачным.</li></ul></section>
+        <section class="card sec" id="help-not"><h3>Чего инструмент не делает намеренно</h3><ul class="nots"><li>Не меняет вид блока: готовый блок выглядит так же, как в письме, — это сверяет вкладка «Проверка». Ширину письма тоже не меняет: уведомление покажет её, такую же выставьте в мастер-шаблоне Mindbox — «Настройки письма → Общие настройки → Ширина письма».</li><li>Не выносит в конструктор ширину блока и отступы слева и справа: блок другой ширины не совпадёт по краям с соседними. Отступы сверху и снизу менять можно — пункт «Отступы сверху и снизу» на шаге «Что можно менять».</li><li>Не придумывает фон: прозрачный блок остаётся прозрачным.</li></ul></section>
         <section class="card sec" id="help-marks"><h3>Что значат отметки</h3><ul class="marks legend">
           <li><span class="status ok">Готово</span><span>можно загружать в Mindbox.</span></li>
           <li><span class="status warn">Есть замечание</span><span>загрузить можно, но сначала прочитайте замечание: его видно у блока и на вкладке «Проверка».</span></li>
@@ -4400,22 +4400,6 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return null;
   }
 
-  function sideBox(v, len) {
-    const imp = /!important/i.test(v) ? ' !important' : '';
-    const parts = String(v).replace(/!important/i, '').trim().split(/\s+/).filter(Boolean);
-    if (!parts.length || parts.length > 4 || parts.some((x) => px(x) == null && !/^(auto|\d+(\.\d+)?%)$/i.test(x))) return null;
-    if (parts.length === 1) {
-      const one = len(parts[0]);
-      return one == null || one === parts[0] ? null : parts[0] + ' ' + one + imp;
-    }
-    const out = parts.slice();
-    for (const i of parts.length === 4 ? [1, 3] : [1]) {
-      const x = len(out[i]);
-      if (x != null) out[i] = x;
-    }
-    return out.join(' ') + imp;
-  }
-
   const inRanges = (ranges, a, b) => ranges.some((r) => a >= r[0] && b <= r[1]);
 
   function frozenBlocks(src, blocks) {
@@ -4453,50 +4437,6 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return { l, r };
   }
 
-  function padEdits(src, td, l, r) {
-    const fmt = (v) => (v === 0 ? '0' : v + 'px');
-    const edits = [];
-    for (const d of styleDecls(src, attr(td, 'style'))) {
-      const imp = /!important/i.test(d.value) ? ' !important' : '';
-      if (d.prop === 'padding') {
-        const v = boxValues(d.value);
-        edits.push({ start: d.vStart, end: d.vEnd, text: (l === r ? [v[0], fmt(r), v[2]] : [v[0], fmt(r), v[2], fmt(l)]).join(' ') + imp });
-      } else if (d.prop === 'padding-left') edits.push({ start: d.vStart, end: d.vEnd, text: fmt(l) + imp });
-      else if (d.prop === 'padding-right') edits.push({ start: d.vStart, end: d.vEnd, text: fmt(r) + imp });
-    }
-    return edits;
-  }
-
-  function scaleEdits(src, nodes, sc) {
-    const len = (v) => (px(v) == null ? null : String(v).replace(/-?\d+(?:\.\d+)?/, (m) => String(sc(parseFloat(m)))));
-    const edits = [];
-    for (const n of nodes) {
-      if (n.type === 'comment') {
-        const t = src.slice(n.start, n.end);
-        const u = t.replace(/(\swidth\s*=\s*["']?)(\d+(?:\.\d+)?)/gi, (m, a, v) => a + sc(parseFloat(v)))
-          .replace(/((?:max-|min-)?width\s*:\s*)(\d+(?:\.\d+)?)(?=px)/gi, (m, a, v) => a + sc(parseFloat(v)));
-        if (u !== t) edits.push({ start: n.start, end: n.end, text: u });
-        continue;
-      }
-      const img = n.tag === 'img';
-      for (const a of n.attrs) {
-        if (a.raw || a.vStart == null) continue;
-        if (a.name === 'style') {
-          for (const d of styleDecls(src, a)) {
-            let v = null;
-            if (/^(min-|max-)?width$/.test(d.prop) || (img && /^(min-|max-)?height$/.test(d.prop)) || /^(padding|margin)-(left|right)$/.test(d.prop)) v = len(d.value);
-            else if (d.prop === 'padding' || d.prop === 'margin') v = sideBox(d.value, len);
-            if (v != null && v !== d.value) edits.push({ start: d.vStart, end: d.vEnd, text: v });
-          }
-        } else if (a.name === 'width' || a.name === 'cellpadding' || a.name === 'cellspacing' || (img && a.name === 'height')) {
-          const v = len(a.value);
-          if (v != null && v !== a.value) edits.push({ start: a.vStart, end: a.vEnd, text: v });
-        }
-      }
-    }
-    return edits;
-  }
-
   const widest = (src, n) => Math.max(0, ...pxWidths(src, n).map((w) => px(w.value)));
   const inlineBlock = (src, n) => styleDecls(src, attr(n, 'style')).some((d) => d.prop === 'display' && /^inline-block\b/i.test(d.value));
 
@@ -4506,65 +4446,27 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const ws = kids.map((k) => needWidth(src, k));
     const inRow = kids.map((k, i) => (n.tag === 'tr' || inlineBlock(src, k) ? ws[i] : 0));
     const pads = sidePads(src, n) || { l: 0, r: 0 };
-    return Math.max(widest(src, n), Math.max(0, ...ws, inRow.reduce((a, b) => a + b, 0)) + pads.l + pads.r);
+    const inner = Math.max(0, ...ws, inRow.reduce((a, b) => a + b, 0));
+    return Math.max(widest(src, n), inner && inner + pads.l + pads.r);
   }
 
   function outsideWidth(src, root) {
+    let pads = 0;
     for (let x = root.parent; x && x.type === 'el'; x = x.parent) {
       const w = widest(src, x);
-      if (w) return w;
+      if (w) return Math.max(0, w - pads);
+      const p = x.tag === 'td' || x.tag === 'th' ? sidePads(src, x) : null;
+      if (p) pads += p.l + p.r;
     }
     return 0;
   }
 
-  function fitBlock(src, root, target) {
-    const td = findFrame(src, root);
-    const pads = (td && sidePads(src, td)) || { l: 0, r: 0 };
-    const box = td && pads.l + pads.r > 0 ? td : root;
-    const nodes = [];
-    walk(box, (n) => {
-      if (n.type === 'el' && /^(head|style|script|title)$/.test(n.tag)) return false;
-      if (n !== root && n !== box && (n.type === 'el' || n.type === 'comment')) nodes.push(n);
-    });
-    const inner = Math.max(0, ...els(box).map((n) => needWidth(src, n)));
-    const own = widest(src, root);
-    const outer = own || outsideWidth(src, root) || inner + pads.l + pads.r;
-    if (!(outer > target) || outer > 1000) return null;
-    if (!own && inner + pads.l + pads.r <= target) return null;
-    const area = outer - pads.l - pads.r;
-    const edits = pxWidths(src, root).filter((w) => px(w.value) > target)
-      .map((w) => ({ start: w.start, end: w.end, text: String(w.value).replace(/-?\d+(?:\.\d+)?/, String(target)) }));
-    const cut = Math.min(outer - target, pads.l + pads.r);
-    if (cut > 0) {
-      const dl = Math.min(pads.l, Math.ceil(cut / 2));
-      const dr = Math.min(pads.r, cut - dl);
-      edits.push(...padEdits(src, td, pads.l - (cut - dr), pads.r - dr));
-    }
-    const room = target - (pads.l + pads.r - cut);
-    const content = !own || inner >= area / 2 ? Math.min(inner, area) : area;
-    const scaled = content > room;
-    const k = room / content;
-    const sc = scaled ? (v) => (v > 0 ? Math.max(1, Math.floor(v * k + 1e-9)) : v) : (v) => Math.min(v, target);
-    edits.push(...(scaled ? scaleEdits(src, nodes, sc) : scaleEdits(src, nodes.filter((n) => n.type === 'comment'), sc)));
-    return { edits, outer, scaled };
-  }
-
-  function fitWidth(src, target) {
-    const doc = parse(src);
-    fixEnds(doc);
-    const edits = [];
-    let from = 0;
-    let scaled = false;
-    for (const b of findBlocks(src, doc)) {
-      if (isTemplatedSrc(src.slice(b.node.start, b.node.end))) continue;
-      const f = fitBlock(src, b.node, target);
-      if (!f) continue;
-      edits.push(...f.edits);
-      from = Math.max(from, f.outer);
-      scaled = scaled || f.scaled;
-    }
-    if (!edits.length) return null;
-    return { src: spliceEdits(src, 0, src.length, edits), from, to: target, scaled };
+  function letterWidth(src, blocks) {
+    const ok = (w) => (w > 0 && w <= 1000 ? w : 0);
+    let w = 0;
+    for (const b of blocks) w = Math.max(w, ok(widest(src, b.node)), ok(outsideWidth(src, b.node)));
+    if (!w) for (const b of blocks) w = Math.max(w, ok(needWidth(src, b.node)));
+    return w ? Math.round(w) : null;
   }
 
   const INLINE_TAGS = /^(a|abbr|b|big|br|em|font|i|img|nobr|s|small|span|strike|strong|sub|sup|u|wbr)$/;
@@ -4620,8 +4522,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       splits.push({ reason: next.reason, title: next.title, parts: next.parts });
       src = next.src;
     }
-    const fit = opts && opts.width ? fitWidth(src, opts.width) : null;
-    const wrapped = wrapCondText(fit ? fit.src : src, frozenBlocks(fit ? fit.src : src, fit ? null : blocks));
+    const wrapped = wrapCondText(src, frozenBlocks(src, blocks));
     if (wrapped !== src) {
       src = wrapped;
       doc = parse(src);
@@ -4658,7 +4559,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const plan = x.templated || blocks[i].source === 'marker' ? null : splitPlan(src, blocks[i].node);
       x.parts = plan ? plan.cuts.length + 1 : 0;
     });
-    const letter = { src, original: input, fit: fit ? { from: fit.from, to: fit.to, scaled: fit.scaled } : null, doc, blocks, list, splits, styles: headStyles(src, doc), bodyStyle: bodyStyle(src, doc) };
+    const letter = { src, original: input, width: letterWidth(src, blocks), doc, blocks, list, splits, styles: headStyles(src, doc), bodyStyle: bodyStyle(src, doc) };
     list.forEach((x, i) => {
       x.mergeNext = canMerge(letter, i);
     });
@@ -4821,7 +4722,6 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     if (!plan) throw new Error('Блок ' + (index + 1) + ' нельзя разделить: изменится вид письма.');
     const next = loadLetter(rewriteSplit(letter.src, letter.blocks, index, plan), { auto: false });
     next.original = letter.original;
-    next.fit = letter.fit;
     next.splits = letter.splits;
     return next;
   }
@@ -5009,7 +4909,6 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     step: 1,
     letter: null,
     file: '',
-    width: MB_WIDTH,
     groups: [],
     opts: Object.assign({}, DEFAULTS, store.get('opts', {})),
     results: [],
@@ -5272,11 +5171,15 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       .replace(/url\(\s*(?:&quot;|["'])?[^)]*?[$@]\{[^)]*\)/gi, 'none');
   }
 
-  function pageDoc(html, styles, bodyStyle) {
+  const widthOf = (L) => (L && L.width) || MB_WIDTH;
+  const curWidth = () => widthOf(S.tab === 'grid' ? G.L : S.letter);
+  const viewWidth = (w) => Math.max(w, MB_WIDTH);
+
+  function pageDoc(html, styles, bodyStyle, width = curWidth()) {
     html = noDynamicUrls(html);
     return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
       (styles || '').replace(/(min|max)-device-width/gi, '$1-width') + '<style>html,body{margin:0;padding:0}</style></head><body style="' + esc(bodyStyle || '') +
-      '"><div style="max-width:' + S.width + 'px;margin:0 auto">' + html + '</div></body></html>';
+      '"><div style="max-width:' + width + 'px;margin:0 auto">' + html + '</div></body></html>';
   }
 
   function frame(doc, onSize) {
@@ -5338,7 +5241,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     io.observe(el);
   }
 
-  const deviceWidth = () => (S.device === 'phone' ? 375 : S.width + 60);
+  const deviceWidth = () => (S.device === 'phone' ? 375 : viewWidth(curWidth()) + 60);
 
   function fitFrame(box, doc) {
     const w = deviceWidth();
@@ -5388,6 +5291,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
 
   function miniFrame(box, getHtml, maxH, fixed) {
     const L = S.letter;
+    const w = viewWidth(widthOf(L)) + 40;
     lazy(box, () => {
       let html = '';
       try {
@@ -5395,15 +5299,15 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       } catch (e) {
         html = '';
       }
-      const f = frame(pageDoc(html, L && L.styles, L && L.bodyStyle), (H) => {
-        const sc = (box.clientWidth || 320) / (S.width + 40);
+      const f = frame(pageDoc(html, L && L.styles, L && L.bodyStyle, widthOf(L)), (H) => {
+        const sc = (box.clientWidth || 320) / w;
         f.style.transform = 'scale(' + sc + ')';
         f.style.height = H + 'px';
         if (!fixed) box.style.height = Math.ceil(Math.min(H * sc, maxH)) + 'px';
         box.classList.toggle('cut', H * sc > (fixed ? box.clientHeight || maxH : maxH));
       });
       f.style.transform = 'scale(.5)';
-      f.style.width = (S.width + 40) + 'px';
+      f.style.width = w + 'px';
       f.tabIndex = -1;
       box.append(f);
     });
@@ -5527,7 +5431,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const file = name || 'письмо';
     let L;
     try {
-      L = E.loadLetter(src, { width: S.width });
+      L = E.loadLetter(src);
     } catch (e) {
       return fail(file, 'Не удалось прочитать письмо. Проверьте, что это HTML письма целиком, от <html> до </html>. Подробности: ' + e.message);
     }
@@ -5562,15 +5466,17 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return 'Логотип, баннер и другие строки, которые в письме лежат вне блоков, вынесены в отдельные блоки (' + plural(x.parts, 'блок', 'блока', 'блоков') + ')';
   }
 
-  function fitNote(f) {
-    return 'Письмо шире мастер-шаблона: ' + f.from + ' px вместо ' + f.to + ' px. Инструмент сам сузит пустые поля слева и справа' +
-      (f.scaled ? ' и пропорционально уменьшит колонки и картинки' : '') + '. Не подходит — поменяйте ширину в исходном HTML-файле.';
+  const WIDTH_PATH = 'в мастер-шаблоне Mindbox: Настройки письма → Общие настройки → Ширина письма.';
+
+  function widthNote(w) {
+    return w ? 'Ширина письма — ' + w + ' px. Выставьте такую же ширину ' + WIDTH_PATH :
+      'Ширину письма определить не удалось. Посмотрите её в исходном HTML и выставьте такую же ' + WIDTH_PATH;
   }
 
   function renderNotes() {
     const L = S.letter;
     const notes = [];
-    if (L && L.fit && !S.notesHidden.has('fit')) notes.push(['fit', fitNote(L.fit)]);
+    if (L && !S.notesHidden.has('width')) notes.push(['width', widthNote(L.width)]);
     if (L && L.splits.length && !S.notesHidden.has('split')) notes.push(['split', L.splits.map(splitNote).join('. ') + '.']);
     put($('#letter-notes'), ...notes.map(([k, t]) => h('div', { class: 'alert info note ' + k + '-note' },
       h('span', null, t),
@@ -5938,7 +5844,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         return;
       }
       const f = h('iframe', { sandbox: 'allow-same-origin', 'aria-hidden': 'true', tabindex: '-1', title: 'Замер высоты' });
-      f.style.cssText = 'position:absolute;left:-10000px;top:0;width:' + (S.width + 60) + 'px;height:400px;border:0;visibility:hidden';
+      f.style.cssText = 'position:absolute;left:-10000px;top:0;width:' + (viewWidth(widthOf(letter)) + 60) + 'px;height:400px;border:0;visibility:hidden';
       let done = false;
       const finish = () => {
         if (done) return;
@@ -5973,7 +5879,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         setTimeout(finish, 3000);
       });
       setTimeout(finish, 8000);
-      f.srcdoc = pageDoc(html, letter.styles, letter.bodyStyle);
+      f.srcdoc = pageDoc(html, letter.styles, letter.bodyStyle, widthOf(letter));
       document.body.append(f);
     });
   }
@@ -7394,7 +7300,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       ul.append(li(c.level, [LEVEL[c.level] ? h('b', null, LEVEL[c.level]) : null, c.text, acts.length ? h('div', { class: 'acts' }, acts) : null]));
     }
     if (r.same && !r.failed) {
-      if (r.same.equal) ul.append(li('ok', [S.letter && S.letter.fit ? 'Блок выглядит так же, как в письме, с поправкой на ширину ' + S.letter.fit.to + ' px.' : 'Блок выглядит так же, как в письме.']));
+      if (r.same.equal) ul.append(li('ok', ['Блок выглядит так же, как в письме.']));
       else if (r.same.diff) ul.append(li('warn', [h('b', null, LEVEL.warn), r.same.diff]));
       else ul.append(li('warn', [h('b', null, LEVEL.warn), 'Блок с настройками по умолчанию выглядит не так, как в письме. Сравните превью с письмом. Отличие в коде — было: ', h('code', null, String(r.same.was)), ', стало: ', h('code', null, String(r.same.now))]));
     }
@@ -7458,7 +7364,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     let L = letter;
     if (!L) {
       try {
-        L = E.loadLetter(src, { width: S.width });
+        L = E.loadLetter(src);
       } catch (e) {
         return gridFail(file, 'Не удалось прочитать код. Проверьте, что это HTML письма или блока целиком. Подробности: ' + e.message);
       }
