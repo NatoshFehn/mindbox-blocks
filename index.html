@@ -1198,7 +1198,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         continue;
       }
       let j = i + 1;
-      while (j < n && src[j] !== '<' && !(src[j] === '@' && src[j + 1] === '{')) j++;
+      while (j < n && !(src[j] === '<' && /[A-Za-z/!]/.test(src[j + 1] || '')) && !(src[j] === '@' && src[j + 1] === '{')) j++;
       add({ type: 'text', start: i, end: j });
       i = j;
     }
