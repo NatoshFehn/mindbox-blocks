@@ -3112,6 +3112,11 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     };
   }
 
+  const editorAny = (b) => {
+    const m = /^if\s+(editor\.[A-Za-z0-9_]+(?:\s+or\s+editor\.[A-Za-z0-9_]+)*)$/i.exec(b);
+    return m ? [...m[1].matchAll(/editor\.([A-Za-z0-9_]+)/g)].map((x) => x[1]) : null;
+  };
+
   function renderTemplate(html, json, state, opts) {
     const P = new Map();
     for (const p of json) P.set(String(p.name).toLowerCase(), p);
@@ -3137,11 +3142,13 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const b = tk.body.replace(/\s+/g, ' ').trim();
       const top = stack[stack.length - 1];
       if (/^if /i.test(b)) {
-        const m = /^editor\.([A-Za-z0-9_]+)$/.exec(b.slice(3).trim());
-        if (m) {
-          const p = P.get(m[1].toLowerCase());
-          const v = p ? (st[p.name] !== undefined ? st[p.name] : p.defaultValue) : false;
-          stack.push({ on: String(v) === 'true', kind: 'if' });
+        const names = editorAny(b);
+        if (names) {
+          const v = (n) => {
+            const p = P.get(n.toLowerCase());
+            return String(p ? (st[p.name] !== undefined ? st[p.name] : p.defaultValue) : false) === 'true';
+          };
+          stack.push({ on: names.some(v), kind: 'if' });
         } else {
           if (on) out += tk.s;
           stack.push({ on: true, kind: 'if', pass: true });
@@ -3185,10 +3192,15 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const b = tk.body.replace(/\s+/g, ' ').trim();
       const top = stack[stack.length - 1];
       if (/^if /i.test(b)) {
-        const m = /^editor\.([A-Za-z0-9_]+)$/.exec(b.slice(3).trim());
-        if (m && pin.has(m[1].toLowerCase())) {
-          const p = P.get(m[1].toLowerCase());
-          stack.push({ on: String(p ? p.defaultValue : '') === 'true', pinned: true });
+        const names = editorAny(b) || [];
+        const fixed = names.filter((n) => pin.has(n.toLowerCase()));
+        const rest = names.filter((n) => !pin.has(n.toLowerCase()));
+        const val = (n) => String((P.get(n.toLowerCase()) || {}).defaultValue) === 'true';
+        if (fixed.some(val) || (fixed.length && !rest.length)) {
+          stack.push({ on: fixed.some(val), pinned: true });
+        } else if (fixed.length) {
+          if (on()) out += '@{if ' + rest.map((n) => 'editor.' + n).join(' or ') + '}';
+          stack.push({ on: true });
         } else {
           if (on()) out += tk.s;
           stack.push({ on: true });
@@ -3398,10 +3410,11 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return Object.assign({}, r, { html, json, checks: validate(html, json), same: r.original ? compareRendered(r.original, html, json) : r.same, spares: added });
   }
 
-  function tplTokens(html, from, to) {
+  function tplTokens(html, from, to, kind) {
     const out = [];
     const stack = [];
     const re = /@\{[^}]*\}|\x3C!--[\s\S]*?-->|<[^>]*>|[^<@]+|[<@]/g;
+    const own = kind ? new RegExp('^\\s*editor\\.' + kind + '_\\d+_([A-Za-z0-9_]+)\\s*$') : null;
     re.lastIndex = from;
     for (let m = re.exec(html); m && m.index < to; m = re.exec(html)) {
       const s = m[0];
@@ -3413,7 +3426,11 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         continue;
       }
       if (!s.trim() || s.startsWith('\x3C!--') || stack.includes(true)) continue;
-      out.push({ start: m.index, end: m.index + s.length, key: s.replace(/\s+/g, ' ').trim().replace(/\$\{[^}]*\}/g, '${}') });
+      const key = s.replace(/\s+/g, ' ').trim().replace(/\$\{([^}]*)\}/g, (x, b) => {
+        const o = own && own.exec(b);
+        return o ? '${' + o[1] + '}' : '${}';
+      });
+      out.push({ start: m.index, end: m.index + s.length, key });
     }
     return out;
   }
@@ -3445,7 +3462,7 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     if (!s.trim()) return true;
     if (!/^\s*</.test(s) || /@\{/.test(s) || /<img\b[^>]*\bsrc\s*=\s*["']?[^\s"'>]/i.test(s)) return false;
     if ([...s.matchAll(/\$\{([^}]*)\}/g)].some((m) => !/^\s*editor\.[A-Za-z0-9_]+\s*$/.test(m[1]) || own.test(m[1].trim().slice(7)))) return false;
-    if (decode(s.replace(/<[^>]*>/g, '')).replace(/[\s ]+/g, '')) return false;
+    if (decode(s.replace(/<[^>]*>/g, '')).replace(/[\s ]+/g, '')) return false;
     const stack = [];
     for (const m of s.matchAll(/<(\/?)([a-zA-Z][a-zA-Z0-9]*)[^>]*?(\/?)>/g)) {
       const tag = m[2].toLowerCase();
@@ -3469,6 +3486,17 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return st;
   }
 
+  function stmtBalanced(s) {
+    let d = 0;
+    for (const m of s.matchAll(/@\{([^}]*)\}/g)) {
+      const b = m[1].replace(/\s+/g, ' ').trim();
+      if (/^(if|for) /i.test(b)) d++;
+      else if (/^end (if|for)$/i.test(b) && --d < 0) return false;
+      else if (/^else$/i.test(b) && !d) return false;
+    }
+    return !d;
+  }
+
   function skeleton(t, from, to) {
     return t.slice(from, to + 1).map((x) => (x.key[0] === '<' ? x.key.replace(/^<(\/?[A-Za-z0-9]+)[\s\S]*$/, '<$1>') : '#')).join('');
   }
@@ -3485,10 +3513,39 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return -1;
   }
 
-  function sparePlans(html, skip) {
+  function closeOf(t) {
+    const close = new Array(t.length).fill(-1);
+    const stack = [];
+    for (let i = 0; i < t.length; i++) {
+      const m = /^<(\/?)([A-Za-z][A-Za-z0-9]*)/.exec(t[i].key);
+      if (!m || VOID.has(m[2].toLowerCase()) || /\/>$/.test(t[i].key)) continue;
+      const tag = m[2].toLowerCase();
+      if (!m[1]) stack.push([tag, i]);
+      else {
+        let k = stack.length - 1;
+        while (k >= 0 && stack[k][0] !== tag) k--;
+        if (k < 0) continue;
+        close[stack[k][1]] = i;
+        stack.length = k;
+      }
+    }
+    return close;
+  }
+
+  const tagOf = (x) => x.key[0] === '<' && x.key.replace(/^<(\/?[A-Za-z0-9]+)[\s\S]*$/, '<$1>');
+  const outerParts = (list) => list.filter(([, s]) => !list.some(([, o]) => o !== s && o.start <= s.start && o.end >= s.end));
+
+  function matchEdges(tD, tR, ma, mb) {
+    const lD = tD.length - 1;
+    const lR = tR.length - 1;
+    if (ma[0] < 0 && mb[0] < 0 && tagOf(tD[0]) && tagOf(tD[0]) === tagOf(tR[0])) { ma[0] = 0; mb[0] = 0; }
+    if (ma[lD] < 0 && mb[lR] < 0 && tagOf(tD[lD]) && tagOf(tD[lD]) === tagOf(tR[lR])) { ma[lD] = lR; mb[lR] = lD; }
+  }
+
+  function spareItems(html) {
     const { spans } = toggleSpans(html);
-    const plans = [];
     const named = spans.filter((s) => ITEM_RE.test(s.name));
+    const out = [];
     for (const kind of new Set(named.map((s) => ITEM_RE.exec(s.name)[1]))) {
       const items = named.filter((s) => ITEM_RE.exec(s.name)[1] === kind && !named.some((o) => o !== s && o.start <= s.start && o.end >= s.end))
         .map((s) => Object.assign({}, s, { n: Number(ITEM_RE.exec(s.name)[2]) }));
@@ -3496,9 +3553,41 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       const partsOf = new Map();
       for (const it of items) {
         const re = new RegExp('^show_' + kind + '_' + it.n + '_([a-z0-9_]+)$');
-        const own = spans.filter((s) => s.start > it.start && s.end < it.end && re.test(s.name) && !NESTED_ITEM_RE.test(re.exec(s.name)[1]));
+        const own = spans.filter((s) => s.start > it.start && s.end < it.end && re.test(s.name) && !NESTED_ITEM_RE.test(re.exec(s.name)[1]) && !stmtStack(html, it.start, s.start).includes(true));
         partsOf.set(it, new Map(own.map((s) => [re.exec(s.name)[1], s])));
       }
+      out.push({ kind, items, partsOf });
+    }
+    return out;
+  }
+
+  function pairParts(dParts, rParts, tD, tR, ma) {
+    const inside = (t, s) => t.map((x, i) => (x.start >= s.start && x.end <= s.end ? i : -1)).filter((i) => i >= 0);
+    const pd = [...dParts];
+    const pr = [...rParts];
+    const id = pd.map(([, s]) => inside(tD, s));
+    const ir = pr.map(([, s]) => inside(tR, s));
+    const score = id.map((xs) => ir.map((ys) => xs.filter((i) => ma[i] >= 0 && ys.includes(ma[i])).length));
+    const pick = (n, at, size) => {
+      let best = -1;
+      for (let k = 0; k < n; k++) {
+        const v = at(k);
+        if (v > 0 && (best < 0 || v > at(best) || (v === at(best) && size(k) < size(best)))) best = k;
+      }
+      return best;
+    };
+    const toR = id.map((xs, x) => pick(ir.length, (y) => score[x][y], (y) => Math.abs(xs.length - ir[y].length)));
+    const toD = ir.map((ys, y) => pick(id.length, (x) => score[x][y], (x) => Math.abs(ys.length - id[x].length)));
+    return {
+      dMiss: pd.filter((_, x) => toR[x] < 0 || toD[toR[x]] !== x),
+      rMiss: pr.filter((_, y) => toD[y] < 0 || toR[toD[y]] !== y),
+      pairs: pd.map((d, x) => (toR[x] >= 0 && toD[toR[x]] === x ? [d, pr[toR[x]]] : null)).filter(Boolean),
+    };
+  }
+
+  function sparePlans(html, skip) {
+    const plans = [];
+    for (const { kind, items, partsOf } of spareItems(html)) {
       const toks = new Map(items.map((it) => [it, tplTokens(html, it.start, it.end)]));
       const reach = (t, m, s) => {
         let a = t.findIndex((x) => x.start >= s.start && x.end <= s.end);
@@ -3510,44 +3599,17 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
         return a > 0 && b + 1 < t.length ? [a, b] : null;
       };
       const within = (i, list) => list.some(([a, b]) => i >= a && i <= b);
-      const outer = (list) => list.map(([, s]) => s).filter((s, _, all) => !all.some((o) => o !== s && o.start <= s.start && o.end >= s.end));
-      const tag = (x) => x.key[0] === '<' && x.key.replace(/^<(\/?[A-Za-z0-9]+)[\s\S]*$/, '<$1>');
-      const inside = (t, s) => t.map((x, i) => (x.start >= s.start && x.end <= s.end ? i : -1)).filter((i) => i >= 0);
-      const unpaired = (D, R, ma) => {
-        const pd = [...partsOf.get(D)];
-        const pr = [...partsOf.get(R)];
-        const id = pd.map(([, s]) => inside(toks.get(D), s));
-        const ir = pr.map(([, s]) => inside(toks.get(R), s));
-        const score = id.map((xs) => ir.map((ys) => xs.filter((i) => ma[i] >= 0 && ys.includes(ma[i])).length));
-        const pick = (n, at, size) => {
-          let best = -1;
-          for (let k = 0; k < n; k++) {
-            const v = at(k);
-            if (v > 0 && (best < 0 || v > at(best) || (v === at(best) && size(k) < size(best)))) best = k;
-          }
-          return best;
-        };
-        const toR = id.map((xs, x) => pick(ir.length, (y) => score[x][y], (y) => Math.abs(xs.length - ir[y].length)));
-        const toD = ir.map((ys, y) => pick(id.length, (x) => score[x][y], (x) => Math.abs(ys.length - id[x].length)));
-        return {
-          dMiss: pd.filter((_, x) => toR[x] < 0 || toD[toR[x]] !== x),
-          rMiss: pr.filter((_, y) => toD[y] < 0 || toR[toD[y]] !== y),
-        };
-      };
       for (const R of items) {
         for (const D of items) {
           if (D === R) continue;
           const tD = toks.get(D);
           const tR = toks.get(R);
           const { ma, mb } = lcsMatch(tD, tR);
-          const lD = tD.length - 1;
-          const lR = tR.length - 1;
-          if (ma[0] < 0 && mb[0] < 0 && tag(tD[0]) && tag(tD[0]) === tag(tR[0])) { ma[0] = 0; mb[0] = 0; }
-          if (ma[lD] < 0 && mb[lR] < 0 && tag(tD[lD]) && tag(tD[lD]) === tag(tR[lR])) { ma[lD] = lR; mb[lR] = lD; }
-          const { dMiss, rMiss } = unpaired(D, R, ma);
+          matchEdges(tD, tR, ma, mb);
+          const { dMiss, rMiss } = pairParts(partsOf.get(D), partsOf.get(R), tD, tR, ma);
           if (!dMiss.length) continue;
-          const dExtra = outer(dMiss).map((s) => reach(tD, ma, s));
-          const rExtra = outer(rMiss).map((s) => reach(tR, mb, s));
+          const dExtra = outerParts(dMiss).map(([, s]) => reach(tD, ma, s));
+          const rExtra = outerParts(rMiss).map(([, s]) => reach(tR, mb, s));
           if (dExtra.includes(null) || rExtra.includes(null)) continue;
           const holes = dExtra.map(([a, b]) => [ma[a - 1] + 1, ma[b + 1] - 1]);
           if (ma.some((j, i) => j < 0 && !within(i, dExtra))) continue;
@@ -3587,8 +3649,115 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     return plans;
   }
 
+  function swapPlans(html, skip) {
+    const plans = [];
+    for (const { kind, items, partsOf } of spareItems(html)) {
+      const toks = new Map(items.map((it) => [it, tplTokens(html, it.start, it.end, kind)]));
+      for (const R of items) {
+        for (const D of items) {
+          if (D === R) continue;
+          const tD = toks.get(D);
+          const tR = toks.get(R);
+          const { ma, mb } = lcsMatch(tD, tR);
+          matchEdges(tD, tR, ma, mb);
+          const { dMiss, rMiss, pairs } = pairParts(partsOf.get(D), partsOf.get(R), tD, tR, ma);
+          if (!dMiss.length) continue;
+          const closeD = closeOf(tD);
+          const closeR = closeOf(tR);
+          const shift = tR.length - tD.length;
+          for (const [role, span] of outerParts(dMiss)) {
+            if (skip.has(kind + '_' + R.n + '_' + role) || skip.has(kind + '_' + D.n + '_' + role)) continue;
+            const pa = tD.findIndex((x) => x.start >= span.start);
+            if (pa < 0 || tD[pa].end > span.end) continue;
+            let found = null;
+            for (let o = pa - 1; o > 0 && !found; o--) {
+              const c = closeD[o];
+              const rc = c + shift;
+              if (c < 0 || tD[c].end < span.end || c >= tD.length - 1 || o >= tR.length || rc <= o || rc >= tR.length - 1 || closeR[o] !== rc) continue;
+              if (tagOf(tD[o]) !== tagOf(tR[o]) || (rc - o + 1) * 2 > tR.length) continue;
+              if (skeleton(tD, 0, o - 1) !== skeleton(tR, 0, o - 1) || skeleton(tD, c + 1, tD.length - 1) !== skeleton(tR, rc + 1, tR.length - 1)) continue;
+              const ds = tD[o].start;
+              const de = tD[c].end;
+              const rs = tR[o].start;
+              const re = tR[rc].end;
+              if (!stmtBalanced(html.slice(ds, de)) || !stmtBalanced(html.slice(rs, re)) || /@\{[^}]*\}\s*$/.test(html.slice(R.start, rs))) continue;
+              const dIn = (s) => s.start >= ds && s.end <= de;
+              const rIn = (s) => s.start >= rs && s.end <= re;
+              if (rMiss.some(([, s]) => rIn(s)) || pairs.some(([[dr, dsp], [rr, rsp]]) => dIn(dsp) !== rIn(rsp) || (dIn(dsp) && dr !== rr))) continue;
+              const all = dMiss.filter(([, s]) => dIn(s));
+              if (all.some(([r]) => skip.has(kind + '_' + D.n + '_' + r))) continue;
+              found = { swap: true, kind, D, R, role, miss: outerParts(all), all, ds, de, rs, re };
+            }
+            if (found) plans.push(found);
+          }
+        }
+      }
+    }
+    return plans;
+  }
+
+  function donorNames(html, json, p, parts, list, strict) {
+    const ru = RULES.kinds[p.kind].ru;
+    const own = new RegExp('^(show_)?' + p.kind + '_' + p.D.n + '_([A-Za-z0-9_]+)$');
+    const inPart = (i) => parts.some((s) => i >= s.start && i < s.end);
+    const used = new Set();
+    for (const m of html.slice(p.D.start, p.D.end).matchAll(/editor\.([A-Za-z0-9_]+)/g)) if (!inPart(p.D.start + m.index)) used.add(m[1]);
+    const taken = (n) => json.some((q) => q.name === n) || new RegExp('editor\\.' + n + '(?![A-Za-z0-9_])').test(html);
+    const map = new Map();
+    const fresh = [];
+    const made = [];
+    const toR = (m, k) => (m[1] || '') + p.kind + '_' + p.R.n + '_' + m[2] + (k ? '_' + k : '');
+    for (const n of new Set(list)) {
+      const m = own.exec(n);
+      if (!m) continue;
+      const r = toR(m);
+      if (used.has(n) && json.some((q) => q.name === r)) map.set(n, r);
+      else if (used.has(n) && strict) return null;
+      else if (!used.has(n) && taken(r)) fresh.push(m);
+      else made.push([n, r]);
+    }
+    let k = 0;
+    if (fresh.length) {
+      for (k = 2; k < 50; k++) {
+        if ([...fresh, ...made.map(([n]) => own.exec(n))].every((m) => !taken(toR(m, k)))) break;
+      }
+      if (k >= 50) return null;
+      for (let i = 0; i < made.length; i++) made[i][1] = toR(own.exec(made[i][0]), k);
+      for (const m of fresh) made.push([m[0], toR(m, k)]);
+    }
+    const groups = new Set(json.map((q) => groupText(q.group)));
+    const added = [];
+    for (const [n, r] of made) {
+      const q = json.find((x) => x.name === n);
+      if (!q) return null;
+      const c = Object.assign({}, q, { name: r });
+      if (q.group) {
+        c.group = q.group.replace(new RegExp('^(#\\d+ )' + ru + ' ' + p.D.n + '(?=$| )'), '$1' + ru + ' ' + p.R.n);
+        if (k && groups.has(groupText(c.group))) c.group += ' ' + k;
+      }
+      map.set(n, r);
+      added.push(c);
+    }
+    return { map, added, suffix: k ? '_' + k : '' };
+  }
+
+  function placeParams(json, added, out, kind, R, at0) {
+    const mine = new RegExp('^(show_)?' + kind + '_' + R.n + '(_|$)');
+    const fresh = new Set(added.map((q) => q.name));
+    const prev = toggleSpans(out).spans.filter((s) => mine.test(s.name) && !fresh.has(s.name) && s.end <= at0 && s.start > R.start).sort((x, y) => y.end - x.end)[0];
+    const anchorGroup = (json.find((q) => q.name === (prev ? prev.name : 'show_' + kind + '_' + R.n)) || {}).group;
+    let at = -1;
+    json.forEach((q, i) => {
+      if (anchorGroup && q.group && (q.group === anchorGroup || groupText(q.group).startsWith(groupText(anchorGroup) + ' — '))) at = i;
+    });
+    if (at < 0) json.forEach((q, i) => { if (mine.test(q.name)) at = i; });
+    return renumberGroups(json.slice(0, at + 1).concat(added, json.slice(at + 1)));
+  }
+
+  const editorNames = (s) => [...s.matchAll(/editor\.([A-Za-z0-9_]+)/g)].map((m) => m[1]);
+  const renameEditor = (s, map) => s.replace(/editor\.([A-Za-z0-9_]+)/g, (m, n) => 'editor.' + (map.get(n) || n));
+
   function applySpare(html, json, p) {
-    const rename = (s) => s.replace(new RegExp('(editor\\.(?:show_)?' + p.kind + '_)' + p.D.n + '(?=[_}.\\s])', 'g'), '$1' + p.R.n);
     const spanText = html.slice(p.span.start, p.span.end);
     let depth = 0;
     let ifEnd = -1;
@@ -3603,40 +3772,37 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
       else if (/^end (if|for)$/i.test(b) && --depth === 0) endAt = tk.pos;
     }
     if (ifEnd < 0 || endAt < 0) return null;
-    const core = rename(html.slice(p.ds, p.span.start) + spanText.slice(ifEnd, elseAt >= 0 ? elseAt : endAt) + html.slice(p.span.end, p.de)).trim();
+    const raw = html.slice(p.ds, p.span.start) + spanText.slice(ifEnd, elseAt >= 0 ? elseAt : endAt) + html.slice(p.span.end, p.de);
+    const toggleD = 'show_' + p.kind + '_' + p.D.n + '_' + p.role;
+    const names = donorNames(html, json, p, [{ start: p.ds, end: p.de }], [toggleD].concat(editorNames(raw)));
+    if (!names || !names.map.has(toggleD)) return null;
+    const core = renameEditor(raw, names.map).trim();
     if (!/^</.test(core)) return null;
-    const toggle = 'show_' + p.kind + '_' + p.R.n + '_' + p.role;
+    const toggle = names.map.get(toggleD);
     const slot = p.hunk.trim();
     const region = '@{if editor.' + toggle + '}' + core + (slot ? '@{else}' + slot : '') + '@{end if}';
     const lead = /^\s*/.exec(p.hunk)[0];
     const trail = slot ? /\s*$/.exec(p.hunk)[0] : '';
     const out = html.slice(0, p.rs) + lead + region + trail + html.slice(p.re);
-    const ru = RULES.kinds[p.kind].ru;
-    const own = new RegExp('^(show_)?' + p.kind + '_' + p.R.n + '_');
-    const toD = (n) => n.replace(new RegExp('^(show_)?(' + p.kind + '_)' + p.R.n + '(?=_)'), '$1$2' + p.D.n);
-    const outside = html.slice(p.D.start, p.ds) + html.slice(p.de, p.D.end);
-    const all = [...new Set([...region.matchAll(/editor\.([A-Za-z0-9_]+)/g)].map((m) => m[1]))].filter((n) => own.test(n));
-    if (all.some((n) => json.some((q) => q.name === n) && !new RegExp('editor\\.' + toD(n) + '(?![A-Za-z0-9_])').test(outside))) return null;
-    const names = all.filter((n) => !json.some((q) => q.name === n));
-    const added = [];
-    for (const n of names) {
-      const from = toD(n);
-      const q = json.find((x) => x.name === from);
-      if (!q) return null;
-      const c = Object.assign({}, q, { name: n });
-      if (q.group) c.group = q.group.replace(new RegExp('^(#\\d+ )' + ru + ' ' + p.D.n + '(?=$| )'), '$1' + ru + ' ' + p.R.n);
-      if (n === toggle) c.defaultValue = 'false';
-      added.push(c);
-    }
+    const added = names.added.map((q) => (q.name === toggle ? Object.assign({}, q, { defaultValue: 'false' }) : q));
+    return { html: out, json: placeParams(json, added, out, p.kind, p.R, p.rs + lead.length), roles: [p.role + names.suffix] };
+  }
+
+  function applySwap(html, json, p) {
+    const text = html.slice(p.ds, p.de);
+    const names = donorNames(html, json, p, p.all.map(([, s]) => s), editorNames(text), true);
+    if (!names) return null;
+    const toggles = p.miss.map(([r]) => names.map.get('show_' + p.kind + '_' + p.D.n + '_' + r));
+    if (toggles.includes(undefined)) return null;
+    const core = renameEditor(text, names.map);
     const mine = new RegExp('^(show_)?' + p.kind + '_' + p.R.n + '(_|$)');
-    const prev = toggleSpans(out).spans.filter((s) => mine.test(s.name) && s.name !== toggle && s.end <= p.rs + lead.length && s.start > p.R.start).sort((x, y) => y.end - x.end)[0];
-    const anchorGroup = (json.find((q) => q.name === (prev ? prev.name : 'show_' + p.kind + '_' + p.R.n)) || {}).group;
-    let at = -1;
-    json.forEach((q, i) => {
-      if (anchorGroup && q.group && (q.group === anchorGroup || groupText(q.group).startsWith(groupText(anchorGroup) + ' — '))) at = i;
-    });
-    if (at < 0) json.forEach((q, i) => { if (mine.test(q.name)) at = i; });
-    return { html: out, json: renumberGroups(json.slice(0, at + 1).concat(added, json.slice(at + 1))) };
+    const kept = new Set(editorNames(core));
+    if (editorNames(html.slice(p.rs, p.re)).some((n) => mine.test(n) && !kept.has(n))) return null;
+    const region = '@{if ' + toggles.map((t) => 'editor.' + t).join(' or ') + '}' + core + '@{else}' + html.slice(p.rs, p.re) + '@{end if}';
+    const out = html.slice(0, p.rs) + region + html.slice(p.re);
+    const added = names.added.map((q) => (toggles.includes(q.name) ? Object.assign({}, q, { defaultValue: 'false' }) : q));
+    const at = toggles.map((t) => out.indexOf('@{if editor.' + t + '}', p.rs + 1)).filter((i) => i >= 0);
+    return { html: out, json: placeParams(json, added, out, p.kind, p.R, at.length ? Math.min(...at) : p.rs), roles: p.all.map(([r]) => r + names.suffix) };
   }
 
   function spareParts(r) {
@@ -3648,16 +3814,18 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     const skip = new Set();
     const added = [];
     for (let guard = 0; guard < 200; guard++) {
-      const p = sparePlans(html, skip)[0];
+      const p = sparePlans(html, skip)[0] || swapPlans(html, skip)[0];
       if (!p) break;
-      const key = p.kind + '_' + p.R.n + '_' + p.role;
-      skip.add(key);
-      const next = applySpare(html, json, p);
+      for (const [role] of p.swap ? p.all : [[p.role]]) skip.add(p.kind + '_' + p.R.n + '_' + role);
+      const next = p.swap ? applySwap(html, json, p) : applySpare(html, json, p);
       if (!next || errors(next.html, next.json) > base) continue;
       if (r.original && r.same && r.same.equal && !compareRendered(r.original, next.html, next.json).equal) continue;
       html = next.html;
       json = next.json;
-      added.push({ kind: p.kind, n: p.R.n, from: p.D.n, role: p.role });
+      for (const role of next.roles) {
+        skip.add(p.kind + '_' + p.R.n + '_' + role);
+        added.push({ kind: p.kind, n: p.R.n, from: p.D.n, role });
+      }
     }
     if (!added.length) return r;
     const where = { card: 'карточке', item: 'пункте', phone: 'телефоне', social: 'соцсети', icon: 'иконке', step: 'шаге' };
@@ -6704,12 +6872,14 @@ window.MBDocsRules = {"changedAt":"2026-10-18","pages":[{"url":"https://help.min
     };
     const expr = /\$\{[^}]*?\beditor\.(\w+)/g;
     while ((m = expr.exec(html))) add(owner(m.index), 'mb', m[1]);
-    const cond = /@\{\s*if\s+editor\.(\w+)[^}]*\}/g;
+    const cond = /@\{\s*if\s+(editor\.\w+(?:\s+or\s+editor\.\w+)*)[^}]*\}/gi;
     while ((m = cond.exec(html))) {
       const end = m.index + m[0].length;
       const t = tags.find((x) => x.at >= end && !x.close);
-      add(t, 'mb', m[1]);
-      add(t, 'mbt', m[1]);
+      for (const [, n] of m[1].matchAll(/editor\.(\w+)/g)) {
+        add(t, 'mb', n);
+        add(t, 'mbt', n);
+      }
     }
     let out = html;
     for (const [t, x] of [...marks].sort((a, b) => b[0].at - a[0].at)) {
